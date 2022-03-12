@@ -9,14 +9,21 @@ def crear_diente(indice, pediatrico):
     if cuadrante == 3:
         cuadrante = 4
     elif cuadrante == 4:
-        cuadrante= 3
+        cuadrante = 3
 
     #En los cuadrantes 1 y 4 el conteo se enumera de 8 a 1
     if cuadrante == 1 or cuadrante == 4:
         diente = 9 - diente
-    numero_diente = int('{}{}'.format(cuadrante, diente))
+
+    #Obtiene el número del diente según el cuadrante
+    numero_diente = cuadrante * 10 + diente
+
     if pediatrico:
         numero_diente += 40
+        #La dentición decidua solo tiene hasta 5 dientes
+        if diente > 5:
+            return
+
     return Diente(numero_diente)
 
 def nuevo_perio(pediatrico = False):
@@ -24,7 +31,8 @@ def nuevo_perio(pediatrico = False):
     perio = {}
     for i in range(32):
         nuevo_diente = crear_diente(i, pediatrico)
-        perio[nuevo_diente.diente] = nuevo_diente
+        if nuevo_diente is not None:
+            perio[nuevo_diente.diente] = nuevo_diente
     return perio
 
 def __main__():
