@@ -1,0 +1,35 @@
+from diente import Diente
+
+def crear_diente(indice, pediatrico):
+    '''Crea un nuevo Diente, el número del diente lo toma según el índice'''
+    cuadrante = indice // 8 + 1
+    diente = indice % 8 + 1
+
+    #Invierte los cuadrantes 3 y 4 para que primero sea 4 y luego 3
+    if cuadrante == 3:
+        cuadrante = 4
+    elif cuadrante == 4:
+        cuadrante= 3
+
+    #En los cuadrantes 1 y 4 el conteo se enumera de 8 a 1
+    if cuadrante == 1 or cuadrante == 4:
+        diente = 9 - diente
+    numero_diente = int('{}{}'.format(cuadrante, diente))
+    if pediatrico:
+        numero_diente += 40
+    return Diente(numero_diente)
+
+def nuevo_perio(pediatrico = False):
+    '''Inicializa un nuevo periodontograma'''
+    perio = {}
+    for i in range(32):
+        nuevo_diente = crear_diente(i, pediatrico)
+        perio[nuevo_diente.diente] = nuevo_diente
+    return perio
+
+def __main__():
+    '''Clase principal desde la cual se genera el periodontograma'''
+    perio = nuevo_perio()
+    print(perio.keys())
+
+__main__()
