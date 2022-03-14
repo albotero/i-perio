@@ -27,7 +27,7 @@ def crear_diente(indice, pediatrico):
         if diente > 5:
             return
 
-    return Diente(numero_diente)
+    return Diente(diente = numero_diente)
 
 def nuevo_perio(pediatrico = False):
     '''Inicializa un nuevo periodontograma'''

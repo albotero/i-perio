@@ -1,4 +1,5 @@
 from diente import Diente
+from log import Log
 import json
 import os
 import time
@@ -11,9 +12,20 @@ def file_path(archivo):
 
 class Guardar():
 
-    def file_to_perio(archivo):
+    def file_to_perio(archivo, silent = False):
         '''Carga un archivo .perio a un perio (diccionario de Dientes)'''
-        pass
+        ruta = file_path(archivo)
+        if not silent:
+            print('Cargando archivo: {}'.format(ruta))
+        try:
+            with open(ruta, 'r') as file:
+                perio = json.load(file)
+            for diente in perio.keys():
+                perio[diente] = Diente(cargar = perio[diente])
+            Log.out('Se cargó el archivo', 'success', silent)
+            return perio
+        except Exception as ex:
+            Log.out(repr(ex), 'error', silent)
 
     def perio_to_file(perio, archivo = None, silent = False):
         '''Guarda el perio (diccionario de Dientes) a un archivo .perio'''
@@ -26,5 +38,7 @@ class Guardar():
             os.makedirs(os.path.dirname(ruta), exist_ok = True)
             with open(ruta, 'w') as file:
                 file.write(json.dumps(perio, indent=3))
-        except ex:
+            Log.out('Se guardó el archivo', 'success', silent)
+        except Exception as ex:
+            Log.out(repr(ex), 'error', silent)
             return ex

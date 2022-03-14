@@ -37,8 +37,13 @@ class Diente(dict):
                 res.append(self['valores'][opt+'MARGEN'][i] - self['valores'][opt+'SONDAJE'][i])
             self['valores'][opt+'N.I.'] = tuple(res)
 
-    def __init__(self, diente):
-        '''Inicializa el diente'''
-        self['diente'] = diente
-        self['atributos'] = Diente._atributos[0]
-        self['valores'] = init_valores(diente, get_titulos(diente))
+    def __init__(self, diente = None, cargar = None):
+        '''Inicializa o carga el diente'''
+        if diente:
+            self['diente'] = diente
+            self['atributos'] = Diente._atributos[0]
+            self['valores'] = init_valores(diente, get_titulos(diente))
+        if cargar:
+            self['diente'] = cargar['diente']
+            self['atributos'] = cargar['atributos']
+            self['valores'] = cargar['valores']
