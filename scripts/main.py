@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 from diente import Diente
+from guardar_perio import Guardar
 
 def crear_diente(indice, pediatrico):
     '''Crea un nuevo Diente, el número del diente lo toma según el índice'''
@@ -32,12 +35,15 @@ def nuevo_perio(pediatrico = False):
     for i in range(32):
         nuevo_diente = crear_diente(i, pediatrico)
         if nuevo_diente is not None:
-            perio[nuevo_diente.diente] = nuevo_diente
+            #perio['paciente'] = {datos del paciente}
+            #perio['usuario'] = {datos del usuario que lo creo}
+            perio[nuevo_diente['diente']] = nuevo_diente
     return perio
 
 def __main__():
     '''Clase principal desde la cual se genera el periodontograma'''
     perio = nuevo_perio()
-    print(perio.keys())
+    #perio[16]['valores']['VITALIDAD'] = '+'
+    #Guardar.perio_to_file(perio)
 
 __main__()
