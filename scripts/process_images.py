@@ -14,16 +14,11 @@ def contornos(img):
 	'''Obtiene los contornos del diente'''
 	# converting image into grayscale image
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
 	# setting threshold of gray image
-	_, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-
+	_, threshold = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY)
 	# using a findContours() function
-	contours, _ = cv2.findContours(
-		threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-	# contours[0] es la imagen completa y contours[1:] son los bordes del diente
-	return contours[1:]
+	contours, _ = cv2.findContours(threshold, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+	return contours
 
 
 def process_fill(src, img, relleno = 'negro'):
