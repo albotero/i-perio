@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 color = {
+	'blanco': (255,255,255,255),
 	'negro': (0,0,0),
 	'rojo': (0,0,255),
 	'verde': (35,150,25)
@@ -25,10 +26,31 @@ def contornos(img):
 	return contours[1:]
 
 
-def process_fill(img, relleno = 'negro'):
+def process_fill(src, img, relleno = 'negro'):
 	'''Pinta todo el diente del color relleno'''
-	cv2.fillPoly(img, pts = contornos(img), color = color[relleno])
+	# Usa src (imagen transparente) y escribe sobre img (fondo blanco)
+	img_transparente = cv2.imread(src)
+	cv2.fillPoly(img, pts = contornos(img_transparente), color = color[relleno])
 	return img
+
+def read_transparent(src):
+	# https://stackoverflow.com/a/41896175
+	image_4channel = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+	alpha_channel = image_4channel[:,:,3]
+	rgb_channels = image_4channel[:,:,:3]
+
+	# White Background Image
+	white_background_image = np.ones_like(rgb_channels, dtype=np.uint8) * 255
+
+	# Alpha factor
+	alpha_factor = alpha_channel[:,:,np.newaxis].astype(np.float32) / 255.0
+	alpha_factor = np.concatenate((alpha_factor, alpha_factor, alpha_factor), axis=2)
+
+	# Transparent image rendered on white background
+	base = rgb_channels.astype(np.float32) * alpha_factor
+	white = white_background_image.astype(np.float32) * (1 - alpha_factor)
+	final_image = base + white
+	return final_image.astype(np.uint8)
 
 '''
 i = 0

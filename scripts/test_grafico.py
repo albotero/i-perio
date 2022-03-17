@@ -1,5 +1,6 @@
 from grafico import nuevo_canvas
 from main import nuevo_perio
+import cv2
 import unittest
 
 class TestGrafico(unittest.TestCase):
@@ -12,6 +13,11 @@ class TestGrafico(unittest.TestCase):
         perio[41]['atributos'] = 'Ausente'
 
         canvas = nuevo_canvas(perio)
+
+        for area, imagen in canvas.items():
+            cv2.imshow(area, imagen)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
         self.assertTrue(canvas, 'Dict canvas vacío')
 
