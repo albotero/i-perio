@@ -25,27 +25,21 @@ def contornos(img):
 	return contours[1:]
 
 
-def process_fill(src, relleno = 'negro'):
+def process_fill(img, relleno = 'negro'):
 	'''Pinta todo el diente del color relleno'''
-	# reading image
-	img = cv2.imread(src)
-
 	cv2.fillPoly(img, pts = contornos(img), color = color[relleno])
-
 	return img
 
 '''
-i = -1
+i = 0
 # list for storing names of shapes
 for contour in contours:
     continue
     # here we are ignoring first counter because
     # findcontour function detects whole image as shape
-    i += 1
     if i == 0:
+    	i += 1
         continue
-    if i == 1:
-        print(contour)
 
     # cv2.approxPloyDP() function to approximate the shape
     approx = cv2.approxPolyDP(
