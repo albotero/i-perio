@@ -46,7 +46,6 @@ def nuevo_perio(pediatrico = False):
 def __main__():
     '''Clase principal desde la cual se genera el periodontograma'''
     perio = nuevo_perio()
-    nuevo_canvas(perio)
 
     #perio[16]['valores']['VITALIDAD'] = '+'
     #Guardar.perio_to_file(perio)
