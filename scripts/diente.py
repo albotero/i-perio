@@ -1,8 +1,7 @@
 import re
 
-def get_titulos(diente):
+def get_titulos(diente, superior):
     '''Devuelve el tuple correspondiente si es Superior o Inferior'''
-    superior = diente <= 28 or (diente >= 51 and diente <= 68)
     if superior:
         return ('IMPLANTE', 'VITALIDAD', 'FURCA', 'MOVILIDAD', 'PLACA', 'SUPURACIÓN',
             'SANGRADO', 'L.M.G', 'N.I.', 'SONDAJE', 'MARGEN', 'VESTIBULAR', '_PALATINO', '_MARGEN',
@@ -41,9 +40,12 @@ class Diente(dict):
         '''Inicializa o carga el diente'''
         if diente:
             self['diente'] = diente
+            self['superior'] = diente <= 28 or \
+                (diente >= 51 and diente <= 68)
             self['atributos'] = Diente._atributos[0]
-            self['valores'] = init_valores(diente, get_titulos(diente))
+            self['valores'] = init_valores(diente, get_titulos(diente, self['superior']))
         if cargar:
             self['diente'] = cargar['diente']
+            self['superior'] = cargar['superior']
             self['atributos'] = cargar['atributos']
             self['valores'] = cargar['valores']
