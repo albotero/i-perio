@@ -42,9 +42,15 @@ class NuevoDiente(object):
          3: borde derecho del diente
          4: borde derecho de la imagen'''
 
+        # Define la línea 0 donde empieza la cuadrícula
+        linea_0 = 98 if self.diente['superior'] else 49
+
         puntos = []
         for i in range(3):
-            y = int(valores_y[i]) * self.espacio
+            if self.diente['superior']:
+                y = linea_0 - int(valores_y[i]) * self.espacio
+            else:
+                y = linea_0 + int(valores_y[i]) * self.espacio
             puntos.append(
                 [self.diente['coordenadas'][y][indices_x[i]], y])
 
@@ -56,13 +62,50 @@ class NuevoDiente(object):
             # No dibuja nada en la corona
             if self.diente['superior'] and y > 98:
                 continue
-            if not self.diente['superior'] and y < 48:
+            if not self.diente['superior'] and y < 49:
                 continue
             # Dibuja la línea
             self.img_procesada = cv2.line(
                 self.img_procesada,
                 (x[0], y), (x[-1], y),
                 color['gris'], 1)
+
+    def recta_to_curva(self, puntos):
+        '''Suaviza las líneas para que los ángulos sean curvos'''
+        tension = 0.5
+        n = 32
+        # Duplicate first point
+        np.insert(puntos, 0, puntos[0])
+        # Duplicate last point
+        np.append(puntos, puntos[-1])
+        # Create new list and append curve points
+        _pts = puntos
+        res = []
+        for i in range(0, len(_pts) - 1):
+            for t in range(n):
+                # Calc tension vectors
+                t1x = (_pts[i][0] - _pts[i - 1][0]) * tension
+                t2x = (_pts[i + 1][0] - _pts[i][0]) * tension
+
+                t1y = (_pts[i][1] - _pts[i - 1][1]) * tension
+                t2y = (_pts[i + 1][1] - _pts[i][1]) * tension
+
+                # Calc step
+                st = t / n
+
+                # Calc cardinals
+                c1 = 2 * (st ** 3) - 3 * (st ** 2) + 1
+                c2 = -(2 * (st ** 3)) + 3 * (st ** 2)
+                c3 = (st ** 3) - 2 * (st ** 2) + st
+                c4 = (st ** 3) - (st ** 2)
+
+                # Calc x and y cords with common control vectors
+                x = c1 * _pts[i][0] + c2 * _pts[i + 1][0] + c3 * t1x + c4 * t2x
+                y = c1 * _pts[i][1] + c2 * _pts[i + 1][1] + c3 * t1y + c4 * t2y
+
+                res.append([x, y])
+
+        return [np.array(res, np.int32)]
 
     def dibujar_curvas(self, dato):
         '''Dibuja las curvas de sondaje, margen y LMG'''
@@ -82,15 +125,15 @@ class NuevoDiente(object):
         else:
             dato = opt + 'SONDAJE'
 
-        # Define el punto 0 donde empiezan las cuadrículas
-
         # Obtiene los puntos de la linea
         valores = self.diente['valores'][dato]
         if valores is not None:
             valores = valores.strip().split()
             coord = self.obtener_coordenadas(valores, [1,2,3])
-            coord = coord.reshape((-1,1,2))
-            cv2.polylines(self.img_procesada,[coord],False,color_linea)
+            cv2.polylines(
+                self.img_procesada, self.recta_to_curva(coord),
+                isClosed = False, color = color_linea,
+                thickness = 2, lineType = cv2.LINE_AA)
 
 
 def stack_diente(canvas, diente):
