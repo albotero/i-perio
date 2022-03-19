@@ -32,7 +32,7 @@ class NuevoDiente(object):
         if self.diente['atributos'] == 'Ausente':
             self = process_fill(self.img_original, self.img_procesada)
 
-    def obtener_coordenadas(self, valores_y, indices_x):
+    def obtener_coordenadas(self, valores_y, indices_x, base = [0,0,0]):
         '''Obtiene las coordenadas de cada punto de la línea
 
         Índices x posibles:
@@ -45,14 +45,17 @@ class NuevoDiente(object):
         # Define la línea 0 donde empieza la cuadrícula
         linea_0 = 98 if self.diente['superior'] else 49
 
+        valores_y = [int(x) for x in valores_y]
         puntos = []
         for i in range(3):
             if self.diente['superior']:
-                y = linea_0 - int(valores_y[i]) * self.espacio
+                indice = linea_0 - valores_y[i] * self.espacio
+                y = indice - base[i]
             else:
-                y = linea_0 + int(valores_y[i]) * self.espacio
-            puntos.append(
-                [self.diente['coordenadas'][y][indices_x[i]], y])
+                indice = linea_0 + valores_y[i] * self.espacio
+                y = indice + base[i]
+            x = self.diente['coordenadas'][indice][indices_x[i]]
+            puntos += [[x, y]]
 
         return np.array(puntos, np.int32)
 
@@ -72,16 +75,14 @@ class NuevoDiente(object):
 
     def recta_to_curva(self, puntos):
         '''Suaviza las líneas para que los ángulos sean curvos'''
-        tension = 0.5
+        tension = 1
         n = 32
-        # Duplicate first point
-        np.insert(puntos, 0, puntos[0])
-        # Duplicate last point
-        np.append(puntos, puntos[-1])
+        # Duplicate first and last points
+        _pts = puntos.tolist()
+        _pts = [_pts[0]] + _pts + [_pts[1]]
         # Create new list and append curve points
-        _pts = puntos
         res = []
-        for i in range(0, len(_pts) - 1):
+        for i in range(1, len(_pts) - 2):
             for t in range(n):
                 # Calc tension vectors
                 t1x = (_pts[i][0] - _pts[i - 1][0]) * tension
@@ -129,7 +130,11 @@ class NuevoDiente(object):
         valores = self.diente['valores'][dato]
         if valores is not None:
             valores = valores.strip().split()
-            coord = self.obtener_coordenadas(valores, [1,2,3])
+            if dato == opt + 'SONDAJE':
+                offset = [int(x) for x in self.diente['valores'][opt + 'MARGEN'].split()]
+                coord = self.obtener_coordenadas(valores, [1,2,3], offset)
+            else:
+                coord = self.obtener_coordenadas(valores, [1,2,3])
             cv2.polylines(
                 self.img_procesada, self.recta_to_curva(coord),
                 isClosed = False, color = color_linea,
