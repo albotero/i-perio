@@ -32,7 +32,7 @@ class NuevoDiente(object):
         if self.diente['atributos'] == 'Ausente':
             self = process_fill(self.img_original, self.img_procesada)
 
-    def obtener_coordenadas(self, valores_y, indices_x, base = [0,0,0]):
+    def obtener_coordenadas(self, valores_y, indices_x):
         '''Obtiene las coordenadas de cada punto de la línea
 
         Índices x posibles:
@@ -45,16 +45,19 @@ class NuevoDiente(object):
         # Define la línea 0 donde empieza la cuadrícula
         linea_0 = 98 if self.diente['superior'] else 49
 
-        valores_y = [int(x) for x in valores_y]
         puntos = []
         for i in range(3):
             if self.diente['superior']:
-                indice = linea_0 - valores_y[i] * self.espacio
-                y = indice - base[i]
+                y = linea_0 - valores_y[i] * self.espacio
             else:
-                indice = linea_0 + valores_y[i] * self.espacio
-                y = indice + base[i]
-            x = self.diente['coordenadas'][indice][indices_x[i]]
+                y = linea_0 + valores_y[i] * self.espacio
+
+            # Gets x coord else set defaults
+            if y in self.diente['coordenadas'].keys():
+                x = self.diente['coordenadas'][y][indices_x[i]]
+            else:
+                height, width, channels = self.img_original.shape
+                x = width / 4 * indices_x[i]
             puntos += [[x, y]]
 
         return np.array(puntos, np.int32)
@@ -129,10 +132,12 @@ class NuevoDiente(object):
         # Obtiene los puntos de la linea
         valores = self.diente['valores'][dato]
         if valores is not None:
-            valores = valores.strip().split()
+            valores = [int(x) for x in valores.split()]
             if dato == opt + 'SONDAJE':
+                # La base de sondaje es la línea de Margen
                 offset = [int(x) for x in self.diente['valores'][opt + 'MARGEN'].split()]
-                coord = self.obtener_coordenadas(valores, [1,2,3], offset)
+                valores = [valores[x] + offset[x] for x in range(3)]
+                coord = self.obtener_coordenadas(valores, [1,2,3])
             else:
                 coord = self.obtener_coordenadas(valores, [1,2,3])
             cv2.polylines(

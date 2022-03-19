@@ -18,13 +18,17 @@ class TestGrafico(unittest.TestCase):
                 # En múltiplos de 4, genera margenes aleatorios
                 if type(num) == int and num % 4 == 0:
                     diente['valores']['MARGEN'] = '{} {} {}'.format(
-                        rd.randint(0, 10), rd.randint(0, 10), rd.randint(0, 10))
+                        rd.randint(-3, 8), rd.randint(-3, 8), rd.randint(-3, 8))
                     diente['valores']['_MARGEN'] = '{} {} {}'.format(
-                        rd.randint(0, 10), rd.randint(0, 10), rd.randint(0, 10))
-                    diente['valores']['SONDAJE'] = '1 1 1'
+                        rd.randint(-3, 8), rd.randint(-3, 8), rd.randint(-3, 8))
+                    diente['valores']['SONDAJE'] = '{} {} {}'.format(
+                        rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
+                    diente['valores']['_SONDAJE'] = '{} {} {}'.format(
+                        rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
                 elif type(num) == int:
-                    diente['valores']['MARGEN'] = '1 1 1'
+                    diente['valores']['MARGEN'] = '1 0 1'
                     diente['valores']['_MARGEN'] = '0 0 0'
+                    diente['valores']['SONDAJE'] = '1 1 1'
                     diente['valores']['_SONDAJE'] = '3 2 4'
 
         # Obtiene las 4 imágenes del perio
