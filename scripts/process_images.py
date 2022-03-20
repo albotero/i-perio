@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 color = {
-	'blanco': (255,255,255,255),
+	'blanco': (255,255,255),
 	'negro': (0,0,0),
 	'gris': (127,127,127),
 	'rojo': (0,0,255),

@@ -1,2 +1,4 @@
 # Ignora la carpeta temporal de Python
 __pycache__
+# Ignora archivos temporales de OpenOffice
+*.csv#
