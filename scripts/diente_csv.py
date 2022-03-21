@@ -22,6 +22,5 @@ def coord(num_diente, area, img_width, espacio):
                         centro_diente = int((left_diente + right_diente) / 2)
 
                         # Datos de x
-                        res[1][i * espacio] = [ 0, left_diente, centro_diente,
-                            right_diente, img_width ]
+                        res[1][i * espacio] = [left_diente, centro_diente, right_diente]
     return res

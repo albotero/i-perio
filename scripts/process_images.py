@@ -46,31 +46,3 @@ def read_transparent(src):
 	white = white_background_image.astype(np.float32) * (1 - alpha_factor)
 	final_image = base + white
 	return final_image.astype(np.uint8)
-
-def coord(img, espacio):
-	'''Mapa de coordenadas de bordes y centro [x1, x2, x3, x4, x5]'''
-	mapa = {}
-
-	# Obtiene los datos de la imagen
-	height, width, channels = img.shape
-	contorno = contornos(img, c = 0)[0]
-
-	for y in range(0, 141, espacio):
-		mapa[y] = [0, width]
-
-	# Obtiene los puntos del contorno en cada espaciado
-	for punto in contorno:
-		x, y = punto[0]
-		# Solo se requieren los puntos que tienen el espaciado
-		if y in mapa.keys():
-			mapa[y] += [x]
-
-	# Elimina los puntos intermedios, deja solo los más exteriores y el centro
-	for y, lista_x in mapa.items():
-		left_diente = lista_x[0]
-		right_diente = lista_x[-1]
-		centro_diente = int((left_diente + right_diente) / 2)
-		mapa[y] = [0, left_diente, centro_diente, right_diente, width]
-
-	# Devuelve la lista
-	return mapa

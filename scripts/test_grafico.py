@@ -11,6 +11,17 @@ class TestGrafico(unittest.TestCase):
         perio = nuevo_perio()
 
         for num, diente in perio.items():
+            if type(num) is not int:
+                continue
+
+            margen = '0 0 0'
+            sondaje = '1 1 1'
+            diente['valores']['MARGEN'] = margen
+            diente['valores']['_MARGEN'] = margen
+            diente['valores']['SONDAJE'] = sondaje
+            diente['valores']['_SONDAJE'] = sondaje
+            continue
+
             if type(num) == int and num % 2 != 0:
                 # Pone los dientes impares ausentes
                 diente['atributos'] = 'Ausente'
