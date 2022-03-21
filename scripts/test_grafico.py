@@ -14,6 +14,7 @@ class TestGrafico(unittest.TestCase):
             if type(num) is not int:
                 continue
 
+            # Todos los dientes con mismo margen y sondaje
             margen = '0 0 0'
             sondaje = '1 1 1'
             diente['valores']['MARGEN'] = margen

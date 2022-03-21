@@ -27,10 +27,38 @@ class NuevoDiente(object):
             self.img_procesada, self.top, bottom, 0, 0,
             cv2.BORDER_CONSTANT, value=color['blanco'])
 
+        # Temporalmente coloca un borde verde a la izquierda para poder medir las
+        # coordenadas de los dientes
+        self.img_procesada = cv2.copyMakeBorder(
+            self.img_procesada, 0, 0, 1, 0,
+            cv2.BORDER_CONSTANT, value=color['verde'])
+
     def pintar_ausente(self):
         '''Pinta de negro si el diente tiene el atributo Ausente'''
         if self.diente['atributos'] == 'Ausente':
             self.img_procesada = process_fill(self.img_original, self.img_procesada)
+
+    def dibujar_cuadriculas(self):
+        '''Dibuja las líneas entre la corona y la raíz'''
+        # Define y_inicial y y_final para no dibujar sobre la corona
+        if self.diente['superior']:
+            y_inicial = 1 if self.area == '_a' else 5
+            y_final = 105
+        else:
+            y_inicial = 51 if self.area == '_a' else 50
+            y_final = 200
+        _, width, _ = self.img_procesada.shape
+
+        # Temporalmente hace que toda la imagen tenga cuadrículas para poder medir
+        # las coordenadas de los dientes
+        y_inicial = 0
+        y_final = 200
+
+        for y in range(y_inicial, y_final + 1, self.espacio):
+            # Dibuja la línea
+            self.img_procesada = cv2.line(self.img_procesada, (0, y), (width, y), color['gris'], 1)
+
+        return self.img_procesada
 
     def obtener_coordenadas(self, valores_y):
         '''Obtiene las coordenadas de cada punto de la línea
@@ -140,41 +168,19 @@ class NuevoDiente(object):
         self.bordes()
         # Si el diente está ausente, lo pinta de negro
         self.pintar_ausente()
+        # Dibuja las cuadrículas
+        self.dibujar_cuadriculas()
 
 
 def stack_diente(canvas, diente):
     '''Apila horizontalmente el diente nuevo en el canvas actual'''
-
     # Obtiene la imagen procesada
     nuevo_diente = diente.get()
-
-    '''# Ajusta el tamaño de la nueva imagen
-    height = 140
-    x, y, _ = nuevo_diente.shape
-    nuevo_diente = cv2.resize(nuevo_diente, (int(x*y/height), height))'''
-
     # Si es la primer imagen del canvas, devuelve el canvas
     if canvas is None:
         return nuevo_diente
     # Devuelve la imagen resultante
     return np.concatenate((canvas, nuevo_diente), axis = 1)
-
-def dibujar_cuadriculas(canvas, arcada, area, espacio):
-    '''Dibuja las líneas entre la corona y la raíz'''
-    # Define y_inicial y y_final para no dibujar sobre la corona
-    if arcada == 'sup':
-        y_inicial = 1 if area == '_a' else 5
-        y_final = 105
-    else:
-        y_inicial = 51 if area == '_a' else 50
-        y_final = 200
-    _, width, _ = canvas.shape
-
-    for y in range(y_inicial, y_final + 1, espacio):
-        # Dibuja la línea
-        canvas = cv2.line(canvas, (0, y), (width, y), color['gris'], 1)
-
-    return canvas
 
 def nuevo_canvas(perio):
     '''Crea los 4 canvas con las imágenes de los dientes'''
@@ -201,9 +207,5 @@ def nuevo_canvas(perio):
             nuevo_diente.dibujar_curvas('lmg')
             # Agrega la imagen del diente al canvas
             canvas[canv_area + s] = stack_diente(canvas.get(canv_area + s), nuevo_diente)
-
-    for arcada in ['sup', 'inf']:
-        for area in ['_a', '_b']:
-            canvas[arcada + area] = dibujar_cuadriculas(canvas[arcada + area], arcada, area, espacio)
 
     return canvas
