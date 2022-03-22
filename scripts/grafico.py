@@ -51,8 +51,10 @@ class NuevoDiente(object):
 
         # Temporalmente hace que toda la imagen tenga cuadrículas para poder medir
         # las coordenadas de los dientes
-        y_inicial = 0
-        y_final = 200
+        if self.diente['superior']:
+            y_final = 200
+        else:
+            y_inicial -= self.espacio * 7
 
         for y in range(y_inicial, y_final + 1, self.espacio):
             # Dibuja la línea
