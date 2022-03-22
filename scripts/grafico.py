@@ -10,7 +10,7 @@ class NuevoDiente(object):
 
     img_original, img_procesada = None, None
     diente, area = None, None
-    espacio, linea_0, top = 0, 0, 0
+    espacio, y_inicial, y_final, top = 0, 0, 0, 0
     height = 160
 
     def get(self):
@@ -27,36 +27,26 @@ class NuevoDiente(object):
             self.img_procesada, self.top, bottom, 0, 0,
             cv2.BORDER_CONSTANT, value=color['blanco'])
 
-        # Temporalmente coloca un borde verde a la izquierda para poder medir las
-        # coordenadas de los dientes
-        self.img_procesada = cv2.copyMakeBorder(
-            self.img_procesada, 0, 0, 1, 0,
-            cv2.BORDER_CONSTANT, value=color['verde'])
-
     def pintar_ausente(self):
         '''Pinta de negro si el diente tiene el atributo Ausente'''
         if self.diente['atributos'] == 'Ausente':
             self.img_procesada = process_fill(self.img_original, self.img_procesada)
 
-    def dibujar_cuadriculas(self):
-        '''Dibuja las líneas entre la corona y la raíz'''
-        # Define y_inicial y y_final para no dibujar sobre la corona
+    def limite_vertical(self):
+        '''Define y_inicial y y_final para no dibujar sobre la corona'''
         if self.diente['superior']:
             y_inicial = 1 if self.area == '_a' else 5
-            y_final = 105
+            y_final = 101 if self.area == '_a' else 105
         else:
             y_inicial = 51 if self.area == '_a' else 50
             y_final = 200
+        return y_inicial, y_final
+
+    def dibujar_cuadriculas(self):
+        '''Dibuja las líneas entre la corona y la raíz'''
         _, width, _ = self.img_procesada.shape
 
-        # Temporalmente hace que toda la imagen tenga cuadrículas para poder medir
-        # las coordenadas de los dientes
-        if self.diente['superior']:
-            y_final = 200
-        else:
-            y_inicial -= self.espacio * 7
-
-        for y in range(y_inicial, y_final + 1, self.espacio):
+        for y in range(self.y_inicial, self.y_final + 1, self.espacio):
             # Dibuja la línea
             self.img_procesada = cv2.line(self.img_procesada, (0, y), (width, y), color['gris'], 1)
 
@@ -73,11 +63,12 @@ class NuevoDiente(object):
          4: borde derecho de la imagen'''
 
         puntos = []
+
         for i in range(3):
             if self.diente['superior']:
-                y = self.linea_0 - valores_y[i] * self.espacio
+                y = self.y_final - valores_y[i] * self.espacio
             else:
-                y = self.linea_0 + valores_y[i] * self.espacio
+                y = self.y_inicial + valores_y[i] * self.espacio
 
             # X coordinate
             height, width, channels = self.img_original.shape
@@ -148,9 +139,9 @@ class NuevoDiente(object):
                 # La base de sondaje es la línea de Margen
                 offset = [int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
                 valores = [valores[x] + offset[x] for x in range(3)]
-                coord = self.obtener_coordenadas(valores)
-            else:
-                coord = self.obtener_coordenadas(valores)
+
+            # Obtiene las coordenadas de la línea y la dibuja
+            coord = self.obtener_coordenadas(valores)
             cv2.polylines(
                 self.img_procesada, self.recta_to_curva(coord),
                 isClosed = False, color = color_linea,
@@ -170,6 +161,8 @@ class NuevoDiente(object):
         self.bordes()
         # Si el diente está ausente, lo pinta de negro
         self.pintar_ausente()
+        # Define los límites verticales
+        self.y_inicial, self.y_final = self.limite_vertical()
         # Dibuja las cuadrículas
         self.dibujar_cuadriculas()
 
