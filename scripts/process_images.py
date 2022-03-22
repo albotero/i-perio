@@ -45,4 +45,5 @@ def read_transparent(src):
 	base = rgb_channels.astype(np.float32) * alpha_factor
 	white = white_background_image.astype(np.float32) * (1 - alpha_factor)
 	final_image = base + white
+
 	return final_image.astype(np.uint8)

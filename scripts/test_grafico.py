@@ -14,14 +14,14 @@ class TestGrafico(unittest.TestCase):
             if type(num) is not int:
                 continue
 
-            # Todos los dientes con mismo margen y sondaje
+            '''# Todos los dientes con mismo margen y sondaje
             margen = '0 0 0'
             sondaje = '1 1 1'
             diente['valores']['MARGEN'] = margen
             diente['valores']['_MARGEN'] = margen
             diente['valores']['SONDAJE'] = sondaje
             diente['valores']['_SONDAJE'] = sondaje
-            continue
+            continue'''
 
             if type(num) == int and num % 2 != 0:
                 # Pone los dientes impares ausentes
@@ -30,9 +30,9 @@ class TestGrafico(unittest.TestCase):
                 # En múltiplos de 4, genera margenes aleatorios
                 if type(num) == int and num % 4 == 0:
                     diente['valores']['MARGEN'] = '{} {} {}'.format(
-                        rd.randint(-3, 8), rd.randint(-3, 8), rd.randint(-3, 8))
+                        rd.randint(-3, 3), rd.randint(-3, 3), rd.randint(-3, 3))
                     diente['valores']['_MARGEN'] = '{} {} {}'.format(
-                        rd.randint(-3, 8), rd.randint(-3, 8), rd.randint(-3, 8))
+                        rd.randint(-3, 3), rd.randint(-3, 3), rd.randint(-3, 3))
                     diente['valores']['SONDAJE'] = '{} {} {}'.format(
                         rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
                     diente['valores']['_SONDAJE'] = '{} {} {}'.format(

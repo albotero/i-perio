@@ -10,27 +10,27 @@ class NuevoDiente(object):
 
     img_original, img_procesada = None, None
     diente, area = None, None
-    espacio, y_inicial, y_final, top = 0, 0, 0, 0
+    espacio, y_inicial, y_final, top, bottom = 0, 0, 0, 0, 0
     height = 160
 
     def get(self):
         '''Devuelve la imagen procesada'''
         return self.img_procesada
 
-    def bordes(self):
+    def bordes(self, img):
         '''Alinea el diente con la cuadrícula añadiendo un espacio en la parte superior
         y añade un borde en la parte inferior para que la imagen sea de 140px'''
-        y, x, _ = self.img_procesada.shape
-        bottom = self.height - (self.top + y)
+        y, x, _ = img.shape
+        self.bottom = self.height - (self.top + y)
 
-        self.img_procesada = cv2.copyMakeBorder(
-            self.img_procesada, self.top, bottom, 0, 0,
+        return cv2.copyMakeBorder(img, self.top, self.bottom, 0, 0,
             cv2.BORDER_CONSTANT, value=color['blanco'])
 
-    def pintar_ausente(self):
+    def pintar_ausente(self, img):
         '''Pinta de negro si el diente tiene el atributo Ausente'''
         if self.diente['atributos'] == 'Ausente':
-            self.img_procesada = process_fill(self.img_original, self.img_procesada)
+            img = process_fill(self.img_original, img)
+        return img
 
     def limite_vertical(self):
         '''Define y_inicial y y_final para no dibujar sobre la corona'''
@@ -66,15 +66,16 @@ class NuevoDiente(object):
 
         for i in range(3):
             if self.diente['superior']:
-                y = self.y_final - valores_y[i] * self.espacio
+                y = int(self.y_final/self.espacio) - valores_y[i]
             else:
-                y = self.y_inicial + valores_y[i] * self.espacio
+                y = int(self.y_inicial/self.espacio) + valores_y[i]
 
             # X coordinate
             height, width, channels = self.img_original.shape
             x = self.diente['coordenadas'].get(y,[0,width / 2,width])[i]
 
-            puntos += [[x, y]]
+            # x-1 porque las curvas estaban quedando muy corridas
+            puntos += [[x - 1, y * self.espacio]]
 
         return np.array(puntos, np.int32)
 
@@ -152,15 +153,14 @@ class NuevoDiente(object):
         self.area = area
         self.diente = diente
         self.espacio = espacio
+        # Define las coordenadas de las cuadrículas
+        self.top, self.diente['coordenadas'] = coord(diente['diente'], area)
+        # Carga las imágenes
         self.img_original = cv2.imread(src)
         self.img_procesada = read_transparent(src)
-        # Define las coordenadas de las cuadrículas
-        _, width, _ = self.img_procesada.shape
-        self.top, self.diente['coordenadas'] = coord(diente['diente'], area, width, espacio)
-        # Agrega el borde superior a la imagenes
-        self.bordes()
+        self.img_procesada = self.pintar_ausente(self.img_procesada)
+        self.img_procesada = self.bordes(self.img_procesada)
         # Si el diente está ausente, lo pinta de negro
-        self.pintar_ausente()
         # Define los límites verticales
         self.y_inicial, self.y_final = self.limite_vertical()
         # Dibuja las cuadrículas
@@ -197,8 +197,8 @@ def nuevo_canvas(perio):
             nuevo_diente = NuevoDiente(diente, src, s, espacio)
             # Pinta las bolsas y pseudobolsas
             # Dibuja las líneas correspondientes
-            nuevo_diente.dibujar_curvas('margen')
             nuevo_diente.dibujar_curvas('sondaje')
+            nuevo_diente.dibujar_curvas('margen')
             nuevo_diente.dibujar_curvas('lmg')
             # Agrega la imagen del diente al canvas
             canvas[canv_area + s] = stack_diente(canvas.get(canv_area + s), nuevo_diente)

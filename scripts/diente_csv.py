@@ -4,9 +4,9 @@ import csv
 
 csv_file = 'resources/bordes_dientes.csv'
 
-def coord(num_diente, area, img_width, espacio):
+def coord(num_diente, area):
     '''Obtiene las coordenadas del diente en un mapa
-        { y : [0, left_diente, centro_diente, right_diente, width]  }'''
+        { y : [left_diente, centro_diente, right_diente]  }'''
     res = []
     with open(csv_file) as file:
         csv_reader = csv.DictReader(file)
@@ -14,8 +14,7 @@ def coord(num_diente, area, img_width, espacio):
             if int(row['diente']) == num_diente:
                 if row['area'] == area[1]:
                     # Borde superior
-                    res.append(int(row['top']))
-                    res += [{}]
+                    res += [int(row['top']), {}]
                     for i in range(22):
                         # Lee datos
                         left_diente = row['izq_{}'.format(i)]
@@ -27,5 +26,5 @@ def coord(num_diente, area, img_width, espacio):
                         centro_diente = int((left_diente + right_diente) / 2)
 
                         # Datos de x
-                        res[1][i * espacio] = [left_diente, centro_diente, right_diente]
+                        res[1][i] = [left_diente, centro_diente, right_diente]
     return res
