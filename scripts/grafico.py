@@ -8,8 +8,7 @@ import numpy as np
 
 class NuevoDiente(object):
 
-    img_original, img_procesada = None, None
-    diente, area = None, None
+    img_original, img_procesada, diente, area = None, None, None, None
     espacio, y_inicial, y_final, top, bottom = 0, 0, 0, 0, 0
     height = 160
 
@@ -55,12 +54,10 @@ class NuevoDiente(object):
     def obtener_coordenadas(self, valores_y):
         '''Obtiene las coordenadas de cada punto de la línea
 
-        Índices x posibles:
-         0: borde izquierdo de la imagen
-         1: borde izquierdo del diente
-         2: centro del diente
-         3: borde derecho del diente
-         4: borde derecho de la imagen'''
+        Índices x:
+         0: borde izquierdo del diente
+         1: centro del diente
+         2: borde derecho del diente'''
 
         puntos = []
 
@@ -114,39 +111,104 @@ class NuevoDiente(object):
 
         return [np.array(res, np.int32)]
 
-    def dibujar_curvas(self, dato):
-        '''Dibuja las curvas de sondaje, margen y LMG'''
+    def formato_dato(self, dato):
+        '''Define el formato para los datos y el color de la línea'''
 
         opt = '_' if self.area == '_b' else ''
 
-        color_linea = color['negro']
         if dato == 'margen':
-            color_linea = color['rojo']
             dato = opt + 'MARGEN'
+            color_linea = 'rojo'
+        elif dato == 'ni':
+            dato = opt + 'N.I.'
+            color_linea = None
         elif dato == 'lmg' and self.diente['superior'] and self.area == '_b':
             # Los dientes superiores no tienen _L.M.G
-            return
+            return None, None
         elif dato == 'lmg':
-            color_linea = color['verde']
             dato = opt + 'L.M.G'
+            color_linea = 'verde'
         else:
             dato = opt + 'SONDAJE'
+            color_linea = 'negro'
+
+        return color_linea, dato
+
+    def obtener_curvas(self, dato):
+        '''Obtiene las coordenadas de las curvas'''
+
+        opt = '_' if self.area == '_b' else ''
+        color_linea, dato = self.formato_dato(dato)
 
         # Obtiene los puntos de la linea
-        valores = self.diente['valores'][dato]
-        if valores is not None:
-            valores = [int(y) for y in valores.split()]
-            if dato == opt + 'SONDAJE':
-                # La base de sondaje es la línea de Margen
-                offset = [int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
-                valores = [valores[x] + offset[x] for x in range(3)]
+        valores = self.diente['valores'].get(dato)
+        if valores is None:
+            return None, None
+        valores = [int(y) for y in valores.split()]
+        if dato == opt + 'SONDAJE':
+            # La base de sondaje es la línea de Margen
+            offset = [int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
+            valores = [valores[x] + offset[x] for x in range(3)]
 
-            # Obtiene las coordenadas de la línea y la dibuja
-            coord = self.obtener_coordenadas(valores)
+        # Obtiene las coordenadas de la línea
+        return color_linea, self.obtener_coordenadas(valores)
+
+    def dibujar_curvas(self, dato):
+        '''Dibuja las curvas de sondaje, margen y LMG'''
+        color_linea, curva = self.obtener_curvas(dato)
+        if curva is not None:
             cv2.polylines(
-                self.img_procesada, self.recta_to_curva(coord),
-                isClosed = False, color = color_linea,
+                self.img_procesada, self.recta_to_curva(curva),
+                isClosed = False, color = color[color_linea],
                 thickness = 2, lineType = cv2.LINE_AA)
+
+    def pintar_bolsas(self):
+        # Obtiene los valores
+        opt = '_' if self.area == '_b' else ''
+        margen = self.diente['valores'].get(self.formato_dato('margen')[1])
+        ni = self.diente['valores'].get(self.formato_dato('ni')[1])
+
+        if ni is not None:
+            margen = [int(y) for y in margen.split()]
+
+            # Obtiene los puntos de las curvas
+            _, curva_margen = self.obtener_curvas('margen')
+            _, curva_sondaje = self.obtener_curvas('sondaje')
+            curva_margen = self.recta_to_curva(curva_margen)
+            curva_sondaje = self.recta_to_curva(curva_sondaje)
+
+            # Divide las curvas en 3 segmentos
+            curvas_m = np.array_split(curva_margen[0], 3)
+            curvas_s = np.array_split(curva_sondaje[0], 3)
+
+            # Define si debe pintar cada uno de los segmentos
+            for i in range(3):
+                # La bolsa es margen - sondaje, que es equivalente al negativo de ni
+                if -ni[i] >= 4:
+                    # Agrega los puntos de la curva de margen en el tercio correspondiente
+                    puntos_m = curvas_m[i]
+
+                    # Agrega los puntos del borde derecho de la bolsa o el diente
+                    puntos_der = np.array([], np.int32).reshape(0,2)
+                    # Obtiene las coordenadas del contorno derecho del diente
+                    # entre el margen y el sondaje, y reemplaza puntos_der
+                    #if i == 2:
+
+                    # Agrega los puntos de la curva de sondaje al revés en el tercio correspondiente
+                    puntos_s = np.array(np.flip(curvas_s[i], axis=0), np.int32)
+
+                    # Agrega los puntos del borde izquierdo de la bolsa o el diente
+                    puntos_izq = np.array([], np.int32).reshape(0,2)
+                    # Obtiene las coordenadas del contorno izquierdo del diente
+                    # entre el margen y el sondaje, y reemplaza puntos_izq
+                    #if i == 0:
+
+                    # Bolsa vs pseudobolsa
+                    relleno = 'rojo' if margen[i] < 0 else 'negro'
+
+                    # Pinta el polígono
+                    puntos = np.concatenate((puntos_m, puntos_der,puntos_s, puntos_izq), axis=0)
+                    cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
     def __init__(self, diente, src, area, espacio):
         '''Inicializa un objeto NuevoDiente con la imagen original y la imagen sin alpha'''
@@ -196,6 +258,7 @@ def nuevo_canvas(perio):
             # Carga la imagen del diente
             nuevo_diente = NuevoDiente(diente, src, s, espacio)
             # Pinta las bolsas y pseudobolsas
+            nuevo_diente.pintar_bolsas()
             # Dibuja las líneas correspondientes
             nuevo_diente.dibujar_curvas('sondaje')
             nuevo_diente.dibujar_curvas('margen')

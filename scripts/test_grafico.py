@@ -43,6 +43,8 @@ class TestGrafico(unittest.TestCase):
                     diente['valores']['SONDAJE'] = '1 1 1'
                     diente['valores']['_SONDAJE'] = '3 2 4'
 
+            diente.calcular_ni()
+
         # Obtiene las 4 imágenes del perio
         canvas = nuevo_canvas(perio)
 
