@@ -46,3 +46,39 @@ def read_transparent(src):
 	final_image = base + white
 
 	return final_image.astype(np.uint8)
+
+
+def recta_to_curva(puntos):
+	'''Suaviza las líneas para que los ángulos sean curvos'''
+	tension = 1
+	n = 512
+	# Duplicate first and last points
+	_pts = puntos.tolist()
+	_pts = [_pts[0]] + _pts + [_pts[1]]
+	# Create new list and append curve points
+	res = []
+	for i in range(1, len(_pts) - 2):
+		for t in range(n):
+			# Calc tension vectors
+			t1x = (_pts[i][0] - _pts[i - 1][0]) * tension
+			t2x = (_pts[i + 1][0] - _pts[i][0]) * tension
+
+			t1y = (_pts[i][1] - _pts[i - 1][1]) * tension
+			t2y = (_pts[i + 1][1] - _pts[i][1]) * tension
+
+			# Calc step
+			st = t / n
+
+			# Calc cardinals
+			c1 = 2 * (st ** 3) - 3 * (st ** 2) + 1
+			c2 = -(2 * (st ** 3)) + 3 * (st ** 2)
+			c3 = (st ** 3) - 2 * (st ** 2) + st
+			c4 = (st ** 3) - (st ** 2)
+
+			# Calc x and y cords with common control vectors
+			x = c1 * _pts[i][0] + c2 * _pts[i + 1][0] + c3 * t1x + c4 * t2x
+			y = c1 * _pts[i][1] + c2 * _pts[i + 1][1] + c3 * t1y + c4 * t2y
+
+			res.append([x, y])
+
+	return [np.array(res, np.int32)]

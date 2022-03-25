@@ -2,7 +2,7 @@
 
 from diente import Diente
 from diente_csv import coord
-from process_images import color, process_fill, read_transparent
+from process_images import color, process_fill, read_transparent, recta_to_curva
 import cv2
 import numpy as np
 
@@ -73,41 +73,6 @@ class NuevoDiente(object):
 
         return np.array(puntos, np.int32)
 
-    def recta_to_curva(self, puntos):
-        '''Suaviza las líneas para que los ángulos sean curvos'''
-        tension = 1
-        n = 32
-        # Duplicate first and last points
-        _pts = puntos.tolist()
-        _pts = [_pts[0]] + _pts + [_pts[1]]
-        # Create new list and append curve points
-        res = []
-        for i in range(1, len(_pts) - 2):
-            for t in range(n):
-                # Calc tension vectors
-                t1x = (_pts[i][0] - _pts[i - 1][0]) * tension
-                t2x = (_pts[i + 1][0] - _pts[i][0]) * tension
-
-                t1y = (_pts[i][1] - _pts[i - 1][1]) * tension
-                t2y = (_pts[i + 1][1] - _pts[i][1]) * tension
-
-                # Calc step
-                st = t / n
-
-                # Calc cardinals
-                c1 = 2 * (st ** 3) - 3 * (st ** 2) + 1
-                c2 = -(2 * (st ** 3)) + 3 * (st ** 2)
-                c3 = (st ** 3) - 2 * (st ** 2) + st
-                c4 = (st ** 3) - (st ** 2)
-
-                # Calc x and y cords with common control vectors
-                x = c1 * _pts[i][0] + c2 * _pts[i + 1][0] + c3 * t1x + c4 * t2x
-                y = c1 * _pts[i][1] + c2 * _pts[i + 1][1] + c3 * t1y + c4 * t2y
-
-                res.append([x, y])
-
-        return [np.array(res, np.int32)]
-
     def formato_dato(self, dato):
         '''Define el formato para los datos y el color de la línea'''
 
@@ -119,10 +84,10 @@ class NuevoDiente(object):
         elif dato == 'ni':
             dato = opt + 'N.I.'
             color_linea = None
-        elif dato == 'lmg' and self.diente['superior'] and self.area == '_b':
-            # Los dientes superiores no tienen _L.M.G
-            return None, None
         elif dato == 'lmg':
+            # Los dientes superiores no tienen _L.M.G
+            if self.diente['superior'] and self.area == '_b':
+                return None, None
             dato = opt + 'L.M.G'
             color_linea = 'verde'
         else:
@@ -178,7 +143,7 @@ class NuevoDiente(object):
         color_linea, curva = self.obtener_curvas(dato)
         if curva is not None:
             cv2.polylines(
-                self.img_procesada, self.recta_to_curva(curva),
+                self.img_procesada, recta_to_curva(curva),
                 isClosed = False, color = color[color_linea],
                 thickness = 2, lineType = cv2.LINE_AA)
 
@@ -196,8 +161,8 @@ class NuevoDiente(object):
             # Obtiene los puntos de las curvas
             _, curva_margen = self.obtener_curvas('margen')
             _, curva_sondaje = self.obtener_curvas('sondaje')
-            curva_margen = self.recta_to_curva(curva_margen)
-            curva_sondaje = self.recta_to_curva(curva_sondaje)
+            curva_margen = recta_to_curva(curva_margen)
+            curva_sondaje = recta_to_curva(curva_sondaje)
 
             # Divide las curvas en 3 segmentos
             curvas_m = np.array_split(curva_margen[0], 3)
@@ -227,6 +192,28 @@ class NuevoDiente(object):
                     # Rellena el poligono
                     cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
+    def obtener_coord_lmg(self, canvas_previo):
+        '''Obtiene las coordenadas de lmg en la imagen entera'''
+        # Obtiene la coordenada x de la imagen en el canvas
+        if canvas_previo is None:
+            x_diente = 0
+        else:
+            _, x_diente, _ = canvas_previo.shape
+
+        # Obtiene en valor de la LMG de el diente actual
+        lmg = self.diente['valores'].get(self.formato_dato('lmg')[1])
+        # Si no está definido, pone un valor por defecto
+        if lmg is None:
+            #lmg = 14 if self.diente['superior'] else 15
+            lmg = 20
+
+        # Obtiene las coordenadas del punto en la imagen actual
+        coord = self.obtener_coordenadas([int(lmg)]*3)[1]
+        # Obtiene esa coordenada en el canvas
+        coord[0] += x_diente
+
+        return coord
+
     def __init__(self, diente, src, area, espacio):
         '''Inicializa un objeto NuevoDiente con la imagen original y la imagen sin alpha'''
         self.area = area
@@ -239,7 +226,6 @@ class NuevoDiente(object):
         self.img_procesada = read_transparent(src)
         self.img_procesada = self.pintar_ausente(self.img_procesada)
         self.img_procesada = self.bordes(self.img_procesada)
-        # Si el diente está ausente, lo pinta de negro
         # Define los límites verticales
         self.y_inicial, self.y_final = self.limite_vertical()
         # Dibuja las cuadrículas
@@ -255,6 +241,18 @@ def stack_diente(canvas, diente):
         return nuevo_diente
     # Devuelve la imagen resultante
     return np.concatenate((canvas, nuevo_diente), axis = 1)
+
+def agregar_lmg(nuevo_diente, canvas_previo):
+    '''Agrega la LMG del nuevo diente a las lmg previas'''
+    lmg = canvas_previo[1]
+    nueva_lmg = [nuevo_diente.obtener_coord_lmg(canvas_previo[0])]
+
+    # Si es el primer valor de la LMG pone la misma y pero en x = 0
+    if (lmg[0] == np.array([0,0])).all():
+        y = nueva_lmg[0][1]
+        lmg = [np.array([0, y], np.int32)]
+
+    return np.concatenate((lmg, nueva_lmg), axis=0)
 
 def nuevo_canvas(perio):
     '''Crea los 4 canvas con las imágenes de los dientes'''
@@ -279,8 +277,31 @@ def nuevo_canvas(perio):
             # Dibuja las líneas correspondientes
             nuevo_diente.dibujar_curvas('sondaje')
             nuevo_diente.dibujar_curvas('margen')
-            nuevo_diente.dibujar_curvas('lmg')
+            # Obtiene el canvas previo
+            canvas_previo = canvas.get(canv_area + s, [None, np.array([[0,0]], np.int32)])
+            # Agrega las coordenadas para la LMG
+            lmg = agregar_lmg(nuevo_diente, canvas_previo)
             # Agrega la imagen del diente al canvas
-            canvas[canv_area + s] = stack_diente(canvas.get(canv_area + s), nuevo_diente)
+            canvas[canv_area + s] = [stack_diente(canvas_previo[0], nuevo_diente), lmg]
+
+    # Dibuja la LMG
+    for key, imagen in canvas.items():
+        # Si es sup_b no hace nada porque los dientes superiores no tienen _LMG
+        if key == 'sup_b':
+            continue
+
+        _, width, _ = imagen[0].shape
+        lmg = canvas[key][1]
+
+        # Extiende la lmg hasta el final de la imagen
+        y = lmg[-1][1]
+        nuevo_punto = [np.array([width, y], np.int32)]
+        nueva_lmg = np.concatenate((lmg, nuevo_punto), axis=0)
+        nueva_lmg = recta_to_curva(nueva_lmg)
+
+        cv2.polylines(
+            imagen[0], nueva_lmg,
+            isClosed = False, color = color['verde'],
+            thickness = 2, lineType = cv2.LINE_AA)
 
     return canvas

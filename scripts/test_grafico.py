@@ -23,12 +23,12 @@ class TestGrafico(unittest.TestCase):
             diente['valores']['_SONDAJE'] = sondaje
             continue'''
 
-            if type(num) == int and num % 2 != 0:
+            if num % 2 != 0:
                 # Pone los dientes impares ausentes
                 diente['atributos'] = 'Ausente'
             else:
                 # En múltiplos de 4, genera margenes aleatorios
-                if type(num) == int and num % 4 == 0:
+                if num % 4 == 0:
                     diente['valores']['MARGEN'] = '{} {} {}'.format(
                         rd.randint(-3, 3), rd.randint(-3, 3), rd.randint(-3, 3))
                     diente['valores']['_MARGEN'] = '{} {} {}'.format(
@@ -43,6 +43,13 @@ class TestGrafico(unittest.TestCase):
                     diente['valores']['SONDAJE'] = '1 1 1'
                     diente['valores']['_SONDAJE'] = '3 2 4'
 
+            # Algunos dientes no se les especifica LMG
+            if 0 < num % 5 < 4:
+                diente['valores']['L.M.G'] = str(rd.randint(6,10))
+            # Genera las _LMG de los dientes inferiores
+            if not diente['superior']:
+                diente['valores']['_L.M.G'] = str(rd.randint(6,10))
+
             diente.calcular_ni()
 
         # Obtiene las 4 imágenes del perio
@@ -50,7 +57,7 @@ class TestGrafico(unittest.TestCase):
 
         # Muestra las imagenes generadas
         for area, imagen in canvas.items():
-            cv2.imshow(area, imagen)
+            cv2.imshow(area, imagen[0])
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
