@@ -5,7 +5,7 @@ import numpy as np
 color = {
 	'blanco': (255,255,255),
 	'negro': (0,0,0),
-	'gris': (127,127,127),
+	'gris': (145,145,145),
 	'rojo': (0,0,255),
 	'verde': (35,150,25)
 }
@@ -50,7 +50,7 @@ def read_transparent(src):
 
 def recta_to_curva(puntos):
 	'''Suaviza las líneas para que los ángulos sean curvos'''
-	tension = 1
+	tension = .75
 	n = 512
 	# Duplicate first and last points
 	_pts = puntos.tolist()
@@ -82,3 +82,20 @@ def recta_to_curva(puntos):
 			res.append([x, y])
 
 	return [np.array(res, np.int32)]
+
+def zoom(img, zoom_factor):
+	'''Cambia el tamaño de la imagen por el factor especificado'''
+	return cv2.resize(img, None, fx=zoom_factor, fy=zoom_factor)
+
+def dibujar_curva(imagen, color_linea, puntos, zoom_factor):
+	'''Amplía la imagen, dibuja la curva, y luego vuelve la imagen al tamaño original'''
+	# Si no hay puntos para graficar la curva no modifica la imagen
+	if puntos is None:
+		return imagen
+
+	img = zoom(imagen, zoom_factor)
+	cv2.polylines(
+		img, recta_to_curva(puntos),
+		isClosed = False, color = color[color_linea],
+		thickness = 2, lineType = cv2.LINE_AA)
+	return zoom(img, 1/zoom_factor)

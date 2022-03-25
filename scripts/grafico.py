@@ -2,7 +2,7 @@
 
 from diente import Diente
 from diente_csv import coord
-from process_images import color, process_fill, read_transparent, recta_to_curva
+from process_images import *
 import cv2
 import numpy as np
 
@@ -68,8 +68,8 @@ class NuevoDiente(object):
             height, width, channels = self.img_original.shape
             x = self.diente['coordenadas'].get(y,[0,width / 2,width])[i]
 
-            # x-1 porque las curvas estaban quedando muy corridas
-            puntos += [[x - 1, y * self.espacio]]
+            # x-1 y y+1 porque las curvas estaban quedando muy corridas
+            puntos += [[x - 1, y * self.espacio + 1]]
 
         return np.array(puntos, np.int32)
 
@@ -96,7 +96,7 @@ class NuevoDiente(object):
 
         return color_linea, dato
 
-    def obtener_curvas(self, dato):
+    def obtener_puntos(self, dato, factor = 1.0):
         '''Obtiene las coordenadas de las curvas'''
 
         opt = '_' if self.area == '_b' else ''
@@ -113,7 +113,9 @@ class NuevoDiente(object):
             valores = [valores[x] + offset[x] for x in range(3)]
 
         # Obtiene las coordenadas de la línea
-        return color_linea, self.obtener_coordenadas(valores)
+        res_valores = self.obtener_coordenadas(valores)
+        res_valores = np.array([[x[0] * factor, x[1] * factor] for x in res_valores], np.int32)
+        return color_linea, res_valores
 
     def obtener_bordes(self, lado, margen, sondaje):
         '''Obtiene las coordenadas de los lados del diente entre margen y sondaje para pintar bolsas'''
@@ -138,14 +140,11 @@ class NuevoDiente(object):
 
         return np.array(res, np.int32)
 
-    def dibujar_curvas(self, dato):
-        '''Dibuja las curvas de sondaje, margen y LMG'''
-        color_linea, curva = self.obtener_curvas(dato)
-        if curva is not None:
-            cv2.polylines(
-                self.img_procesada, recta_to_curva(curva),
-                isClosed = False, color = color[color_linea],
-                thickness = 2, lineType = cv2.LINE_AA)
+    def dibujar_margen_sondaje(self, dato):
+        '''Dibuja las curvas de sondaje y margen'''
+        factor = 1.8
+        color_linea, curva = self.obtener_puntos(dato, factor)
+        self.img_procesada = dibujar_curva(self.img_procesada, color_linea, curva, factor)
 
     def pintar_bolsas(self):
         # Obtiene los valores
@@ -159,8 +158,8 @@ class NuevoDiente(object):
             sondaje = [int(y) for y in sondaje.split()]
 
             # Obtiene los puntos de las curvas
-            _, curva_margen = self.obtener_curvas('margen')
-            _, curva_sondaje = self.obtener_curvas('sondaje')
+            _, curva_margen = self.obtener_puntos('margen')
+            _, curva_sondaje = self.obtener_puntos('sondaje')
             curva_margen = recta_to_curva(curva_margen)
             curva_sondaje = recta_to_curva(curva_sondaje)
 
@@ -192,7 +191,7 @@ class NuevoDiente(object):
                     # Rellena el poligono
                     cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
-    def obtener_coord_lmg(self, canvas_previo):
+    def obtener_coord_lmg(self, canvas_previo, zoom_factor):
         '''Obtiene las coordenadas de lmg en la imagen entera'''
         # Obtiene la coordenada x de la imagen en el canvas
         if canvas_previo is None:
@@ -209,8 +208,11 @@ class NuevoDiente(object):
 
         # Obtiene las coordenadas del punto en la imagen actual
         coord = self.obtener_coordenadas([int(lmg)]*3)[1]
-        # Obtiene esa coordenada en el canvas
+        # Obtiene la coordenada x en el canvas
         coord[0] += x_diente
+        # Aplica el factor de zoom
+        coord[0] *= zoom_factor
+        coord[1] *= zoom_factor
 
         return coord
 
@@ -242,10 +244,10 @@ def stack_diente(canvas, diente):
     # Devuelve la imagen resultante
     return np.concatenate((canvas, nuevo_diente), axis = 1)
 
-def agregar_lmg(nuevo_diente, canvas_previo):
+def agregar_lmg(nuevo_diente, canvas_previo, zoom_factor):
     '''Agrega la LMG del nuevo diente a las lmg previas'''
     lmg = canvas_previo[1]
-    nueva_lmg = [nuevo_diente.obtener_coord_lmg(canvas_previo[0])]
+    nueva_lmg = [nuevo_diente.obtener_coord_lmg(canvas_previo[0], zoom_factor)]
 
     # Si es el primer valor de la LMG pone la misma y pero en x = 0
     if (lmg[0] == np.array([0,0])).all():
@@ -258,6 +260,7 @@ def nuevo_canvas(perio):
     '''Crea los 4 canvas con las imágenes de los dientes'''
     canvas = {}
     espacio = 7
+    lmg_zoom_factor = 1.3
 
     for num, diente in perio.items():
         if type(diente) is not Diente:
@@ -275,12 +278,12 @@ def nuevo_canvas(perio):
             # Pinta las bolsas y pseudobolsas
             nuevo_diente.pintar_bolsas()
             # Dibuja las líneas correspondientes
-            nuevo_diente.dibujar_curvas('sondaje')
-            nuevo_diente.dibujar_curvas('margen')
+            nuevo_diente.dibujar_margen_sondaje('sondaje')
+            nuevo_diente.dibujar_margen_sondaje('margen')
             # Obtiene el canvas previo
             canvas_previo = canvas.get(canv_area + s, [None, np.array([[0,0]], np.int32)])
             # Agrega las coordenadas para la LMG
-            lmg = agregar_lmg(nuevo_diente, canvas_previo)
+            lmg = agregar_lmg(nuevo_diente, canvas_previo, lmg_zoom_factor)
             # Agrega la imagen del diente al canvas
             canvas[canv_area + s] = [stack_diente(canvas_previo[0], nuevo_diente), lmg]
 
@@ -295,13 +298,9 @@ def nuevo_canvas(perio):
 
         # Extiende la lmg hasta el final de la imagen
         y = lmg[-1][1]
-        nuevo_punto = [np.array([width, y], np.int32)]
+        nuevo_punto = [np.array([width * lmg_zoom_factor, y], np.int32)]
         nueva_lmg = np.concatenate((lmg, nuevo_punto), axis=0)
-        nueva_lmg = recta_to_curva(nueva_lmg)
 
-        cv2.polylines(
-            imagen[0], nueva_lmg,
-            isClosed = False, color = color['verde'],
-            thickness = 2, lineType = cv2.LINE_AA)
+        imagen[0] = dibujar_curva(imagen[0], 'verde', nueva_lmg, lmg_zoom_factor)
 
     return canvas
