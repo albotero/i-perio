@@ -14,11 +14,13 @@ class TestGuardarPerio(unittest.TestCase):
         self.assertIsNone(res, "Error al guardar archivo: {}".format(res))
 
     def test_file_to_perio(self):
+        '''Revisa que obtenga instancias de Diente al leer el archivo'''
         Guardar.perio_to_file(nuevo_perio(), self.tmp_file, silent = True)
         perio = Guardar.file_to_perio(self.tmp_file, silent = True)
         for diente in perio:
-            self.assertIsInstance(perio[diente], Diente)
-            break
+            if diente.isnumeric():
+                self.assertIsInstance(perio[diente], Diente)
+                break
 
 if __name__ == '__main__':
     unittest.main()

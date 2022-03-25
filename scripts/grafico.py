@@ -7,9 +7,6 @@ import cv2
 import numpy as np
 
 class NuevoDiente(object):
-
-    img_original, img_procesada, diente, area = None, None, None, None
-    espacio, y_inicial, y_final, top, bottom = 0, 0, 0, 0, 0
     height = 160
 
     def get(self):
@@ -153,6 +150,29 @@ class NuevoDiente(object):
         # Obtiene las coordenadas de la línea
         return color_linea, self.obtener_coordenadas(valores)
 
+    def obtener_bordes(self, lado, margen, sondaje):
+        '''Obtiene las coordenadas de los lados del diente entre margen y sondaje para pintar bolsas'''
+        res = []
+        indice = 0 if lado == 'izq' else 2
+        indice_b = 0 if lado == 'der' else 2
+
+        # a es el punto inicial y b es el punto final
+        a, b = margen[indice], margen[indice_b] + sondaje[indice_b]
+
+        # define el rango, si es el lado izquierdo, la reversa
+        lista_y = range(a,b)
+        if lado == 'izq':
+            lista_y = reversed(lista_y)
+
+        for y in lista_y:
+            coord = self.obtener_coordenadas([y]*3)
+            res.append(coord[indice])
+
+        if len(res) == 0:
+            return np.array(res, np.int32).reshape(0,2)
+
+        return np.array(res, np.int32)
+
     def dibujar_curvas(self, dato):
         '''Dibuja las curvas de sondaje, margen y LMG'''
         color_linea, curva = self.obtener_curvas(dato)
@@ -166,10 +186,12 @@ class NuevoDiente(object):
         # Obtiene los valores
         opt = '_' if self.area == '_b' else ''
         margen = self.diente['valores'].get(self.formato_dato('margen')[1])
+        sondaje = self.diente['valores'].get(self.formato_dato('sondaje')[1])
         ni = self.diente['valores'].get(self.formato_dato('ni')[1])
 
         if ni is not None:
             margen = [int(y) for y in margen.split()]
+            sondaje = [int(y) for y in sondaje.split()]
 
             # Obtiene los puntos de las curvas
             _, curva_margen = self.obtener_curvas('margen')
@@ -185,29 +207,24 @@ class NuevoDiente(object):
             for i in range(3):
                 # La bolsa es margen - sondaje, que es equivalente al negativo de ni
                 if -ni[i] >= 4:
-                    # Agrega los puntos de la curva de margen en el tercio correspondiente
+                    # Obtiene los puntos del polígono
                     puntos_m = curvas_m[i]
-
-                    # Agrega los puntos del borde derecho de la bolsa o el diente
-                    puntos_der = np.array([], np.int32).reshape(0,2)
-                    # Obtiene las coordenadas del contorno derecho del diente
-                    # entre el margen y el sondaje, y reemplaza puntos_der
-                    #if i == 2:
-
-                    # Agrega los puntos de la curva de sondaje al revés en el tercio correspondiente
                     puntos_s = np.array(np.flip(curvas_s[i], axis=0), np.int32)
-
-                    # Agrega los puntos del borde izquierdo de la bolsa o el diente
-                    puntos_izq = np.array([], np.int32).reshape(0,2)
-                    # Obtiene las coordenadas del contorno izquierdo del diente
-                    # entre el margen y el sondaje, y reemplaza puntos_izq
-                    #if i == 0:
-
+                    puntos_der = self.obtener_bordes('der', margen, sondaje)
+                    puntos_izq = self.obtener_bordes('izq', margen, sondaje)
                     # Bolsa vs pseudobolsa
                     relleno = 'rojo' if margen[i] < 0 else 'negro'
-
-                    # Pinta el polígono
-                    puntos = np.concatenate((puntos_m, puntos_der,puntos_s, puntos_izq), axis=0)
+                    # Agrega los puntos necesarios
+                    if i == 0:
+                        # tiene en cuenta los bordes izquierdos
+                        puntos = np.concatenate((puntos_m, puntos_s, puntos_izq), axis=0)
+                    elif i == 2:
+                        # tiene en cuenta los bordes derechos
+                        puntos = np.concatenate((puntos_m, puntos_der, puntos_s), axis=0)
+                    else:
+                        # es el del centro, no tiene en cuenta los bordes
+                        puntos = np.concatenate((puntos_m, puntos_s), axis=0)
+                    # Rellena el poligono
                     cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
     def __init__(self, diente, src, area, espacio):

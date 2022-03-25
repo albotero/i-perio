@@ -21,7 +21,8 @@ class Guardar():
             with open(ruta, 'r') as file:
                 perio = json.load(file)
             for diente in perio.keys():
-                perio[diente] = Diente(cargar = perio[diente])
+                if diente.isnumeric():
+                    perio[diente] = Diente(cargar = perio[diente])
             Log.out('Se cargó el archivo', 'success', silent)
             return perio
         except Exception as ex:
