@@ -1,3 +1,4 @@
+from diente import Diente
 from grafico import nuevo_canvas
 from main import nuevo_perio
 import cv2
@@ -23,29 +24,20 @@ class TestGrafico(unittest.TestCase):
             diente['valores']['_SONDAJE'] = sondaje
             continue'''
 
-            if num % 2 != 0:
-                # Pone los dientes impares ausentes
-                diente['atributos'] = 'Ausente'
-            else:
-                # En múltiplos de 4, genera margenes aleatorios
-                if num % 4 == 0:
-                    diente['valores']['MARGEN'] = '{} {} {}'.format(
-                        rd.randint(-3, 3), rd.randint(-3, 3), rd.randint(-3, 3))
-                    diente['valores']['_MARGEN'] = '{} {} {}'.format(
-                        rd.randint(-3, 3), rd.randint(-3, 3), rd.randint(-3, 3))
-                    diente['valores']['SONDAJE'] = '{} {} {}'.format(
-                        rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
-                    diente['valores']['_SONDAJE'] = '{} {} {}'.format(
-                        rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
-                elif type(num) == int:
-                    diente['valores']['MARGEN'] = '1 0 1'
-                    diente['valores']['_MARGEN'] = '0 0 0'
-                    diente['valores']['SONDAJE'] = '1 1 1'
-                    diente['valores']['_SONDAJE'] = '3 2 4'
+            diente['atributos'] = Diente._atributos[num % 4]
+
+            if num == 16:
+                diente['valores']['IMPLANTE'] = True
+
+            # Datos aleatorios
+            for opt in ['', '_']:
+                diente['valores'][opt + 'MARGEN'] = '{} {} {}'.format(
+                    rd.randint(-3, 1), rd.randint(-3, 1), rd.randint(-3, 1))
+                diente['valores'][opt + 'SONDAJE'] = '{} {} {}'.format(
+                    rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
 
             # Algunos dientes no se les especifica LMG
-            if 0 < num % 5 < 4:
-                diente['valores']['L.M.G'] = str(rd.randint(6,10))
+            diente['valores']['L.M.G'] = str(rd.randint(6,10))
             # Genera las _LMG de los dientes inferiores
             if not diente['superior']:
                 diente['valores']['_L.M.G'] = str(rd.randint(6,10))

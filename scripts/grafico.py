@@ -68,8 +68,10 @@ class NuevoDiente(object):
             height, width, channels = self.img_original.shape
             x = self.diente['coordenadas'].get(y,[0,width / 2,width])[i]
 
-            # x-1 y y+1 porque las curvas estaban quedando muy corridas
-            puntos += [[x - 1, y * self.espacio + 1]]
+            # offset porque las curvas estaban quedando muy corridas
+            offset_x = -1
+            offset_y = -1 if self.diente['superior'] and self.area == '_b' else 1
+            puntos += [[x + offset_x, y * self.espacio + offset_y]]
 
         return np.array(puntos, np.int32)
 
@@ -107,9 +109,13 @@ class NuevoDiente(object):
         if valores is None:
             return None, None
         valores = [int(y) for y in valores.split()]
+
+        # Los margenes son negativos (+ hacia la corona y - hacia la raíz)
+        if dato == opt + 'MARGEN':
+            valores = [-int(x) for x in valores]
         if dato == opt + 'SONDAJE':
             # La base de sondaje es la línea de Margen
-            offset = [int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
+            offset = [-int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
             valores = [valores[x] + offset[x] for x in range(3)]
 
         # Obtiene las coordenadas de la línea
@@ -154,7 +160,7 @@ class NuevoDiente(object):
         ni = self.diente['valores'].get(self.formato_dato('ni')[1])
 
         if ni is not None:
-            margen = [int(y) for y in margen.split()]
+            margen = [-int(y) for y in margen.split()]
             sondaje = [int(y) for y in sondaje.split()]
 
             # Obtiene los puntos de las curvas
@@ -223,6 +229,9 @@ class NuevoDiente(object):
         self.espacio = espacio
         # Define las coordenadas de las cuadrículas
         self.top, self.diente['coordenadas'] = coord(diente['diente'], area)
+        # Define si la imagen es normal o implante
+        if self.diente['valores']['IMPLANTE']:
+            src = src.replace('dientes', 'implantes')
         # Carga las imágenes
         self.img_original = cv2.imread(src)
         self.img_procesada = read_transparent(src)
@@ -275,11 +284,12 @@ def nuevo_canvas(perio):
             canv_area = 'sup' if diente['superior'] else 'inf'
             # Carga la imagen del diente
             nuevo_diente = NuevoDiente(diente, src, s, espacio)
-            # Pinta las bolsas y pseudobolsas
-            nuevo_diente.pintar_bolsas()
-            # Dibuja las líneas correspondientes
-            nuevo_diente.dibujar_margen_sondaje('sondaje')
-            nuevo_diente.dibujar_margen_sondaje('margen')
+            if diente['atributos'] != 'Ausente':
+                # Pinta las bolsas y pseudobolsas
+                nuevo_diente.pintar_bolsas()
+                # Dibuja las líneas correspondientes
+                nuevo_diente.dibujar_margen_sondaje('sondaje')
+                nuevo_diente.dibujar_margen_sondaje('margen')
             # Obtiene el canvas previo
             canvas_previo = canvas.get(canv_area + s, [None, np.array([[0,0]], np.int32)])
             # Agrega las coordenadas para la LMG
