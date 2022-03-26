@@ -226,6 +226,32 @@ class NuevoDiente(object):
 
         return coord
 
+    def dibujar_in_extruido(self):
+        # Solo dibuja en los canvas _a
+        if self.area == '_b':
+            return
+
+        # Define las coordenadas de los puntos
+        height, width, _ = self.img_procesada.shape
+        x = int(width / 2)
+        y1 = 6
+        y2 = y1 + 10
+
+        if self.diente['superior']:
+            y1 = height - y1
+            y2 = height - y2
+
+        # Asigna las coordenadas según correspondan
+        if 'Intruido' in self.diente['atributos']:
+            coord_a, coord_b = (x, y1), (x, y2)
+        elif 'Extruido' in self.diente['atributos']:
+            coord_a, coord_b = (x, y2), (x, y1)
+        else:
+            return
+
+        color_flecha = 'rojo'
+        self.img_procesada = dibujar_flecha(self.img_procesada, coord_a, coord_b, color_flecha)
+
     def __init__(self, diente, src, area, espacio):
         '''Inicializa un objeto NuevoDiente con la imagen original y la imagen sin alpha'''
         self.area = area
@@ -299,6 +325,8 @@ def nuevo_canvas(perio):
                 # Dibuja las líneas correspondientes
                 nuevo_diente.dibujar_margen_sondaje('sondaje')
                 nuevo_diente.dibujar_margen_sondaje('margen')
+                # Dibuja flecha si lo requiere
+                nuevo_diente.dibujar_in_extruido()
             # Obtiene el canvas previo
             canvas_previo = canvas.get(canv_area + s, [None, np.array([[0,0]], np.int32)])
             # Agrega las coordenadas para la LMG

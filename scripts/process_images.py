@@ -3,9 +3,10 @@ import cv2
 import numpy as np
 
 color = {
+	'amarillo': (1, 216, 255),
 	'blanco': (255,255,255),
-	'negro': (0,0,0),
 	'gris': (145,145,145),
+	'negro': (0,0,0),
 	'rojo': (0,0,255),
 	'verde': (35,150,25)
 }
@@ -99,3 +100,7 @@ def dibujar_curva(imagen, color_linea, puntos, zoom_factor):
 		isClosed = False, color = color[color_linea],
 		thickness = 2, lineType = cv2.LINE_AA)
 	return zoom(img, 1/zoom_factor)
+
+def dibujar_flecha(img, coord_a, coord_b, color_linea, thickness = 4, tipLength = 0.5):
+	return cv2.arrowedLine(img, coord_a, coord_b, color[color_linea],
+		thickness, tipLength = tipLength)
