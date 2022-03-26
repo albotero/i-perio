@@ -26,14 +26,19 @@ class TestGrafico(unittest.TestCase):
 
             diente['atributos'] = Diente._atributos[num % 4]
 
-            diente['valores']['IMPLANTE'] = True
+            if num % 3 == 0:
+                diente['valores']['IMPLANTE'] = True
 
             # Datos aleatorios
             for opt in ['', '_']:
-                diente['valores'][opt + 'MARGEN'] = '{} {} {}'.format(
-                    rd.randint(-3, 1), rd.randint(-3, 1), rd.randint(-3, 1))
-                diente['valores'][opt + 'SONDAJE'] = '{} {} {}'.format(
-                    rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7))
+                diente['valores'][opt + 'MARGEN'] = \
+                    rd.randint(-3, 1), rd.randint(-3, 1), rd.randint(-3, 1)
+                diente['valores'][opt + 'SONDAJE'] = \
+                    rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7)
+                diente['valores'][opt +'SANGRADO'] = \
+                    not rd.getrandbits(1), not rd.getrandbits(1), not rd.getrandbits(1)
+                diente['valores'][opt +'SUPURACIÓN'] = \
+                    not rd.getrandbits(1), not rd.getrandbits(1), not rd.getrandbits(1)
 
             # Algunos dientes no se les especifica LMG
             diente['valores']['L.M.G'] = str(rd.randint(6,10))

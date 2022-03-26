@@ -16,6 +16,8 @@ def init_valores(diente, titulos):
     res = {}
     for val in titulos:
         res[val] = None
+        if 'SANGRADO' in val or 'SUPURACIÓN' in val:
+            res[val] = False, False, False
     return res
 
 class Diente(dict):
@@ -32,10 +34,10 @@ class Diente(dict):
                 self['valores'][opt+'N.I.'] = None
             else:
                 res = []
+                margen = self['valores'][opt+'MARGEN']
+                sondaje = self['valores'][opt+'SONDAJE']
                 for i in range(3):
-                    margen = self['valores'][opt+'MARGEN'].split()[i]
-                    sondaje = self['valores'][opt+'SONDAJE'].split()[i]
-                    res.append(int(margen) - int(sondaje))
+                    res.append(margen[i] - sondaje[i])
                 self['valores'][opt+'N.I.'] = res
 
     def __init__(self, diente = None, cargar = None):

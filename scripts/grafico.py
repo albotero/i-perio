@@ -110,14 +110,13 @@ class NuevoDiente(object):
         valores = self.diente['valores'].get(dato)
         if valores is None:
             return None, None
-        valores = [int(y) for y in valores.split()]
 
         # Los margenes son negativos (+ hacia la corona y - hacia la raíz)
         if dato == opt + 'MARGEN':
-            valores = [-int(x) for x in valores]
+            valores = [-x for x in valores]
         if dato == opt + 'SONDAJE':
             # La base de sondaje es la línea de Margen
-            offset = [-int(y) for y in self.diente['valores'][opt + 'MARGEN'].split()]
+            offset = [-y for y in self.diente['valores'][opt + 'MARGEN']]
             valores = [valores[x] + offset[x] for x in range(3)]
 
         # Obtiene las coordenadas de la línea
@@ -162,8 +161,7 @@ class NuevoDiente(object):
         ni = self.diente['valores'].get(self.formato_dato('ni')[1])
 
         if ni is not None:
-            margen = [-int(y) for y in margen.split()]
-            sondaje = [int(y) for y in sondaje.split()]
+            margen = [-y for y in margen]
 
             # Obtiene los puntos de las curvas
             _, curva_margen = self.obtener_puntos('margen')
@@ -179,6 +177,10 @@ class NuevoDiente(object):
             for i in range(3):
                 # La bolsa es margen - sondaje, que es equivalente al negativo de ni
                 if -ni[i] >= 4:
+                    # Los dientes con implante solo se pinta la bolsa si sangró
+                    sangrado = self.diente['valores'][opt + 'SANGRADO']
+                    if self.diente['valores']['IMPLANTE'] and not sangrado[i]:
+                        continue
                     # Obtiene los puntos del polígono
                     puntos_m = curvas_m[i]
                     puntos_s = np.array(np.flip(curvas_s[i], axis=0), np.int32)

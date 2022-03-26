@@ -17,7 +17,7 @@ def coord(num_diente, area, superior, implante, linea_0):
                     res += [int(row['top']), {}]
                     for i in range(22):
                         # Lee datos
-                        raiz = (superior and i < linea_0) or (not superior and i > linea_0)
+                        raiz = (superior and i <= linea_0) or (not superior and i >= linea_0)
 
                         if implante and raiz:
                             left_diente = row['izq_impl'.format(i)]
