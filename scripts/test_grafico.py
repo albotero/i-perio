@@ -26,8 +26,7 @@ class TestGrafico(unittest.TestCase):
 
             diente['atributos'] = Diente._atributos[num % 4]
 
-            if num == 16:
-                diente['valores']['IMPLANTE'] = True
+            diente['valores']['IMPLANTE'] = True
 
             # Datos aleatorios
             for opt in ['', '_']:

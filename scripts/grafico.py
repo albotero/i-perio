@@ -60,9 +60,11 @@ class NuevoDiente(object):
 
         for i in range(3):
             if self.diente['superior']:
-                y = int(self.y_final/self.espacio) - valores_y[i]
+                linea_0 = int(self.y_final/self.espacio)
+                y = linea_0 - valores_y[i]
             else:
-                y = int(self.y_inicial/self.espacio) + valores_y[i]
+                linea_0 = int(self.y_inicial/self.espacio)
+                y = linea_0 + valores_y[i]
 
             # X coordinate
             height, width, channels = self.img_original.shape
@@ -228,7 +230,12 @@ class NuevoDiente(object):
         self.diente = diente
         self.espacio = espacio
         # Define las coordenadas de las cuadrículas
-        self.top, self.diente['coordenadas'] = coord(diente['diente'], area)
+        limite_i, limite_f = self.limite_vertical()
+        linea_0 = limite_f if diente['superior'] else limite_i
+        linea_0 = int(linea_0 / self.espacio)
+        self.top, self.diente['coordenadas'] = coord(
+            diente['diente'], area, diente['superior'], diente['valores']['IMPLANTE'], linea_0
+            )
         # Define si la imagen es normal o implante
         if self.diente['valores']['IMPLANTE']:
             src = src.replace('dientes', 'implantes')
@@ -296,6 +303,12 @@ def nuevo_canvas(perio):
             lmg = agregar_lmg(nuevo_diente, canvas_previo, lmg_zoom_factor)
             # Agrega la imagen del diente al canvas
             canvas[canv_area + s] = [stack_diente(canvas_previo[0], nuevo_diente), lmg]
+
+            '''
+            # Muestra una imagen por cada diente para sacar las medidas
+            cv2.imshow('{}{}'.format(num, s), nuevo_diente.get())
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()'''
 
     # Dibuja la LMG
     for key, imagen in canvas.items():

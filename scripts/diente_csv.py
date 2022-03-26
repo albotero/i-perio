@@ -4,7 +4,7 @@ import csv
 
 csv_file = 'resources/bordes_dientes.csv'
 
-def coord(num_diente, area):
+def coord(num_diente, area, superior, implante, linea_0):
     '''Obtiene las coordenadas del diente en un mapa
         { y : [left_diente, centro_diente, right_diente]  }'''
     res = []
@@ -17,8 +17,14 @@ def coord(num_diente, area):
                     res += [int(row['top']), {}]
                     for i in range(22):
                         # Lee datos
-                        left_diente = row['izq_{}'.format(i)]
-                        right_diente = row['der_{}'.format(i)]
+                        raiz = (superior and i < linea_0) or (not superior and i > linea_0)
+
+                        if implante and raiz:
+                            left_diente = row['izq_impl'.format(i)]
+                            right_diente = row['der_impl'.format(i)]
+                        else:
+                            left_diente = row['izq_{}'.format(i)]
+                            right_diente = row['der_{}'.format(i)]
 
                         # Convierte a int
                         left_diente = int(left_diente) if left_diente.isnumeric() else 0
