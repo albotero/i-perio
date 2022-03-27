@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from diente import Diente
-from grafico import nuevo_canvas
-from guardar_perio import Guardar
+from .diente import Diente
+from .grafico import nuevo_canvas
+from .guardar_perio import Guardar
 
 def crear_diente(indice, pediatrico):
     '''Crea un nuevo Diente, el número del diente lo toma según el índice'''
@@ -50,4 +50,5 @@ def __main__():
     #perio[16]['valores']['VITALIDAD'] = '+'
     #Guardar.perio_to_file(perio)
 
-__main__()
+if __name__ == '__main__':
+    __main__()

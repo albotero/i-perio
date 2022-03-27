@@ -1,4 +1,4 @@
-from main import *
+from .main import *
 import unittest
 
 class TestPerio(unittest.TestCase):

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import unittest
-from test_grafico import TestGrafico
-from test_guardar_perio import TestGuardarPerio
-from test_main import TestPerio
+from .test_grafico import TestGrafico
+from .test_guardar_perio import TestGuardarPerio
+from .test_main import TestPerio
 
 def run_all_tests():
     test_classes_to_run = [

@@ -1,6 +1,6 @@
-from diente import Diente
-from guardar_perio import Guardar
-from main import *
+from .diente import Diente
+from .guardar_perio import Guardar
+from .main import *
 import os
 import unittest
 

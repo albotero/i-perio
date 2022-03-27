@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from diente import Diente
-from diente_csv import coord
-from process_images import *
+from .diente import Diente
+from .diente_csv import coord
+from .process_images import *
 import cv2
 import numpy as np
 
@@ -344,6 +344,8 @@ def nuevo_canvas(perio):
     for key, imagen in canvas.items():
         # Si es sup_b no hace nada porque los dientes superiores no tienen _LMG
         if key == 'sup_b':
+            # Borra los datos de la LMG del diccionario para devolver solo la imagen
+            canvas[key] = imagen[0]
             continue
 
         _, width, _ = imagen[0].shape

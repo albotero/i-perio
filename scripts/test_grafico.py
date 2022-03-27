@@ -1,6 +1,6 @@
-from diente import Diente
-from grafico import nuevo_canvas
-from main import nuevo_perio
+from .diente import Diente
+from .grafico import nuevo_canvas
+from .main import nuevo_perio
 import cv2
 import random as rd
 import unittest

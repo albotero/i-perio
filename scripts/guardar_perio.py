@@ -1,5 +1,5 @@
-from diente import Diente
-from log import Log
+from .diente import Diente
+from .log import Log
 import json
 import os
 import time
