@@ -347,7 +347,7 @@ def nuevo_canvas(perio):
             continue
 
         _, width, _ = imagen[0].shape
-        lmg = canvas[key][1]
+        lmg = imagen[1]
 
         # Extiende la lmg hasta el final de la imagen
         y = lmg[-1][1]
@@ -355,5 +355,8 @@ def nuevo_canvas(perio):
         nueva_lmg = np.concatenate((lmg, nuevo_punto), axis=0)
 
         imagen[0] = dibujar_curva(imagen[0], 'verde', nueva_lmg, lmg_zoom_factor)
+
+        # Borra los datos de la LMG del diccionario para devolver solo la imagen
+        canvas[key] = imagen[0]
 
     return canvas

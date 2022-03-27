@@ -52,13 +52,16 @@ class TestGrafico(unittest.TestCase):
         canvas = nuevo_canvas(perio)
 
         # Muestra las imagenes generadas
-        for area, imagen in canvas.items():
+        '''for area, imagen in canvas.items():
             cv2.imshow(area, imagen[0])
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        cv2.destroyAllWindows()'''
 
         # Se asegura que si haya generado las imágenes
         self.assertTrue(canvas, 'Dict canvas vacío')
+
+        # Devuelve el canvas para mostrarlo en el ejemplo en index.html
+        return canvas
 
 if __name__ == '__main__':
     unittest.main()
