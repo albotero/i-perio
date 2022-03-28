@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %} Periodontograma {% endblock %}
+
+{% block content %}
+    <p>Superior</p>
+    <img id="sup_a"/>
+    <img id="sup_b"/>
+    <p>Inferior</p>
+    <img id="inf_a"/>
+    <img id="inf_b"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}" />
+{% endblock%}

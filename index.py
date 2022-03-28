@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 
 from scripts.diente import Diente
 from scripts.grafico import nuevo_canvas
@@ -16,16 +16,6 @@ import base64
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    canvas = test_grafico()
-    for key in canvas.keys():
-        try:
-            canvas[key] = frame(canvas[key])
-        except Exception as ex:
-            print(ex)
-    return render_template('index.html', **canvas)
-
 def frame(arr: np.ndarray):
     # Reverse colors BGR to RGB
     arr = arr[:,:,::-1]
@@ -37,8 +27,38 @@ def frame(arr: np.ndarray):
     img_base64 = base64.b64encode(mem_bytes.getvalue()).decode('ascii')
     mime = "image/jpeg"
     uri = "data:%s;base64,%s"%(mime, img_base64)
-    #return render_template("main.html", image=uri)
     return uri
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/perio')
+def perio():
+    '''Página del periodontograma'''
+    '''canvas = test_grafico()
+    for key in canvas.keys():
+        try:
+            canvas[key] = frame(canvas[key])
+        except Exception as ex:
+            print(ex)
+    return render_template('perio.html', **canvas)'''
+    return render_template('perio.html')
+
+@app.route('/update_perio', methods=['POST'])
+def update_perio():
+    '''Recibe POST con datos, devuelve la nueva imagen procesada en base64'''
+    data = request.get_json()
+
+    # Test data
+    data = test_grafico()
+    for key in data.keys():
+        try:
+            data[key] = frame(data[key])
+        except Exception as ex:
+            print(ex)
+
+    return jsonify(data)
 
 def test_grafico():
     # Crea nuevo perio
@@ -48,18 +68,9 @@ def test_grafico():
         if type(num) is not int:
             continue
 
-        '''# Todos los dientes con mismo margen y sondaje
-        margen = '0 0 0'
-        sondaje = '1 1 1'
-        diente['valores']['MARGEN'] = margen
-        diente['valores']['_MARGEN'] = margen
-        diente['valores']['SONDAJE'] = sondaje
-        diente['valores']['_SONDAJE'] = sondaje
-        continue'''
-
         diente['atributos'] = Diente._atributos[num % 4]
 
-        if num % 3 == 0:
+        if num % 3 == 0 and diente['atributos'] != 'Ausente':
             diente['valores']['IMPLANTE'] = True
 
         # Datos aleatorios
@@ -81,14 +92,5 @@ def test_grafico():
 
         diente.calcular_ni()
 
-    # Obtiene las 4 imágenes del perio
-    canvas = nuevo_canvas(perio)
-
-    # Muestra las imagenes generadas
-    '''for area, imagen in canvas.items():
-        cv2.imshow(area, imagen[0])
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()'''
-
     # Devuelve el canvas para mostrarlo en el ejemplo en index.html
-    return canvas
+    return nuevo_canvas(perio)
