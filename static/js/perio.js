@@ -15,8 +15,6 @@ async function actualizar_perio() {
   /* Envía un POST a update_perio para actualizar los valores de data
       y obtiene las imágenes en base_64 en la respuesta */
 
-  console.log('actualizando');
-
   let previous_data = {};
   fetched_data = await post('update_perio', previous_data);
 

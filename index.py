@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template
+from flask import jsonify, request
+from flask import current_app
 
-from scripts.diente import Diente
+from scripts.diente import Diente, get_titulos
 from scripts.grafico import nuevo_canvas
 from scripts.main import nuevo_perio
 
@@ -13,6 +15,7 @@ from PIL import Image
 import io
 import numpy as np
 import base64
+import os
 
 app = Flask(__name__)
 
@@ -35,15 +38,27 @@ def index():
 
 @app.route('/perio')
 def perio():
-    '''Página del periodontograma'''
-    '''canvas = test_grafico()
-    for key in canvas.keys():
-        try:
-            canvas[key] = frame(canvas[key])
-        except Exception as ex:
-            print(ex)
-    return render_template('perio.html', **canvas)'''
-    return render_template('perio.html')
+    if not current_app.debug:
+        os.chdir('/home/alejandro/i-perio')
+    perio = nuevo_perio()
+    dict_perio = { 'sup': {}, 'inf': {} }
+
+    primer_diente = [18, 28, 38, 48]
+
+    for d in primer_diente:
+        diente = Diente(d)
+        grupo = 'sup' if diente['superior'] else 'inf'
+        dict_perio[grupo]['titulos'] = get_titulos(diente)
+
+    for num, diente in perio.items():
+        if type(num) is not int:
+            continue
+        # Si hace parte del perio superior o del inferior
+        grupo = 'sup' if diente['superior'] else 'inf'
+        # Agrega el título del diente
+        dict_perio[grupo][num] = diente
+
+    return render_template('perio.html', dict=dict_perio, primer_diente=primer_diente)
 
 @app.route('/update_perio', methods=['POST'])
 def update_perio():

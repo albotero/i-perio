@@ -3,12 +3,46 @@
 {% block title %} Periodontograma {% endblock %}
 
 {% block content %}
-    <p>Superior</p>
-    <img id="sup_a"/>
-    <img id="sup_b"/>
-    <p>Inferior</p>
-    <img id="inf_a"/>
-    <img id="inf_b"/>
+
+    {% for grupo in dict.keys() %}
+        {% set titulos = dict[grupo]['titulos'] %}
+        <table id="tbl_{{ grupo }}">
+            <tbody>
+                <tr>
+                    {% for num, diente in dict[grupo].items() %}
+                        {% if num is number %}
+                            <th>{{ num }}</th>
+                        {% else %}
+                            <th>\</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% for titulo in titulos %}
+                    <tr>
+                      <th>{{ titulo.replace('_', '') }}</th>
+                      {% for num, diente in dict[grupo].items() %}
+                          {% if num is number %}
+
+                              {% if titulo in ['VESTIBULAR', '_VESTIBULAR', '_PALATINO', 'LINGUAL'] %}
+                                  {% if num in primer_diente %}
+                                      {% if titulo in ['VESTIBULAR', 'LINGUAL'] %}
+                                          <td colspan=16><img id="{{ grupo }}_a"/></td>
+                                      {% elif titulo in ['_VESTIBULAR', '_PALATINO'] %}
+                                          <td colspan=16><img id="{{ grupo }}_b"/></td>
+                                      {% endif %}
+                                  {% endif %}
+
+                              {% else %}
+                                  <td>{{ diente['valores'][titulo] }}</td>
+                              {% endif %}
+                          {% endif %}
+                      {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+
 {% endblock %}
 
 {% block scripts %}
