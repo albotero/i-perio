@@ -179,7 +179,7 @@ class NuevoDiente(object):
                 if -ni[i] >= 4:
                     # Los dientes con implante solo se pinta la bolsa si sangró
                     sangrado = self.diente['valores'][opt + 'SANGRADO']
-                    if self.diente['valores']['IMPLANTE'] and not sangrado[i]:
+                    if self.diente['valores']['IMPLANTE'] == 'Si' and not sangrado[i]:
                         continue
                     # Obtiene los puntos del polígono
                     puntos_m = curvas_m[i]
@@ -262,10 +262,10 @@ class NuevoDiente(object):
         linea_0 = limite_f if diente['superior'] else limite_i
         linea_0 = int(linea_0 / self.espacio)
         self.top, self.diente['coordenadas'] = coord(
-            diente['diente'], area, diente['superior'], diente['valores']['IMPLANTE'], linea_0
+            diente['diente'], area, diente['superior'], diente['valores']['IMPLANTE'] == 'Si', linea_0
             )
         # Define si la imagen es normal o implante
-        if self.diente['valores']['IMPLANTE']:
+        if self.diente['valores']['IMPLANTE'] == 'Si':
             src = src.replace('dientes', 'implantes')
         # Carga las imágenes
         self.img_original = cv2.imread(src)

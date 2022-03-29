@@ -13,7 +13,7 @@
                         {% if num is number %}
                             <th>{{ num }}</th>
                         {% else %}
-                            <th>\</th>
+                            <th></th>
                         {% endif %}
                     {% endfor %}
                 </tr>
@@ -23,16 +23,31 @@
                       {% for num, diente in dict[grupo].items() %}
                           {% if num is number %}
 
-                              {% if titulo in ['VESTIBULAR', '_VESTIBULAR', '_PALATINO', 'LINGUAL'] %}
+                              {% if titulo in 'FURCA' %}
+                                  <td>{{ diente['valores'][titulo] }}</td>
+
+                              {% elif titulo in ['N.I.', '_N.I.'] %}
+                                  <td>{{ diente['valores'][titulo]|join(' ') }}</td>
+
+                              {% elif titulo in ['SONDAJE', 'MARGEN', '_SONDAJE', '_MARGEN'] %}
+                                  <td><input type="text" value="{{ diente['valores'][titulo]|join(' ') }}"
+                                              size="4"></td>
+
+                              {% elif titulo in ['VESTIBULAR', '_PALATINO', '_VESTIBULAR', 'LINGUAL'] %}
                                   {% if num in primer_diente %}
-                                      {% if titulo in ['VESTIBULAR', 'LINGUAL'] %}
-                                          <td colspan=16><img id="{{ grupo }}_a"/></td>
-                                      {% elif titulo in ['_VESTIBULAR', '_PALATINO'] %}
-                                          <td colspan=16><img id="{{ grupo }}_b"/></td>
-                                      {% endif %}
+                                      {% set area = 'a' if titulo in ['VESTIBULAR', 'LINGUAL'] else 'b' %}
+                                      <td colspan=16><img id="{{ grupo }}_{{ area }}"/></td>
                                   {% endif %}
 
+                              {% elif titulo in ['SANGRADO', '_SANGRADO', 'SUPURACIÓN', '_SUPURACIÓN'] %}
+                                  <td>
+                                      {% for i in range(3) %}
+                                          <input type="checkbox" value="" {{ 'checked' if diente['valores'][titulo][i] else '' }} />
+                                      {% endfor %}
+                                  </td>
+
                               {% else %}
+                                  {# Vitalidad, Implante, Movilidad, Placa #}
                                   <td>{{ diente['valores'][titulo] }}</td>
                               {% endif %}
                           {% endif %}

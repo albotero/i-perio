@@ -40,7 +40,10 @@ def index():
 def perio():
     if not current_app.debug:
         os.chdir('/home/alejandro/i-perio')
+
     perio = nuevo_perio()
+    perio, _ = test_grafico()
+
     dict_perio = { 'sup': {}, 'inf': {} }
 
     primer_diente = [18, 28, 38, 48]
@@ -66,14 +69,14 @@ def update_perio():
     data = request.get_json()
 
     # Test data
-    data = test_grafico()
-    for key in data.keys():
+    _, img = test_grafico()
+    for key in img.keys():
         try:
-            data[key] = frame(data[key])
+            img[key] = frame(img[key])
         except Exception as ex:
             print(ex)
 
-    return jsonify(data)
+    return jsonify(img)
 
 def test_grafico():
     # Crea nuevo perio
@@ -86,7 +89,7 @@ def test_grafico():
         diente['atributos'] = Diente._atributos[num % 4]
 
         if num % 3 == 0 and diente['atributos'] != 'Ausente':
-            diente['valores']['IMPLANTE'] = True
+            diente['valores']['IMPLANTE'] = 'Si'
 
         # Datos aleatorios
         for opt in ['', '_']:
@@ -108,4 +111,4 @@ def test_grafico():
         diente.calcular_ni()
 
     # Devuelve el canvas para mostrarlo en el ejemplo en index.html
-    return nuevo_canvas(perio)
+    return perio, nuevo_canvas(perio)
