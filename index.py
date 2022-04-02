@@ -18,6 +18,7 @@ import cv2
 import random as rd'''
 
 app = Flask(__name__)
+os.chdir(os.path.dirname(__file__))
 
 @app.route('/')
 def index():
@@ -51,7 +52,7 @@ def perio():
 
     # Genera un archivo temporal para guardar el perio
     filename = uuid.uuid4().hex
-    Guardar.perio_to_file(perio, filename)
+    Guardar.perio_to_file(perio, filename, silent = True)
 
     return render_template('perio.html', tmp=filename, dict=dict_perio,
         primer_diente=primer_diente, imagenes=imagenes)
@@ -61,7 +62,7 @@ def update_perio():
     '''Recibe POST con datos, devuelve la nueva imagen procesada en base64'''
     data = request.get_json()
     # Lee el tmp
-    perio = Guardar.file_to_perio(data['tmp'])
+    perio = Guardar.file_to_perio(data['tmp'], silent = True)
     # Actualiza los datos
     filtro = set()
     for num, datos in data.items():
@@ -71,7 +72,7 @@ def update_perio():
             perio[num]['valores'][titulo] = valor
             filtro.add('sup' if perio[num]['superior'] else 'inf')
     # Guarda el tmp
-    Guardar.perio_to_file(perio, data['tmp'])
+    Guardar.perio_to_file(perio, data['tmp'], silent = True)
     # Obtiene los str de las imágenes actualizadas
     imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
     # Devuelve las imagenes

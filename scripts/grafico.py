@@ -323,8 +323,7 @@ def nuevo_canvas(perio, filtro=None):
             num -= 40
 
         for s in ['_a', '_b']:
-            rel_path = 'img/dientes/{}{}.png'.format(num, s)
-            src = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', rel_path))
+            src = 'img/dientes/{}{}.png'.format(num, s)
             # Carga la imagen del diente
             nuevo_diente = NuevoDiente(diente, src, s, espacio)
             if diente['atributos'] != 'Ausente':
