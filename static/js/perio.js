@@ -46,7 +46,7 @@ function next_dato(titulo, valor_actual) {
 function actualizar_dato(elem, tipo) {
   /* Se ejecuta cuando se hace clic en el elemento */
   var id = $(elem).attr("id");
-  var [diente, titulo] = id.split('_');
+  var [diente, titulo] = id.split('-');
   var valor;
 
   if (tipo == 'vimp') {
@@ -58,6 +58,14 @@ function actualizar_dato(elem, tipo) {
     // Margen, Sondaje
     // Actualiza el N.I.
     valor = $(elem).val();
+  } else if (tipo == 'ss') {
+    // Sangrado o supuración
+    valor = [];
+    titulo = titulo.slice(0, -1);
+    for (var i = 0; i < 3; i++) {
+      var checkbox = id.slice(0, -1) + i;
+      valor.push($('#' + checkbox).prop('checked'));
+    }
   }
 
   // Agrega los datos al diccionario
