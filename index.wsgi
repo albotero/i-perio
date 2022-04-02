@@ -2,5 +2,5 @@
 
 import sys
 
-sys.path.insert(0,"/home/alejandro/i-perio/")
+sys.path.insert(0,"/home/boterof_alejandro/i-perio/")
 from index import app as application
