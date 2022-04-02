@@ -28,6 +28,7 @@ function actualizar_perio(previous_data = {}) {
 function next_dato(titulo, valor_actual) {
   /* Devuelve la siguiente posibilidad de valor para el dato */
   const lista_opt = {
+    'atributos': ['Normal', 'Ausente', 'Extruido', 'Intruido'],
     'VITALIDAD': ['-', '+'],
     'IMPLANTE': ['No', 'Si'],
     'MOVILIDAD': ['-', '1', '2', '3'],
@@ -49,7 +50,15 @@ function actualizar_dato(elem, tipo) {
   var [diente, titulo] = id.split('-');
   var valor;
 
-  if (tipo == 'vimp') {
+  if (tipo == 'attr') {
+    // Atributos
+    // Obtiene el valor siguiente y actualiza el elemento
+    if ($(elem).attr('tag') === undefined)
+      valor = next_dato(titulo, next_dato(titulo, $(elem).attr('tag')));
+    else
+      valor = next_dato(titulo, $(elem).attr('tag'));
+    $(elem).attr('tag', valor);
+  } else if (tipo == 'vimp') {
     // Vitalidad, implante, movilidad, placa
     // Obtiene el valor siguiente y actualiza el elemento
     valor = next_dato(titulo, $(elem).html());
@@ -74,7 +83,7 @@ function actualizar_dato(elem, tipo) {
 }
 
 setInterval(function enviar_datos_servidor() {
-  /* Se ejecuta cada 500ms, si hay datos para enviar los envía */
+  /* Se ejecuta cada 2000ms, si hay datos para enviar los envía */
   if ($.isEmptyObject(dict_actualizar)) return;
   if (actualizando) return;
   // Prepara los datos para enviar
@@ -85,4 +94,4 @@ setInterval(function enviar_datos_servidor() {
   actualizando = true;
   // Envía los datos al servidor
   actualizar_perio(json_data);
-}, 500);
+}, 2000);

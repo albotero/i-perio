@@ -11,7 +11,7 @@
                 <tr>
                     {% for num, diente in dict[grupo].items() %}
                         {% if num is number %}
-                            <th>{{ num }}</th>
+                            <th id="{{ num }}-atributos" onclick="actualizar_dato(this, 'attr');">{{ num }}</th>
                         {% else %}
                             <th></th>
                         {% endif %}
@@ -46,7 +46,7 @@
                                   <td>
                                       {% for i in range(3) %}
                                           <input type="checkbox" value="" id="{{ num }}-{{ titulo }}{{ i }}"
-                                             onclick="actualizar_dato(this, 'ss');"
+                                             onchange="actualizar_dato(this, 'ss');"
                                              {{ 'checked' if diente['valores'][titulo][i] else '' }} />
                                       {% endfor %}
                                   </td>

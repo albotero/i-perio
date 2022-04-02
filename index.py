@@ -64,19 +64,31 @@ def update_perio():
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
     # Actualiza los datos
+    actualizar = False
     filtro = set()
     for num, datos in data.items():
         if not num.isnumeric():
             continue
         for titulo, valor in datos.items():
-            perio[num]['valores'][titulo] = valor
+            # Si alguno de los datos cambiados tiene un efecto
+            # en las imágenes y hay que actualizarlas
+            if titulo.replace('_', '') in [ 'IMPLANTE', 'SANGRADO', 'SUPURACIÓN', \
+                                            'L.M.G', 'SONDAJE', 'MARGEN', 'atributos' ]:
+                actualizar = True
             filtro.add('sup' if perio[num]['superior'] else 'inf')
+
+            if titulo == 'atributos':
+                perio[num]['atributos'] = valor
+            else:
+                perio[num]['valores'][titulo] = valor
     # Guarda el tmp
     Guardar.perio_to_file(perio, data['tmp'], silent = True)
     # Obtiene los str de las imágenes actualizadas
-    imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
-    # Devuelve las imagenes
-    return imagenes
+    if actualizar:
+        imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
+        # Devuelve las imagenes
+        return imagenes, 200
+    return {}, 200
 
 '''def test_grafico():
     # Crea nuevo perio
