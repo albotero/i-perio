@@ -2,7 +2,6 @@ _opt_datos= {
     'VITALIDAD': ['-', '+'],
     'IMPLANTE': ['No', 'Si'],
     'MOVILIDAD': ['-', '1', '2', '3'],
-    'FURCA': ['-', 'I', 'II', 'III'],
     'PLACA': ['0', '1']
     }
 

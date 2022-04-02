@@ -1,3 +1,7 @@
+/* Este diccionario almacena los cambios hasta que se envíen al servidor */
+var dict_actualizar = { };
+var actualizando = false;
+
 function actualizar_perio(previous_data = {}) {
   /* Envía un POST a update_perio para actualizar los valores de data
       y obtiene las imágenes en base_64 en la respuesta */
@@ -14,6 +18,8 @@ function actualizar_perio(previous_data = {}) {
       console.log(Object.keys(response));
       for (var key in response)
         $('#' + key).attr('src', response[key]);
+      // Indica que ya terminó
+      actualizando = false;
     },
     error: function(errMsg) {console.log(errMsg);}
   });
@@ -25,7 +31,6 @@ function next_dato(titulo, valor_actual) {
     'VITALIDAD': ['-', '+'],
     'IMPLANTE': ['No', 'Si'],
     'MOVILIDAD': ['-', '1', '2', '3'],
-    'FURCA': ['-', 'I', 'II', 'III'],
     'PLACA': ['0', '1']
   }[titulo.replace('_', '')];
   // Index actual, si no existe devuelve -1
@@ -38,17 +43,38 @@ function next_dato(titulo, valor_actual) {
   return lista_opt[index];
 }
 
-function actualizar_dato(elem) {
+function actualizar_dato(elem, tipo) {
   /* Se ejecuta cuando se hace clic en el elemento */
   var id = $(elem).attr("id");
   var [diente, titulo] = id.split('_');
-  // Actualiza el valor en el perio
-  var valor = next_dato(titulo, $(elem).html());
-  $(elem).html(valor);
-  // Genera los datos para el request
-  json_data = { tmp: tmp };
-  json_data[diente] = {};
-  json_data[diente][titulo] = valor;
-  // Actualiza laimagen con el response
-  actualizar_perio(json_data);
+  var valor;
+
+  if (tipo == 'vimp') {
+    // Vitalidad, implante, movilidad, placa
+    // Obtiene el valor siguiente y actualiza el elemento
+    valor = next_dato(titulo, $(elem).html());
+    $(elem).html(valor);
+  } else if (tipo == 'ms') {
+    // Margen, Sondaje
+    // Actualiza el N.I.
+    valor = $(elem).val();
+  }
+
+  // Agrega los datos al diccionario
+  dict_actualizar[diente] = {};
+  dict_actualizar[diente][titulo] = valor;
 }
+
+setInterval(function enviar_datos_servidor() {
+  /* Se ejecuta cada 500ms, si hay datos para enviar los envía */
+  if ($.isEmptyObject(dict_actualizar)) return;
+  if (actualizando) return;
+  // Prepara los datos para enviar
+  json_data = dict_actualizar;
+  json_data['tmp'] = tmp;
+  // Quita los cambios de la variable
+  dict_actualizar = { };
+  actualizando = true;
+  // Envía los datos al servidor
+  actualizar_perio(json_data);
+}, 500);

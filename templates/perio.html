@@ -32,7 +32,8 @@
 
                               {% elif titulo in ['SONDAJE', 'MARGEN', '_SONDAJE', '_MARGEN'] %}
                                   {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
-                                  <td><input type="text" value="{{ val }}"size="4"></td>
+                                  <td><input id="{{ num }}_{{ titulo }}" type="text" value="{{ val }}"size="4"
+                                        onchange="actualizar_dato(this, 'ms');"></td>
 
                               {% elif titulo in ['VESTIBULAR', '_PALATINO', '_VESTIBULAR', 'LINGUAL'] %}
                                   {% if num in primer_diente %}
@@ -50,7 +51,7 @@
 
                               {% else %}
                                   {# Vitalidad, Implante, Movilidad, Placa #}
-                                  <td id="{{ num }}_{{ titulo }}" onclick="actualizar_dato(this);">{{ diente['valores'][titulo] }}</td>
+                                  <td id="{{ num }}_{{ titulo }}" onclick="actualizar_dato(this, 'vimp');">{{ diente['valores'][titulo] }}</td>
                               {% endif %}
                           {% endif %}
                       {% endfor %}
