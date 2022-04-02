@@ -69,8 +69,6 @@ def update_perio():
         if not num.isnumeric():
             continue
         for titulo, valor in datos.items():
-            if titulo.replace('_', '') in ['MARGEN', 'SONDAJE']:
-                valor = [int(x) for x in valor.split()]
             perio[num]['valores'][titulo] = valor
             filtro.add('sup' if perio[num]['superior'] else 'inf')
     # Guarda el tmp

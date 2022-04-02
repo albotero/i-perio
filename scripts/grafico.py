@@ -110,16 +110,21 @@ class NuevoDiente(object):
 
         # Obtiene los puntos de la linea
         valores = self.diente['valores'].get(dato)
-        if valores is None:
+        margen = self.diente['valores'][opt + 'MARGEN']
+
+        if (not Diente.margen_sondaje_valido(valores) or
+            not Diente.margen_sondaje_valido(margen)):
             return None, None
+
+        valores = Diente.format_margen_sondaje(valores)
+        margen = Diente.format_margen_sondaje(margen)
 
         # Los margenes son negativos (+ hacia la corona y - hacia la raíz)
         if dato == opt + 'MARGEN':
             valores = [-x for x in valores]
         if dato == opt + 'SONDAJE':
             # La base de sondaje es la línea de Margen
-            offset = [-y for y in self.diente['valores'][opt + 'MARGEN']]
-            valores = [valores[x] + offset[x] for x in range(3)]
+            valores = [valores[x] - margen[x] for x in range(3)]
 
         # Obtiene las coordenadas de la línea
         res_valores = self.obtener_coordenadas(valores)
@@ -160,9 +165,13 @@ class NuevoDiente(object):
         opt = '_' if self.area == '_b' else ''
         margen = self.diente['valores'].get(self.formato_dato('margen')[1])
         sondaje = self.diente['valores'].get(self.formato_dato('sondaje')[1])
-        ni = self.diente['valores'].get(self.formato_dato('ni')[1])
 
-        if ni is not None:
+        if (Diente.margen_sondaje_valido(margen) and
+            Diente.margen_sondaje_valido(sondaje)):
+            # Obtiene lista de enteros
+            margen = Diente.format_margen_sondaje(margen)
+            sondaje = Diente.format_margen_sondaje(sondaje)
+
             margen = [-y for y in margen]
 
             # Obtiene los puntos de las curvas
@@ -178,7 +187,7 @@ class NuevoDiente(object):
             # Define si debe pintar cada uno de los segmentos
             for i in range(3):
                 # La bolsa es margen - sondaje, que es equivalente al negativo de ni
-                if -ni[i] >= 4:
+                if sondaje[i] >= 4:
                     # Los dientes con implante solo se pinta la bolsa si sangró
                     sangrado = self.diente['valores'][opt + 'SANGRADO']
                     if self.diente['valores']['IMPLANTE'] == 'Si' and not sangrado[i]:

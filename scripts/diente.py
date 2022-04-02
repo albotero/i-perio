@@ -32,6 +32,17 @@ class Diente(dict):
 
     _atributos = ('Normal', 'Ausente', 'Extruido', 'Intruido')
 
+    def margen_sondaje_valido(valor: str):
+        try:
+            lista = valor.split(' ')
+            lista = [int(y) for y in lista]
+            return len(lista) == 3
+        except:
+            return False
+
+    def format_margen_sondaje(valor: str):
+        return [int(i) for i in valor.split()]
+
     def calcular_ni(self):
         '''Si se han especificado margen y sondaje, calcula el nivel de inserción
             Si se especifica opt = '_' usa los datos de _MARGEN y _SONDAJE en _N.I.'''

@@ -24,7 +24,8 @@ class Guardar():
             Log.out('Se cargó el archivo', 'success', silent)
             return perio
         except Exception as ex:
-            Log.out(repr(ex), 'error', silent)
+            Log.out(ex, 'error', silent,
+                    origen='guardar_perio.file_to_perio')
 
     def perio_to_file(perio, archivo = None, silent = False):
         '''Guarda el perio (diccionario de Dientes) a un archivo .perio'''
@@ -39,5 +40,6 @@ class Guardar():
                 file.write(json.dumps(perio, indent=3))
             Log.out('Se guardó el archivo', 'success', silent)
         except Exception as ex:
-            Log.out(repr(ex), 'error', silent)
+            Log.out(ex, 'error', silent,
+                    origen='guardar_perio.perio_to_file')
             return ex
