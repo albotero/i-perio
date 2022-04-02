@@ -2,19 +2,22 @@ function actualizar_perio(previous_data = {}) {
   /* Envía un POST a update_perio para actualizar los valores de data
       y obtiene las imágenes en base_64 en la respuesta */
   console.log("Actualizando", previous_data);
-  $.post(
-    'update_perio',
-    previous_data,
-    function(response) {
+  $.ajax({
+    type: "POST",
+    url: "update_perio",
+    // The key needs to match your method's input parameter (case-sensitive).
+    data: JSON.stringify(previous_data),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(response) {
       // Actualiza las imágenes que correspondan
+      console.log(Object.keys(response));
       for (var key in response)
         $('#' + key).attr('src', response[key]);
     },
-    "json"
-  );
+    error: function(errMsg) {console.log(errMsg);}
+  });
 }
-
-$(actualizar_perio());
 
 function next_dato(titulo, valor_actual) {
   /* Devuelve la siguiente posibilidad de valor para el dato */
@@ -42,9 +45,10 @@ function actualizar_dato(elem) {
   // Actualiza el valor en el perio
   var valor = next_dato(titulo, $(elem).html());
   $(elem).html(valor);
-  // Actualiza la imagen
-  json_data = {};
+  // Genera los datos para el request
+  json_data = { tmp: tmp };
   json_data[diente] = {};
   json_data[diente][titulo] = valor;
+  // Actualiza laimagen con el response
   actualizar_perio(json_data);
 }

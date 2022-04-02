@@ -1,5 +1,3 @@
-import re
-
 _opt_datos= {
     'VITALIDAD': ['-', '+'],
     'IMPLANTE': ['No', 'Si'],

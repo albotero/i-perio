@@ -6,31 +6,18 @@ from flask import current_app
 
 from scripts.diente import Diente, get_titulos
 from scripts.grafico import nuevo_canvas
+from scripts.guardar_perio import Guardar
 from scripts.main import nuevo_perio
+from scripts.process_images import actualizar_imagenes
 
-import cv2
-import random as rd
-
-from PIL import Image
-import io
-import numpy as np
-import base64
 import os
+import uuid
+
+'''# Para test
+import cv2
+import random as rd'''
 
 app = Flask(__name__)
-
-def frame(arr: np.ndarray):
-    # Reverse colors BGR to RGB
-    arr = arr[:,:,::-1]
-    # Gets base64
-    mem_bytes = io.BytesIO()
-    img = Image.fromarray(arr)
-    img.save(mem_bytes, 'JPEG')
-    mem_bytes.seek(0)
-    img_base64 = base64.b64encode(mem_bytes.getvalue()).decode('ascii')
-    mime = "image/jpeg"
-    uri = "data:%s;base64,%s"%(mime, img_base64)
-    return uri
 
 @app.route('/')
 def index():
@@ -38,48 +25,59 @@ def index():
 
 @app.route('/perio')
 def perio():
-    if not current_app.debug:
-        os.chdir('/home/alejandro/i-perio')
-
+    # Declaración de variables
     perio = nuevo_perio()
-    # Perio de prueba
-    perio, _ = test_grafico()
-
+    '''# Perio de prueba
+    perio = test_grafico()'''
     dict_perio = { 'sup': {}, 'inf': {} }
-
     primer_diente = [18, 28, 38, 48]
 
+    # Obtiene los encabezados de las filas
     for d in primer_diente:
         diente = Diente(d)
         grupo = 'sup' if diente['superior'] else 'inf'
         dict_perio[grupo]['titulos'] = get_titulos(diente)
 
+    # Agrega el diente al grupo correspondiente
     for num, diente in perio.items():
         if type(num) is not int:
             continue
         # Si hace parte del perio superior o del inferior
         grupo = 'sup' if diente['superior'] else 'inf'
-        # Agrega el título del diente
         dict_perio[grupo][num] = diente
 
-    return render_template('perio.html', dict=dict_perio, primer_diente=primer_diente)
+    # Obtiene los str de las imágenes
+    imagenes = actualizar_imagenes(nuevo_canvas(perio))
+
+    # Genera un archivo temporal para guardar el perio
+    filename = uuid.uuid4().hex
+    Guardar.perio_to_file(perio, filename)
+
+    return render_template('perio.html', tmp=filename, dict=dict_perio,
+        primer_diente=primer_diente, imagenes=imagenes)
 
 @app.route('/update_perio', methods=['POST'])
 def update_perio():
     '''Recibe POST con datos, devuelve la nueva imagen procesada en base64'''
     data = request.get_json()
+    # Lee el tmp
+    perio = Guardar.file_to_perio(data['tmp'])
+    # Actualiza los datos
+    filtro = set()
+    for num, datos in data.items():
+        if not num.isnumeric():
+            continue
+        for titulo, valor in datos.items():
+            perio[num]['valores'][titulo] = valor
+            filtro.add('sup' if perio[num]['superior'] else 'inf')
+    # Guarda el tmp
+    Guardar.perio_to_file(perio, data['tmp'])
+    # Obtiene los str de las imágenes actualizadas
+    imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
+    # Devuelve las imagenes
+    return imagenes
 
-    # Test data
-    _, img = test_grafico()
-    for key in img.keys():
-        try:
-            img[key] = frame(img[key])
-        except Exception as ex:
-            print(ex)
-
-    return jsonify(img)
-
-def test_grafico():
+'''def test_grafico():
     # Crea nuevo perio
     perio = nuevo_perio()
 
@@ -112,4 +110,4 @@ def test_grafico():
         diente.calcular_ni()
 
     # Devuelve el canvas para mostrarlo en el ejemplo en index.html
-    return perio, nuevo_canvas(perio)
+    return perio'''

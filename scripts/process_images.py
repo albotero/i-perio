@@ -2,6 +2,11 @@
 import cv2
 import numpy as np
 
+# Manejo del base64
+from PIL import Image
+import io
+import base64
+
 color = {
 	'amarillo': (1, 216, 255),
 	'blanco': (255,255,255),
@@ -104,3 +109,26 @@ def dibujar_curva(imagen, color_linea, puntos, zoom_factor):
 def dibujar_flecha(img, coord_a, coord_b, color_linea, thickness = 4, tipLength = 0.5):
 	return cv2.arrowedLine(img, coord_a, coord_b, color[color_linea],
 		thickness, tipLength = tipLength)
+
+def frame(arr: np.ndarray):
+    '''Pasa imágenes a str base64'''
+    # Reverse colors BGR to RGB
+    arr = arr[:,:,::-1]
+    # Gets base64
+    mem_bytes = io.BytesIO()
+    img = Image.fromarray(arr)
+    img.save(mem_bytes, 'JPEG')
+    mem_bytes.seek(0)
+    img_base64 = base64.b64encode(mem_bytes.getvalue()).decode('ascii')
+    mime = "image/jpeg"
+    uri = "data:%s;base64,%s"%(mime, img_base64)
+    return uri
+
+def actualizar_imagenes(canvas):
+    '''Obtiene el base64 de las 4 imágenes'''
+    for key in canvas.keys():
+        try:
+            canvas[key] = frame(canvas[key])
+        except Exception as ex:
+            print(ex)
+    return canvas

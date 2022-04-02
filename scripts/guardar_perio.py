@@ -6,9 +6,7 @@ import time
 
 def file_path(archivo):
     '''Define la ruta donde se guardan los archivos para cada usuario'''
-    # Más adelante buscará los datos de la sesión para cambiar la carpeta
-    # del nombre de usuario
-    return '/tmp/iperio/usuario1/' + archivo + '.perio'
+    return '/tmp/iperio/' + archivo + '.perio'
 
 class Guardar():
 

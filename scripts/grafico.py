@@ -300,15 +300,21 @@ def agregar_lmg(nuevo_diente, canvas_previo, zoom_factor):
 
     return np.concatenate((lmg, nueva_lmg), axis=0)
 
-def nuevo_canvas(perio):
+def nuevo_canvas(perio, filtro=None):
     '''Crea los 4 canvas con las imágenes de los dientes'''
     canvas = {}
     espacio = 7
     lmg_zoom_factor = 1.3
 
     for num, diente in perio.items():
+        # Si no es un diente no hace nada
         if type(diente) is not Diente:
-            # Si no es un diente no hace nada
+            continue
+
+        canv_area = 'sup' if diente['superior'] else 'inf'
+
+        # Si hay filtro, lo aplica
+        if filtro is not None and canv_area not in filtro:
             continue
 
         if perio['pediatrico']:
@@ -316,7 +322,6 @@ def nuevo_canvas(perio):
 
         for s in ['_a', '_b']:
             src = 'img/dientes/{}{}.png'.format(num, s)
-            canv_area = 'sup' if diente['superior'] else 'inf'
             # Carga la imagen del diente
             nuevo_diente = NuevoDiente(diente, src, s, espacio)
             if diente['atributos'] != 'Ausente':
