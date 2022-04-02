@@ -30,7 +30,7 @@ def perio():
     '''# Perio de prueba
     perio = test_grafico()'''
     dict_perio = { 'sup': {}, 'inf': {} }
-    primer_diente = [18, 28, 38, 48]
+    primer_diente = [18, 48]
 
     # Obtiene los encabezados de las filas
     for d in primer_diente:
