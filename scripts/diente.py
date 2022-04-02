@@ -1,4 +1,3 @@
-from itertools import cycle
 import re
 
 _opt_datos= {
@@ -20,16 +19,6 @@ def get_titulos(diente):
             'SANGRADO', 'L.M.G', 'N.I.', 'SONDAJE', 'MARGEN', 'LINGUAL', '_VESTIBULAR', '_MARGEN',
             '_SONDAJE', '_N.I.', '_L.M.G', '_SUPURACIÓN', '_SANGRADO', '_PLACA')
 
-def next_dato(titulo, valor_actual):
-    lista_opt = _opt_datos[titulo]
-    if valor_actual not in lista_opt:
-        indice_actual = -1
-    else:
-        indice_actual = lista_opt.index(valor_actual)
-        if lista_opt[indice_actual] is lista_opt[-1]:
-            indice_actual = -1
-    return lista_opt[indice_actual + 1]
-
 def init_valores(diente, titulos):
     '''Crea un diccionario con los datos del diente correspondiente'''
     res = {}
@@ -37,8 +26,8 @@ def init_valores(diente, titulos):
         res[val] = None
         if 'SANGRADO' in val or 'SUPURACIÓN' in val:
             res[val] = False, False, False
-        elif val in _opt_datos.keys():
-            res[val] = _opt_datos[val][0]
+        elif val.replace('_', '') in _opt_datos.keys():
+            res[val] = _opt_datos[val.replace('_', '')][0]
     return res
 
 class Diente(dict):

@@ -48,7 +48,7 @@
 
                               {% else %}
                                   {# Vitalidad, Implante, Movilidad, Placa #}
-                                  <td>{{ diente['valores'][titulo] }}</td>
+                                  <td id="{{ num }}_{{ titulo }}" onclick="actualizar_dato(this);">{{ diente['valores'][titulo] }}</td>
                               {% endif %}
                           {% endif %}
                       {% endfor %}

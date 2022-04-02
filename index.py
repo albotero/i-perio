@@ -42,6 +42,7 @@ def perio():
         os.chdir('/home/alejandro/i-perio')
 
     perio = nuevo_perio()
+    # Perio de prueba
     perio, _ = test_grafico()
 
     dict_perio = { 'sup': {}, 'inf': {} }
