@@ -34,7 +34,7 @@ class Diente(dict):
 
     def margen_sondaje_valido(valor: str):
         try:
-            lista = valor.split(' ')
+            lista = valor.strip().split(' ')
             lista = [int(y) for y in lista]
             return len(lista) == 3
         except:
@@ -48,12 +48,13 @@ class Diente(dict):
             Si se especifica opt = '_' usa los datos de _MARGEN y _SONDAJE en _N.I.'''
         for opt in ['', '_']:
             # Si no ha especificado Margen y Sondaje deja vacío el Nivel de inserción
-            if self['valores'][opt+'MARGEN'] is None or self['valores'][opt+'SONDAJE'] is None:
+            if (not Diente.margen_sondaje_valido(self['valores'][opt+'MARGEN']) or
+                not Diente.margen_sondaje_valido(self['valores'][opt+'SONDAJE'])):
                 self['valores'][opt+'N.I.'] = None
             else:
                 res = []
-                margen = self['valores'][opt+'MARGEN']
-                sondaje = self['valores'][opt+'SONDAJE']
+                margen = Diente.format_margen_sondaje(self['valores'][opt+'MARGEN'])
+                sondaje = Diente.format_margen_sondaje(self['valores'][opt+'SONDAJE'])
                 for i in range(3):
                     res.append(margen[i] - sondaje[i])
                 self['valores'][opt+'N.I.'] = res
