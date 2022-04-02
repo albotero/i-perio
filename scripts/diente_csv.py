@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import csv
+import os
 
-csv_file = 'resources/bordes_dientes.csv'
+rel_path = 'resources/bordes_dientes.csv'
+csv_file = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', rel_path))
 
 def coord(num_diente, area, superior, implante, linea_0):
     '''Obtiene las coordenadas del diente en un mapa
