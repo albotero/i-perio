@@ -64,7 +64,6 @@ def update_perio():
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
     # Actualiza los datos
-    actualizar = False
     filtro = set()
     for num, datos in data.items():
         if not num.isnumeric():
@@ -72,55 +71,27 @@ def update_perio():
         for titulo, valor in datos.items():
             # Si alguno de los datos cambiados tiene un efecto
             # en las imágenes y hay que actualizarlas
-            if titulo.replace('_', '') in [ 'IMPLANTE', 'SANGRADO', 'SUPURACIÓN', \
-                                            'L.M.G', 'SONDAJE', 'MARGEN', 'atributos' ]:
+            filtrar = 'sup' if perio[num]['superior'] else 'inf'
+            if titulo.replace('_', '') in [ 'SANGRADO', 'SUPURACIÓN', 'L.M.G', 'SONDAJE', 'MARGEN' ]:
                 actualizar = True
-            filtro.add('sup' if perio[num]['superior'] else 'inf')
+                filtrar = 'sup' if perio[num]['superior'] else 'inf'
+                filtrar += '_b' if '_' in titulo else '_a'
+                filtro.add(filtrar)
+            elif titulo in [ 'IMPLANTE', 'atributos' ]:
+                actualizar = True
+                filtro.add(filtrar + '_a')
+                filtro.add(filtrar + '_b')
 
             if titulo == 'atributos':
                 perio[num]['atributos'] = valor
             else:
                 perio[num]['valores'][titulo] = valor
+
     # Guarda el tmp
     Guardar.perio_to_file(perio, data['tmp'], silent = True)
     # Obtiene los str de las imágenes actualizadas
-    if actualizar:
+    if len(filtro) > 0:
         imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
         # Devuelve las imagenes
         return imagenes, 200
     return {}, 200
-
-'''def test_grafico():
-    # Crea nuevo perio
-    perio = nuevo_perio()
-
-    for num, diente in perio.items():
-        if type(num) is not int:
-            continue
-
-        diente['atributos'] = Diente._atributos[num % 4]
-
-        if num % 3 == 0 and diente['atributos'] != 'Ausente':
-            diente['valores']['IMPLANTE'] = 'Si'
-
-        # Datos aleatorios
-        for opt in ['', '_']:
-            diente['valores'][opt + 'MARGEN'] = \
-                rd.randint(-3, 1), rd.randint(-3, 1), rd.randint(-3, 1)
-            diente['valores'][opt + 'SONDAJE'] = \
-                rd.randint(0, 7), rd.randint(0, 7), rd.randint(0, 7)
-            diente['valores'][opt +'SANGRADO'] = \
-                not rd.getrandbits(1), not rd.getrandbits(1), not rd.getrandbits(1)
-            diente['valores'][opt +'SUPURACIÓN'] = \
-                not rd.getrandbits(1), not rd.getrandbits(1), not rd.getrandbits(1)
-
-        # Algunos dientes no se les especifica LMG
-        diente['valores']['L.M.G'] = str(rd.randint(6,10))
-        # Genera las _LMG de los dientes inferiores
-        if not diente['superior']:
-            diente['valores']['_L.M.G'] = str(rd.randint(6,10))
-
-        diente.calcular_ni()
-
-    # Devuelve el canvas para mostrarlo en el ejemplo en index.html
-    return perio'''

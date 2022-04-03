@@ -24,26 +24,41 @@
                           {% if num is number %}
 
                               {% if titulo in 'FURCA' %}
-                                  <td>{{ diente['valores'][titulo] }}</td>
+                                  <td id="col{{ num }}-{{ titulo }}">
+                                      <a>{{ diente['valores'][titulo] }}</a>
+                                  </td>
 
                               {% elif titulo in ['N.I.', '_N.I.'] %}
-                                  {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
-                                  <td>{{ val }}</td>
+                                  {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                  <td id="col{{ num }}-{{ titulo }}">
+                                      <a id="{{ num }}-{{ titulo }}">{{ val }}</a>
+                                  </td>
 
-                              {% elif titulo in ['SONDAJE', 'MARGEN', '_SONDAJE', '_MARGEN'] %}
+                              {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}
                                   {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
-                                  <td><input id="{{ num }}-{{ titulo }}" type="text" value="{{ val }}"size="4"
-                                        onchange="actualizar_dato(this, 'ms');"></td>
+                                  <td id="col{{ num }}-{{ titulo }}">
+                                      <input id="{{ num }}-{{ titulo }}" type="text" value="{{ val }}"size="4"
+                                          onchange="actualizar_dato(this, 'ms');">
+                                  </td>
 
-                              {% elif titulo in ['VESTIBULAR', '_PALATINO', '_VESTIBULAR', 'LINGUAL'] %}
+                              {% elif titulo.replace('_', '') in 'L.M.G' %}
+                                  {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                  <td id="col{{ num }}-{{ titulo }}">
+                                      <input id="{{ num }}-{{ titulo }}" type="text" value="{{ val }}"size="4"
+                                          onchange="actualizar_dato(this, 'lmg');">
+                                  </td>
+
+                              {% elif titulo.replace('_', '') in ['VESTIBULAR', 'PALATINO', 'LINGUAL'] %}
                                   {% if num in primer_diente %}
                                       {% set area = 'a' if titulo in ['VESTIBULAR', 'LINGUAL'] else 'b' %}
                                       {% set img_id = '{}_{}'.format(grupo, area) %}
-                                      <td colspan=16><img id="{{ img_id }}" src="{{ imagenes[img_id] }}"/></td>
+                                      <td colspan=16>
+                                          <img id="{{ img_id }}" src="{{ imagenes[img_id] }}"/>
+                                      </td>
                                   {% endif %}
 
-                              {% elif titulo in ['SANGRADO', '_SANGRADO', 'SUPURACIÓN', '_SUPURACIÓN'] %}
-                                  <td>
+                              {% elif titulo.replace('_', '') in ['SANGRADO', 'SUPURACIÓN'] %}
+                                  <td id="col{{ num }}-{{ titulo }}">
                                       {% for i in range(3) %}
                                           <input type="checkbox" value="" id="{{ num }}-{{ titulo }}{{ i }}"
                                              onchange="actualizar_dato(this, 'ss');"
@@ -53,8 +68,10 @@
 
                               {% else %}
                                   {# Vitalidad, Implante, Movilidad, Placa #}
-                                  <td id="{{ num }}-{{ titulo }}" onclick="actualizar_dato(this, 'vimp');"
-                                      >{{ diente['valores'][titulo] }}</td>
+                                  <td id="col{{ num }}-{{ titulo }}">
+                                    <a id="{{ num }}-{{ titulo }}" onclick="actualizar_dato(this, 'vimp');"
+                                      >{{ diente['valores'][titulo] }}</a>
+                                  </td>
                               {% endif %}
                           {% endif %}
                       {% endfor %}

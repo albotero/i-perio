@@ -54,12 +54,10 @@ def read_transparent(src):
 	return final_image.astype(np.uint8)
 
 
-def recta_to_curva(puntos):
+def recta_to_curva(_pts, tension = .5):
 	'''Suaviza las líneas para que los ángulos sean curvos'''
-	tension = .75
 	n = 512
 	# Duplicate first and last points
-	_pts = puntos.tolist()
 	_pts = [_pts[0]] + _pts + [_pts[1]]
 	# Create new list and append curve points
 	res = []
@@ -89,22 +87,22 @@ def recta_to_curva(puntos):
 
 	return [np.array(res, np.int32)]
 
-def zoom(img, zoom_factor):
+def zoom(img, zoom_factor: float, interpolation=cv2.INTER_CUBIC):
 	'''Cambia el tamaño de la imagen por el factor especificado'''
 	return cv2.resize(img, None, fx=zoom_factor, fy=zoom_factor)
 
-def dibujar_curva(imagen, color_linea, puntos, zoom_factor):
+def dibujar_curva(imagen, color_linea, puntos, tension = .5):
 	'''Amplía la imagen, dibuja la curva, y luego vuelve la imagen al tamaño original'''
 	# Si no hay puntos para graficar la curva no modifica la imagen
 	if puntos is None:
 		return imagen
 
-	img = zoom(imagen, zoom_factor)
 	cv2.polylines(
-		img, recta_to_curva(puntos),
+		imagen, recta_to_curva(puntos.tolist(), tension),
 		isClosed = False, color = color[color_linea],
 		thickness = 2, lineType = cv2.LINE_AA)
-	return zoom(img, 1/zoom_factor)
+
+	return imagen
 
 def dibujar_flecha(img, coord_a, coord_b, color_linea, thickness = 4, tipLength = 0.5):
 	return cv2.arrowedLine(img, coord_a, coord_b, color[color_linea],
@@ -125,10 +123,10 @@ def frame(arr: np.ndarray):
     return uri
 
 def actualizar_imagenes(canvas):
-    '''Obtiene el base64 de las 4 imágenes'''
-    for key in canvas.keys():
-        try:
-            canvas[key] = frame(canvas[key])
-        except Exception as ex:
-            print(ex)
-    return canvas
+	'''Obtiene el base64 de las 4 imágenes'''
+	for key in canvas.keys():
+		try:
+			canvas[key] = frame(canvas[key])
+		except Exception as ex:
+			print(ex)
+	return canvas

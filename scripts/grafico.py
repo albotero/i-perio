@@ -75,7 +75,10 @@ class NuevoDiente(object):
             # offset porque las curvas estaban quedando muy corridas
             offset_x = -1
             offset_y = -1 if self.diente['superior'] and self.area == '_b' else 1
-            puntos += [[x + offset_x, y * self.espacio + offset_y]]
+            puntos += [[
+                (x + offset_x) * self.zoom_factor,
+                (y * self.espacio + offset_y) * self.zoom_factor
+                ]]
 
         return np.array(puntos, np.int32)
 
@@ -102,7 +105,7 @@ class NuevoDiente(object):
 
         return color_linea, dato
 
-    def obtener_puntos(self, dato, factor = 1.0):
+    def obtener_puntos(self, dato):
         '''Obtiene las coordenadas de las curvas'''
 
         opt = '_' if self.area == '_b' else ''
@@ -127,8 +130,7 @@ class NuevoDiente(object):
             valores = [valores[x] - margen[x] for x in range(3)]
 
         # Obtiene las coordenadas de la línea
-        res_valores = self.obtener_coordenadas(valores)
-        res_valores = np.array([[x[0] * factor, x[1] * factor] for x in res_valores], np.int32)
+        res_valores = np.array(self.obtener_coordenadas(valores))
         return color_linea, res_valores
 
     def obtener_bordes(self, lado, margen, sondaje):
@@ -156,9 +158,8 @@ class NuevoDiente(object):
 
     def dibujar_margen_sondaje(self, dato):
         '''Dibuja las curvas de sondaje y margen'''
-        factor = 1.8
-        color_linea, curva = self.obtener_puntos(dato, factor)
-        self.img_procesada = dibujar_curva(self.img_procesada, color_linea, curva, factor)
+        color_linea, curva = self.obtener_puntos(dato)
+        self.img_procesada = dibujar_curva(self.img_procesada, color_linea, curva)
 
     def pintar_bolsas(self):
         # Obtiene los valores
@@ -177,8 +178,8 @@ class NuevoDiente(object):
             # Obtiene los puntos de las curvas
             _, curva_margen = self.obtener_puntos('margen')
             _, curva_sondaje = self.obtener_puntos('sondaje')
-            curva_margen = recta_to_curva(curva_margen)
-            curva_sondaje = recta_to_curva(curva_sondaje)
+            curva_margen = recta_to_curva(curva_margen.tolist())
+            curva_sondaje = recta_to_curva(curva_sondaje.tolist())
 
             # Divide las curvas en 3 segmentos
             curvas_m = np.array_split(curva_margen[0], 3)
@@ -202,7 +203,11 @@ class NuevoDiente(object):
                     # Agrega los puntos necesarios
                     if i == 0:
                         # tiene en cuenta los bordes izquierdos
+                        print('puntos m', puntos_m)
+                        print('puntos s', puntos_s)
+                        print('puntos izq', puntos_izq)
                         puntos = np.concatenate((puntos_m, puntos_s, puntos_izq), axis=0)
+                        print('puntos', puntos)
                     elif i == 2:
                         # tiene en cuenta los bordes derechos
                         puntos = np.concatenate((puntos_m, puntos_der, puntos_s), axis=0)
@@ -212,7 +217,7 @@ class NuevoDiente(object):
                     # Rellena el poligono
                     cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
-    def obtener_coord_lmg(self, canvas_previo, zoom_factor):
+    def obtener_coord_lmg(self, canvas_previo):
         '''Obtiene las coordenadas de lmg en la imagen entera'''
         # Obtiene la coordenada x de la imagen en el canvas
         if canvas_previo is None:
@@ -223,17 +228,13 @@ class NuevoDiente(object):
         # Obtiene en valor de la LMG de el diente actual
         lmg = self.diente['valores'].get(self.formato_dato('lmg')[1])
         # Si no está definido, pone un valor por defecto
-        if lmg is None:
-            #lmg = 14 if self.diente['superior'] else 15
+        if lmg is None or not lmg.isnumeric():
             lmg = 20
 
         # Obtiene las coordenadas del punto en la imagen actual
         coord = self.obtener_coordenadas([int(lmg)]*3)[1]
         # Obtiene la coordenada x en el canvas
         coord[0] += x_diente
-        # Aplica el factor de zoom
-        coord[0] *= zoom_factor
-        coord[1] *= zoom_factor
 
         return coord
 
@@ -263,7 +264,7 @@ class NuevoDiente(object):
         color_flecha = 'rojo'
         self.img_procesada = dibujar_flecha(self.img_procesada, coord_a, coord_b, color_flecha)
 
-    def __init__(self, diente, src, area, espacio):
+    def __init__(self, diente, src, area, espacio, zoom_factor = 1):
         '''Inicializa un objeto NuevoDiente con la imagen original y la imagen sin alpha'''
         self.area = area
         self.diente = diente
@@ -287,6 +288,9 @@ class NuevoDiente(object):
         self.y_inicial, self.y_final = self.limite_vertical()
         # Dibuja las cuadrículas
         self.dibujar_cuadriculas()
+        # Amplifica la imagen para poder dibujar las líneas delgadas
+        self.zoom_factor = zoom_factor
+        self.img_procesada = zoom(self.img_procesada, zoom_factor)
 
 
 def stack_diente(canvas, diente):
@@ -299,10 +303,10 @@ def stack_diente(canvas, diente):
     # Devuelve la imagen resultante
     return np.concatenate((canvas, nuevo_diente), axis = 1)
 
-def agregar_lmg(nuevo_diente, canvas_previo, zoom_factor):
+def agregar_lmg(nuevo_diente, canvas_previo):
     '''Agrega la LMG del nuevo diente a las lmg previas'''
     lmg = canvas_previo[1]
-    nueva_lmg = [nuevo_diente.obtener_coord_lmg(canvas_previo[0], zoom_factor)]
+    nueva_lmg = [nuevo_diente.obtener_coord_lmg(canvas_previo[0])]
 
     # Si es el primer valor de la LMG pone la misma y pero en x = 0
     if (lmg[0] == np.array([0,0])).all():
@@ -315,7 +319,7 @@ def nuevo_canvas(perio, filtro=None):
     '''Crea los 4 canvas con las imágenes de los dientes'''
     canvas = {}
     espacio = 7
-    lmg_zoom_factor = 1.3
+    zoom_factor = 1.5
 
     for num, diente in perio.items():
         # Si no es un diente no hace nada
@@ -324,17 +328,17 @@ def nuevo_canvas(perio, filtro=None):
 
         canv_area = 'sup' if diente['superior'] else 'inf'
 
-        # Si hay filtro, lo aplica
-        if filtro is not None and canv_area not in filtro:
-            continue
-
         if perio['pediatrico']:
             num -= 40
 
         for s in ['_a', '_b']:
+            # Si hay filtro, lo aplica
+            if filtro is not None and (canv_area + s) not in filtro:
+                continue
+
             src = 'img/dientes/{}{}.png'.format(num, s)
             # Carga la imagen del diente
-            nuevo_diente = NuevoDiente(diente, src, s, espacio)
+            nuevo_diente = NuevoDiente(diente, src, s, espacio, zoom_factor)
             if diente['atributos'] != 'Ausente':
                 # Pinta las bolsas y pseudobolsas
                 nuevo_diente.pintar_bolsas()
@@ -343,38 +347,53 @@ def nuevo_canvas(perio, filtro=None):
                 nuevo_diente.dibujar_margen_sondaje('margen')
                 # Dibuja flecha si lo requiere
                 nuevo_diente.dibujar_in_extruido()
+
             # Obtiene el canvas previo
-            canvas_previo = canvas.get(canv_area + s, [None, np.array([[0,0]], np.int32)])
+            canvas_previo = canvas.get(
+                    canv_area + s,
+                    [None, np.array([[0,0]], np.int32), np.array([[0,0]], np.int32)]
+                    )
             # Agrega las coordenadas para la LMG
-            lmg = agregar_lmg(nuevo_diente, canvas_previo, lmg_zoom_factor)
+            lmg = agregar_lmg(nuevo_diente, canvas_previo)
             # Agrega la imagen del diente al canvas
             canvas[canv_area + s] = [stack_diente(canvas_previo[0], nuevo_diente), lmg]
 
-            '''
-            # Muestra una imagen por cada diente para sacar las medidas
-            cv2.imshow('{}{}'.format(num, s), nuevo_diente.get())
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()'''
-
     # Dibuja la LMG
-    for key, imagen in canvas.items():
-        # Si es sup_b no hace nada porque los dientes superiores no tienen _LMG
-        if key == 'sup_b':
-            # Borra los datos de la LMG del diccionario para devolver solo la imagen
-            canvas[key] = imagen[0]
-            continue
+    for key, cvs in canvas.items():
+        # Los dientes superiores no tienen _LMG
+        if key != 'sup_b':
+            # Crea una curva por cada grupo de LMG contiguos que tienen un valor válido
+            nuevas_lmg = []
+            
+            img, lmg = cvs
+            _, width, _ = img.shape
 
-        _, width, _ = imagen[0].shape
-        lmg = imagen[1]
+            # Evalúa si los puntos contiguos tienen un valor válido
+            for i, punto in enumerate(lmg):
+                x, y = punto
+                _, y_prev = lmg[i - 1]
 
-        # Extiende la lmg hasta el final de la imagen
-        y = lmg[-1][1]
-        nuevo_punto = [np.array([width * lmg_zoom_factor, y], np.int32)]
-        nueva_lmg = np.concatenate((lmg, nuevo_punto), axis=0)
+                # Bordes izquierdos
+                borde_izq = 0 if i == 0 else x - 10
+                nuevo_punto = [[borde_izq, y]]
+                if i == 0 or y_prev <= 0 or y_prev >= 200:
+                    # Inicializa una nueva curva
+                    nuevas_lmg.append( nuevo_punto )
+                elif y <= 0 or y >= 200:
+                    continue
 
-        imagen[0] = dibujar_curva(imagen[0], 'verde', nueva_lmg, lmg_zoom_factor)
+                nuevas_lmg[-1] = np.append(nuevas_lmg[-1], nuevo_punto, axis=0)
+
+                # Bordes derechos
+                borde_der = width if i == len(lmg) - 1 else x + 10
+                nuevo_punto = [np.array([borde_der, y], np.int32)]
+                nuevas_lmg[-1] = np.append(nuevas_lmg[-1], nuevo_punto, axis=0)
+
+            # Dibuja las curvas de LMG
+            for curva in nuevas_lmg:
+                cvs[0] = dibujar_curva(cvs[0], 'verde', curva, tension = .35)
 
         # Borra los datos de la LMG del diccionario para devolver solo la imagen
-        canvas[key] = imagen[0]
+        canvas[key] = zoom(cvs[0], 1/1.35)
 
     return canvas

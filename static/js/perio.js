@@ -46,27 +46,48 @@ function next_dato(titulo, valor_actual) {
 
 function actualizar_dato(elem, tipo) {
   /* Se ejecuta cuando se hace clic en el elemento */
-  var id = $(elem).attr("id");
+  var id = $(elem).attr('id');
   var [diente, titulo] = id.split('-');
   var valor;
 
   if (tipo == 'attr') {
     // Atributos
+    var quitar_ausente = false;
     // Obtiene el valor siguiente y actualiza el elemento
-    if ($(elem).attr('tag') === undefined)
+    if ($(elem).attr('tag') === undefined) {
       valor = next_dato(titulo, next_dato(titulo, $(elem).attr('tag')));
-    else
+    } else {
+      quitar_ausente = $(elem).attr('tag') == 'Ausente';
       valor = next_dato(titulo, $(elem).attr('tag'));
+    }
     $(elem).attr('tag', valor);
+
+    // Modifica la columna si el diente es Ausente
+    mostrar = valor != 'Ausente';
+    celdas_columna = $('td[id^="col' + diente + '"]');
+    // Muestra u oculta todos los elementos de esa columna
+    // Pinta u oculta un patrón negro en los espacios de los elementos
+    if (mostrar) {
+      if (quitar_ausente) {
+        celdas_columna.children().show();
+        celdas_columna.toggleClass('diente_ausente');
+      }
+    } else {
+      celdas_columna.children().hide();
+      celdas_columna.toggleClass('diente_ausente');
+    }
   } else if (tipo == 'vimp') {
     // Vitalidad, implante, movilidad, placa
     // Obtiene el valor siguiente y actualiza el elemento
     valor = next_dato(titulo, $(elem).html());
     $(elem).html(valor);
+  } else if (tipo == 'lmg') {
+    // LMG
+    valor = $(elem).val();
   } else if (tipo == 'ms') {
     // Margen, Sondaje
-    // Actualiza el N.I.
     valor = $(elem).val();
+    // Actualiza el N.I.
   } else if (tipo == 'ss') {
     // Sangrado o supuración
     valor = [];
@@ -83,7 +104,7 @@ function actualizar_dato(elem, tipo) {
 }
 
 setInterval(function enviar_datos_servidor() {
-  /* Se ejecuta cada 2000ms, si hay datos para enviar los envía */
+  /* Se ejecuta regularmente, si hay datos para enviar los envía */
   if ($.isEmptyObject(dict_actualizar)) return;
   if (actualizando) return;
   // Prepara los datos para enviar
@@ -94,4 +115,4 @@ setInterval(function enviar_datos_servidor() {
   actualizando = true;
   // Envía los datos al servidor
   actualizar_perio(json_data);
-}, 2000);
+}, 1500);
