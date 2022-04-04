@@ -15,20 +15,20 @@ class NuevoDiente(object):
         '''Devuelve la imagen procesada'''
         return self.img_procesada
 
-    def bordes(self, img):
+    def bordes(self):
         '''Alinea el diente con la cuadrícula añadiendo un espacio en la parte superior
         y añade un borde en la parte inferior para que la imagen sea de 140px'''
-        y, x, _ = img.shape
+        y, x, _ = self.img_procesada.shape
         self.bottom = self.height - (self.top + y)
 
-        return cv2.copyMakeBorder(img, self.top, self.bottom, 0, 0,
-            cv2.BORDER_CONSTANT, value=color['blanco'])
+        self.img_procesada = cv2.copyMakeBorder(self.img_procesada,
+                self.top, self.bottom, 0, 0, cv2.BORDER_CONSTANT,
+                value=color['blanco'])
 
-    def pintar_ausente(self, img):
+    def pintar_ausente(self):
         '''Pinta de negro si el diente tiene el atributo Ausente'''
         if self.diente['atributos'] == 'Ausente':
-            img = process_fill(self.img_original, img)
-        return img
+            self.img_procesada = process_fill(self.img_original, self.img_procesada)
 
     def limite_vertical(self):
         '''Define y_inicial y y_final para no dibujar sobre la corona'''
@@ -273,17 +273,16 @@ class NuevoDiente(object):
         limite_i, limite_f = self.limite_vertical()
         linea_0 = limite_f if diente['superior'] else limite_i
         linea_0 = int(linea_0 / self.espacio)
-        self.top, self.diente['coordenadas'] = coord(
-            diente['diente'], area, diente['superior'], diente['valores']['IMPLANTE'] == 'Si', linea_0
-            )
+        self.top, self.diente['coordenadas'] = coord(diente['diente'], area,
+                diente['superior'], diente['valores']['IMPLANTE'] == 'Si', linea_0)
         # Define si la imagen es normal o implante
-        if self.diente['valores']['IMPLANTE'] == 'Si':
+        if self.diente['valores']['IMPLANTE'] == 'Si' and self.diente['atributos'] != 'Ausente':
             src = src.replace('dientes', 'implantes')
         # Carga las imágenes
         self.img_original = cv2.imread(src)
         self.img_procesada = read_transparent(src)
-        self.img_procesada = self.pintar_ausente(self.img_procesada)
-        self.img_procesada = self.bordes(self.img_procesada)
+        self.pintar_ausente()
+        self.bordes()
         # Define los límites verticales
         self.y_inicial, self.y_final = self.limite_vertical()
         # Dibuja las cuadrículas

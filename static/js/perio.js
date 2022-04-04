@@ -1,29 +1,20 @@
 /* Este diccionario almacena los cambios hasta que se envíen al servidor */
 var dict_actualizar = { };
-var actualizando = false;
+var socket = io();
 
-function actualizar_perio(previous_data = {}) {
-  /* Envía un POST a update_perio para actualizar los valores de data
-      y obtiene las imágenes en base_64 en la respuesta */
-  console.log("Actualizando", previous_data);
-  $.ajax({
-    type: "POST",
-    url: "update_perio",
-    // The key needs to match your method's input parameter (case-sensitive).
-    data: JSON.stringify(previous_data),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(response) {
-      // Actualiza las imágenes que correspondan
-      console.log(Object.keys(response));
-      for (var key in response)
-        $('#' + key).attr('src', response[key]);
-      // Indica que ya terminó
-      actualizando = false;
-    },
-    error: function(errMsg) {console.log(errMsg);}
-  });
+function enviar_update() {
+    // Envía los datos al servidor
+    dict_actualizar['tmp'] = tmp;
+    socket.emit('update_perio', dict_actualizar);
+    dict_actualizar = { };
 }
+
+socket.on('response_perio', function(imagenes) {
+    // Actualiza las imágenes que correspondan
+    console.log(Object.keys(imagenes));
+    for (var key in imagenes)
+        $('#' + key).attr('src', imagenes[key]);
+});
 
 function next_dato(titulo, valor_actual) {
   /* Devuelve la siguiente posibilidad de valor para el dato */
@@ -101,18 +92,5 @@ function actualizar_dato(elem, tipo) {
   // Agrega los datos al diccionario
   dict_actualizar[diente] = {};
   dict_actualizar[diente][titulo] = valor;
+  enviar_update();
 }
-
-setInterval(function enviar_datos_servidor() {
-  /* Se ejecuta regularmente, si hay datos para enviar los envía */
-  if ($.isEmptyObject(dict_actualizar)) return;
-  if (actualizando) return;
-  // Prepara los datos para enviar
-  json_data = dict_actualizar;
-  json_data['tmp'] = tmp;
-  // Quita los cambios de la variable
-  dict_actualizar = { };
-  actualizando = true;
-  // Envía los datos al servidor
-  actualizar_perio(json_data);
-}, 500);

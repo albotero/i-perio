@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
 from flask import Flask, render_template
-from flask import jsonify, request
+from flask import request
 from flask import current_app
+from flask_socketio import SocketIO, emit
 
 from scripts.diente import Diente, get_titulos
 from scripts.grafico import nuevo_canvas
@@ -13,11 +14,9 @@ from scripts.process_images import actualizar_imagenes
 import os
 import uuid
 
-'''# Para test
-import cv2
-import random as rd'''
-
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins = '*')
+
 os.chdir(os.path.dirname(__file__))
 
 @app.route('/')
@@ -28,8 +27,6 @@ def index():
 def perio():
     # Declaración de variables
     perio = nuevo_perio()
-    '''# Perio de prueba
-    perio = test_grafico()'''
     dict_perio = { 'sup': {}, 'inf': {} }
     primer_diente = [18, 48]
 
@@ -57,10 +54,9 @@ def perio():
     return render_template('perio.html', tmp=filename, dict=dict_perio,
         primer_diente=primer_diente, imagenes=imagenes)
 
-@app.route('/update_perio', methods=['POST'])
-def update_perio():
-    '''Recibe POST con datos, devuelve la nueva imagen procesada en base64'''
-    data = request.get_json()
+@socketio.on("update_perio")
+def update_perio(data):
+    '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
     # Actualiza los datos
@@ -93,5 +89,4 @@ def update_perio():
     if len(filtro) > 0:
         imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
         # Devuelve las imagenes
-        return imagenes, 200
-    return {}, 200
+        emit('response_perio', imagenes)
