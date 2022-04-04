@@ -9,11 +9,18 @@ function enviar_update() {
     dict_actualizar = { };
 }
 
-socket.on('response_perio', function(imagenes) {
+socket.on('response_perio', function(datos) {
     // Actualiza las imágenes que correspondan
-    console.log(Object.keys(imagenes));
-    for (var key in imagenes)
-        $('#' + key).attr('src', imagenes[key]);
+    for (var key in datos) {
+        // Imágenes en la respuesta
+        if (key.includes('sup_') || key.includes('inf_'))
+            $('#' + key).attr('src', datos[key]);
+        // Nivel de inserción
+        else if (key.includes('N.I')) {
+            ni = $('#col' + key.replaceAll('.', ''))
+            ni.html(datos[key]);
+        }
+    }
 });
 
 function next_dato(titulo, valor_actual) {
@@ -38,7 +45,7 @@ function next_dato(titulo, valor_actual) {
 function actualizar_dato(elem, tipo) {
   /* Se ejecuta cuando se hace clic en el elemento */
   var id = $(elem).attr('id');
-  var [diente, titulo] = id.split('-');
+  var [titulo, diente] = id.split('-');
   var valor;
 
   if (tipo == 'attr') {

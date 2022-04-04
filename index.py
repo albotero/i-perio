@@ -61,6 +61,8 @@ def update_perio(data):
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
     # Actualiza los datos
     filtro = set()
+    respuesta = {}
+
     for num, datos in data.items():
         if not num.isnumeric():
             continue
@@ -73,6 +75,7 @@ def update_perio(data):
                 filtrar = 'sup' if perio[num]['superior'] else 'inf'
                 filtrar += '_b' if '_' in titulo else '_a'
                 filtro.add(filtrar)
+
             elif titulo in [ 'IMPLANTE', 'atributos' ]:
                 actualizar = True
                 filtro.add(filtrar + '_a')
@@ -83,10 +86,18 @@ def update_perio(data):
             else:
                 perio[num]['valores'][titulo] = valor
 
+            # Actualiza el N.I. y si cambió lo agrega a la respuesta
+            perio[num].calcular_ni()
+            ni = ('_' if '_' in titulo else '') + 'N.I.'
+            if perio[num]['valores'][ni] is not None:
+                respuesta['{}-{}'.format(num, ni)] = ' '.join(map(str, perio[num]['valores'][ni]))
+
     # Guarda el tmp
     Guardar.perio_to_file(perio, data['tmp'], silent = True)
+
     # Obtiene los str de las imágenes actualizadas
     if len(filtro) > 0:
-        imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
-        # Devuelve las imagenes
-        emit('response_perio', imagenes)
+        respuesta.update( actualizar_imagenes(nuevo_canvas(perio, filtro=filtro)) )
+
+    # Devuelve los datos
+    emit('response_perio', respuesta)
