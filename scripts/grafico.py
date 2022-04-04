@@ -246,8 +246,8 @@ class NuevoDiente(object):
         # Define las coordenadas de los puntos
         height, width, _ = self.img_procesada.shape
         x = int(width / 2)
-        y1 = 6
-        y2 = y1 + 10
+        y1 = int(6 * self.zoom_factor)
+        y2 = y1 + int(10 * self.zoom_factor)
 
         if self.diente['superior']:
             y1 = height - y1
@@ -364,7 +364,7 @@ def nuevo_canvas(perio, filtro=None):
         if key != 'sup_b':
             # Crea una curva por cada grupo de LMG contiguos que tienen un valor válido
             nuevas_lmg = []
-            
+
             img, lmg = cvs
             _, width, _ = img.shape
 

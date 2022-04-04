@@ -115,4 +115,4 @@ setInterval(function enviar_datos_servidor() {
   actualizando = true;
   // Envía los datos al servidor
   actualizar_perio(json_data);
-}, 1500);
+}, 500);
