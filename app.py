@@ -14,8 +14,9 @@ from scripts.process_images import actualizar_imagenes
 import os
 import uuid
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins = '*')
+app = Flask(__name__, instance_relative_config = True)
+app.secret_key = 'perio'
+socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent', logger=True, engineio_logger=True)
 
 os.chdir(os.path.dirname(__file__))
 
