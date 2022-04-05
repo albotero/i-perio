@@ -41,10 +41,10 @@ class TestGrafico(unittest.TestCase):
                     not rd.getrandbits(1), not rd.getrandbits(1), not rd.getrandbits(1)
 
             # Algunos dientes no se les especifica LMG
-            diente['valores']['L.M.G'] = str(rd.randint(6,10))
+            diente['valores']['LMG'] = str(rd.randint(6,10))
             # Genera las _LMG de los dientes inferiores
             if not diente['superior']:
-                diente['valores']['_L.M.G'] = str(rd.randint(6,10))
+                diente['valores']['_LMG'] = str(rd.randint(6,10))
 
             diente.calcular_ni()
 

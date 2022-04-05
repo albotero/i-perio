@@ -60,22 +60,25 @@ def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
+
     # Actualiza los datos
     filtro = set()
+    respuesta = {}
+
     for num, datos in data.items():
         if not num.isnumeric():
             continue
+
         for titulo, valor in datos.items():
             # Si alguno de los datos cambiados tiene un efecto
             # en las imágenes y hay que actualizarlas
             filtrar = 'sup' if perio[num]['superior'] else 'inf'
-            if titulo.replace('_', '') in [ 'SANGRADO', 'SUPURACIÓN', 'L.M.G', 'SONDAJE', 'MARGEN' ]:
-                actualizar = True
+            if titulo.replace('_', '') in [ 'SANGRADO', 'LMG', 'SONDAJE', 'MARGEN' ]:
                 filtrar = 'sup' if perio[num]['superior'] else 'inf'
                 filtrar += '_b' if '_' in titulo else '_a'
                 filtro.add(filtrar)
-            elif titulo in [ 'IMPLANTE', 'atributos' ]:
-                actualizar = True
+
+            elif titulo in [ 'IMPLANTE', 'FURCA', 'atributos' ]:
                 filtro.add(filtrar + '_a')
                 filtro.add(filtrar + '_b')
 
@@ -84,10 +87,19 @@ def update_perio(data):
             else:
                 perio[num]['valores'][titulo] = valor
 
+            # Actualiza el NI y si cambió lo agrega a la respuesta
+            if titulo.replace('_', '') in [ 'SONDAJE', 'MARGEN' ]:
+                perio[num].calcular_ni()
+                ni = ('_' if '_' in titulo else '') + 'NI'
+                if perio[num]['valores'][ni] is not None:
+                    respuesta['{}-{}'.format(ni, num)] = ' '.join(map(str, perio[num]['valores'][ni]))
+
     # Guarda el tmp
     Guardar.perio_to_file(perio, data['tmp'], silent = True)
+
     # Obtiene los str de las imágenes actualizadas
     if len(filtro) > 0:
-        imagenes = actualizar_imagenes(nuevo_canvas(perio, filtro=filtro))
-        # Devuelve las imagenes
-        emit('response_perio', imagenes)
+        respuesta.update( actualizar_imagenes(nuevo_canvas(perio, filtro=filtro)) )
+
+    # Devuelve los datos
+    emit('response_perio', respuesta)
