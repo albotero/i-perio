@@ -91,13 +91,13 @@ class NuevoDiente(object):
             dato = opt + 'MARGEN'
             color_linea = 'rojo'
         elif dato == 'ni':
-            dato = opt + 'N.I.'
+            dato = opt + 'NI'
             color_linea = None
         elif dato == 'lmg':
-            # Los dientes superiores no tienen _L.M.G
+            # Los dientes superiores no tienen _LMG
             if self.diente['superior'] and self.area == '_b':
                 return None, None
-            dato = opt + 'L.M.G'
+            dato = opt + 'LMG'
             color_linea = 'verde'
         else:
             dato = opt + 'SONDAJE'

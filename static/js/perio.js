@@ -3,24 +3,26 @@ var dict_actualizar = { };
 var socket = io();
 
 function enviar_update() {
-    // Envía los datos al servidor
-    dict_actualizar['tmp'] = tmp;
-    socket.emit('update_perio', dict_actualizar);
-    dict_actualizar = { };
+  // Envía los datos al servidor
+  dict_actualizar['tmp'] = tmp;
+  console.log('enviando...', dict_actualizar);
+  socket.emit('update_perio', dict_actualizar);
+  dict_actualizar = { };
 }
 
 socket.on('response_perio', function(datos) {
-    // Actualiza las imágenes que correspondan
-    for (var key in datos) {
-        // Imágenes en la respuesta
-        if (key.includes('sup_') || key.includes('inf_'))
-            $('#' + key).attr('src', datos[key]);
-        // Nivel de inserción
-        else if (key.includes('N.I')) {
-            ni = $('#col' + key.replaceAll('.', ''))
-            ni.html(datos[key]);
-        }
-    }
+  // Actualiza las imágenes que correspondan
+  for (var key in datos) {
+    console.log('recibido...', Object.keys(datos));
+
+    // Imágenes en la respuesta
+    if (key.includes('sup_') || key.includes('inf_'))
+      $('#' + key).attr('src', datos[key]);
+
+    // Nivel de inserción
+    else if (key.includes('NI'))
+      $('#' + key).html(datos[key]);
+  }
 });
 
 function next_dato(titulo, valor_actual) {
@@ -32,11 +34,14 @@ function next_dato(titulo, valor_actual) {
     'MOVILIDAD': ['-', '1', '2', '3'],
     'PLACA': ['0', '1']
   }[titulo.replace('_', '')];
+
   // Index actual, si no existe devuelve -1
   var index = lista_opt.indexOf(valor_actual);
+
   // Si es el último valor, resetea el index
   if (index == lista_opt.length - 1)
     index = -1;
+
   // Devuelve el siguiente valor
   index++;
   return lista_opt[index];
@@ -74,22 +79,29 @@ function actualizar_dato(elem, tipo) {
       celdas_columna.children().hide();
       celdas_columna.toggleClass('diente_ausente');
     }
+
   } else if (tipo == 'vimp') {
     // Vitalidad, implante, movilidad, placa
     // Obtiene el valor siguiente y actualiza el elemento
     valor = next_dato(titulo, $(elem).html());
     $(elem).html(valor);
+
   } else if (tipo == 'lmg') {
     // LMG
     valor = $(elem).val();
+
   } else if (tipo == 'ms') {
     // Margen, Sondaje
     valor = $(elem).val();
-    // Actualiza el N.I.
+
+  } else if (tipo == 'furca') {
+    // Furca
+    valor = $(elem).val();
+
   } else if (tipo == 'ss') {
     // Sangrado o supuración
     valor = [];
-    titulo = titulo.slice(0, -1);
+    diente = diente.slice(0, -1);
     for (var i = 0; i < 3; i++) {
       var checkbox = id.slice(0, -1) + i;
       valor.push($('#' + checkbox).prop('checked'));

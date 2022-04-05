@@ -59,6 +59,7 @@ def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'], silent = True)
+
     # Actualiza los datos
     filtro = set()
     respuesta = {}
@@ -66,18 +67,17 @@ def update_perio(data):
     for num, datos in data.items():
         if not num.isnumeric():
             continue
+
         for titulo, valor in datos.items():
             # Si alguno de los datos cambiados tiene un efecto
             # en las imágenes y hay que actualizarlas
             filtrar = 'sup' if perio[num]['superior'] else 'inf'
-            if titulo.replace('_', '') in [ 'SANGRADO', 'SUPURACIÓN', 'L.M.G', 'SONDAJE', 'MARGEN' ]:
-                actualizar = True
+            if titulo.replace('_', '') in [ 'SANGRADO', 'LMG', 'SONDAJE', 'MARGEN', 'FURCA' ]:
                 filtrar = 'sup' if perio[num]['superior'] else 'inf'
                 filtrar += '_b' if '_' in titulo else '_a'
                 filtro.add(filtrar)
 
             elif titulo in [ 'IMPLANTE', 'atributos' ]:
-                actualizar = True
                 filtro.add(filtrar + '_a')
                 filtro.add(filtrar + '_b')
 
@@ -86,11 +86,12 @@ def update_perio(data):
             else:
                 perio[num]['valores'][titulo] = valor
 
-            # Actualiza el N.I. y si cambió lo agrega a la respuesta
-            perio[num].calcular_ni()
-            ni = ('_' if '_' in titulo else '') + 'N.I.'
-            if perio[num]['valores'][ni] is not None:
-                respuesta['{}-{}'.format(num, ni)] = ' '.join(map(str, perio[num]['valores'][ni]))
+            # Actualiza el NI y si cambió lo agrega a la respuesta
+            if titulo.replace('_', '') in [ 'SONDAJE', 'MARGEN' ]:
+                perio[num].calcular_ni()
+                ni = ('_' if '_' in titulo else '') + 'NI'
+                if perio[num]['valores'][ni] is not None:
+                    respuesta['{}-{}'.format(ni, num)] = ' '.join(map(str, perio[num]['valores'][ni]))
 
     # Guarda el tmp
     Guardar.perio_to_file(perio, data['tmp'], silent = True)
