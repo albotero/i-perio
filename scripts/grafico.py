@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 from .diente import Diente
-from .diente_csv import coord
+from .diente_csv import coord, coord_furca
 from .process_images import *
 
 import cv2
 import numpy as np
 import os
+import re
 
 class NuevoDiente(object):
     height = 160
@@ -203,11 +204,7 @@ class NuevoDiente(object):
                     # Agrega los puntos necesarios
                     if i == 0:
                         # tiene en cuenta los bordes izquierdos
-                        print('puntos m', puntos_m)
-                        print('puntos s', puntos_s)
-                        print('puntos izq', puntos_izq)
                         puntos = np.concatenate((puntos_m, puntos_s, puntos_izq), axis=0)
-                        print('puntos', puntos)
                     elif i == 2:
                         # tiene en cuenta los bordes derechos
                         puntos = np.concatenate((puntos_m, puntos_der, puntos_s), axis=0)
@@ -263,6 +260,54 @@ class NuevoDiente(object):
 
         color_flecha = 'rojo'
         self.img_procesada = dibujar_flecha(self.img_procesada, coord_a, coord_b, color_flecha)
+
+    def dibujar_furcas(self):
+        '''Pinta un círculo en las furcas si tiene un valor válido'''
+        print(self.area)
+
+        if self.diente['superior']:
+            # Molares superiores
+            if self.diente['diente'] % 10 >= 6:
+                furcas = [ 'V' ] if self.area == '_a' else [ 'MP', 'DP' ]
+            # Premolares superiores
+            elif self.diente['diente'] % 10 == 4:
+                furcas = [ 'D' ] if self.area == '_a' else [ 'M' ]
+            # Es un diente sin furcas, no hace nada
+            else:
+                return
+        else:
+            # Molares inferiores
+            if self.diente['diente'] % 10 >= 6:
+                furcas = [ 'L' ] if self.area == '_a' else [ 'V' ]
+            # Es un diente sin furcas, no hace nada
+            else:
+                return
+
+        for f in furcas:
+            # Evalúa si se especificaron furcas válidas
+            patron_valor = r'{}I+'.format(f)
+            if self.diente['valores']['FURCA'] is None or \
+                re.search(patron_valor, self.diente['valores']['FURCA']) is None:
+                continue
+
+            # Obtiene las coordenadas de la furca
+            patron_coord = r'\[{}:(\d+)\*(\d+)\]'.format(f)
+            x, y = coord_furca(self.diente['diente'], patron_coord)
+            x = int(int(x) * self.zoom_factor)
+            y = int(int(y) * self.zoom_factor)
+
+            print('## {} ## furca {} - x: {} - y: {}'.format(self.diente['diente'], f, x, y))
+            self.img_procesada = cv2.circle(self.img_procesada,
+                                            (x, y),
+                                            radius = int(5 * self.zoom_factor),
+                                            color = color['negro'],
+                                            thickness = -1) # thickness -1 fills the circle
+            self.img_procesada = cv2.circle(self.img_procesada,
+                                            (x, y),
+                                            radius = int(5 * self.zoom_factor),
+                                            color = color['blanco'],
+                                            thickness = 1)
+
 
     def __init__(self, diente, src, area, espacio, zoom_factor = 1):
         '''Inicializa un objeto NuevoDiente con la imagen original y la imagen sin alpha'''
@@ -344,6 +389,8 @@ def nuevo_canvas(perio, filtro=None):
                 # Dibuja las líneas correspondientes
                 nuevo_diente.dibujar_margen_sondaje('sondaje')
                 nuevo_diente.dibujar_margen_sondaje('margen')
+                # Dibuja las furcas
+                nuevo_diente.dibujar_furcas()
                 # Dibuja flecha si lo requiere
                 nuevo_diente.dibujar_in_extruido()
 

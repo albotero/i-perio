@@ -72,12 +72,12 @@ def update_perio(data):
             # Si alguno de los datos cambiados tiene un efecto
             # en las imágenes y hay que actualizarlas
             filtrar = 'sup' if perio[num]['superior'] else 'inf'
-            if titulo.replace('_', '') in [ 'SANGRADO', 'LMG', 'SONDAJE', 'MARGEN', 'FURCA' ]:
+            if titulo.replace('_', '') in [ 'SANGRADO', 'LMG', 'SONDAJE', 'MARGEN' ]:
                 filtrar = 'sup' if perio[num]['superior'] else 'inf'
                 filtrar += '_b' if '_' in titulo else '_a'
                 filtro.add(filtrar)
 
-            elif titulo in [ 'IMPLANTE', 'atributos' ]:
+            elif titulo in [ 'IMPLANTE', 'FURCA', 'atributos' ]:
                 filtro.add(filtrar + '_a')
                 filtro.add(filtrar + '_b')
 

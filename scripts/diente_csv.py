@@ -2,6 +2,7 @@
 
 import csv
 import os
+import re
 
 csv_file = 'resources/bordes_dientes.csv'
 
@@ -35,3 +36,14 @@ def coord(num_diente, area, superior, implante, linea_0):
                         # Datos de x
                         res[1][i] = [left_diente, centro_diente, right_diente]
     return res
+
+def coord_furca(num_diente, patron):
+    '''Obtiene las coordenadas de la furca del diente solicitado'''
+    with open(csv_file) as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if int(row['diente']) != num_diente:
+                continue
+            furcas = re.search(patron, row['furcas'])
+            if furcas is not None:
+                return furcas.groups()
