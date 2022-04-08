@@ -35,7 +35,7 @@
       font: $title-font-h3;
     }
 
-    tr:first-child th {
+    th:not(:first-child) {
       cursor: pointer;
     }
 

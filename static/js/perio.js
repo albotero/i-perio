@@ -25,8 +25,8 @@ function enviar_update() {
 
 socket.on('response_perio', function(datos) {
   // Actualiza las imágenes que correspondan
+  console.log('recibido...', Object.keys(datos));
   for (var key in datos) {
-    console.log('recibido...', Object.keys(datos));
 
     // Imágenes en la respuesta
     if (key.includes('sup_') || key.includes('inf_'))

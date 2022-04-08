@@ -61,7 +61,7 @@
 .periodontograma table th {
   font: bold small-caps 14px helvetica, serif;
 }
-.periodontograma table tr:first-child th {
+.periodontograma table tr:first-child th:not(:first-child) {
   cursor: pointer;
 }
 .periodontograma table th:not(:first-child), .periodontograma table tr:not(:first-child) > th, .periodontograma table td {
