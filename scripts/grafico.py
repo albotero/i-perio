@@ -170,10 +170,12 @@ class NuevoDiente(object):
 
         if (Diente.margen_sondaje_valido(margen) and
             Diente.margen_sondaje_valido(sondaje)):
-            # Obtiene lista de enteros
+            # Obtiene lista de datos
             margen = Diente.format_margen_sondaje(margen)
             sondaje = Diente.format_margen_sondaje(sondaje)
+            sangrado = self.diente['valores'][opt + 'SANGRADO']
 
+            # Lo vuelve negativo ya que (+) es coronal y (-) es radical
             margen = [-y for y in margen]
 
             # Obtiene los puntos de las curvas
@@ -186,33 +188,38 @@ class NuevoDiente(object):
             curvas_m = np.array_split(curva_margen[0], 3)
             curvas_s = np.array_split(curva_sondaje[0], 3)
 
-            # Define si debe pintar cada uno de los segmentos
+            # Define si hay una bolsa o pseudobolsa para pintar
             for i in range(3):
-                # La bolsa es margen - sondaje, que es equivalente al negativo de ni
-                if sondaje[i] >= 4:
-                    # Los dientes con implante solo se pinta la bolsa si sangró
-                    sangrado = self.diente['valores'][opt + 'SANGRADO']
-                    if self.diente['valores']['IMPLANTE'] == 'Si' and not sangrado[i]:
-                        continue
-                    # Obtiene los puntos del polígono
-                    puntos_m = curvas_m[i]
-                    puntos_s = np.array(np.flip(curvas_s[i], axis=0), np.int32)
-                    puntos_der = self.obtener_bordes('der', margen, sondaje)
-                    puntos_izq = self.obtener_bordes('izq', margen, sondaje)
-                    # Bolsa vs pseudobolsa
-                    relleno = 'rojo' if margen[i] < 0 else 'negro'
-                    # Agrega los puntos necesarios
-                    if i == 0:
-                        # tiene en cuenta los bordes izquierdos
-                        puntos = np.concatenate((puntos_m, puntos_s, puntos_izq), axis=0)
-                    elif i == 2:
-                        # tiene en cuenta los bordes derechos
-                        puntos = np.concatenate((puntos_m, puntos_der, puntos_s), axis=0)
-                    else:
-                        # es el del centro, no tiene en cuenta los bordes
-                        puntos = np.concatenate((puntos_m, puntos_s), axis=0)
-                    # Rellena el poligono
-                    cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
+
+                if sondaje[i] >= 4 and sangrado[i]:
+                    # Ambas tienen sondaje aumentado y encía inflamada (sangrado)
+                    # -> Bolsa verdadera (negra): Pérdida de inserción
+                    # -> Pseudobolsa (roja): Sin pérdida de inserción
+                    perdida_insercion = -margen[i] - sondaje[i] < 0
+                    relleno = 'negro' if perdida_insercion else 'rojo'
+                else:
+                    # No tiene bolsa
+                    continue
+
+                # Obtiene los puntos del polígono
+                puntos_m = curvas_m[i]
+                puntos_s = np.array(np.flip(curvas_s[i], axis=0), np.int32)
+                puntos_der = self.obtener_bordes('der', margen, sondaje)
+                puntos_izq = self.obtener_bordes('izq', margen, sondaje)
+
+                # Agrega los puntos necesarios
+                if i == 0:
+                    # tiene en cuenta los bordes izquierdos
+                    puntos = np.concatenate((puntos_m, puntos_s, puntos_izq), axis=0)
+                elif i == 2:
+                    # tiene en cuenta los bordes derechos
+                    puntos = np.concatenate((puntos_m, puntos_der, puntos_s), axis=0)
+                else:
+                    # es el del centro, no tiene en cuenta los bordes
+                    puntos = np.concatenate((puntos_m, puntos_s), axis=0)
+
+                # Rellena el poligono
+                cv2.fillPoly(self.img_procesada, pts = [puntos], color = color[relleno])
 
     def obtener_coord_lmg(self, canvas_previo):
         '''Obtiene las coordenadas de lmg en la imagen entera'''
