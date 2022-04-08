@@ -1,3 +1,16 @@
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* Muestra animación cargando durante mínimo 3 segundos o hasta que cargue la página*/
+$(async function() {
+  var curr_time = (new Date()).getTime();
+  while (curr_time < initial_time + 3000) {
+    curr_time = (new Date()).getTime();
+    await sleep(500);
+  }
+  $('div.cargando').toggleClass('cargando');
+});
+
+
 /* Este diccionario almacena los cambios hasta que se envíen al servidor */
 var dict_actualizar = { };
 var socket = io();
@@ -70,13 +83,7 @@ function actualizar_dato(elem, tipo) {
     celdas_columna = $('td[id^="col' + diente + '"]');
     // Muestra u oculta todos los elementos de esa columna
     // Pinta u oculta un patrón negro en los espacios de los elementos
-    if (mostrar) {
-      if (quitar_ausente) {
-        celdas_columna.children().show();
-        celdas_columna.toggleClass('diente_ausente');
-      }
-    } else {
-      celdas_columna.children().hide();
+    if ((mostrar && quitar_ausente) || !mostrar) {
       celdas_columna.toggleClass('diente_ausente');
     }
 
@@ -96,6 +103,7 @@ function actualizar_dato(elem, tipo) {
 
   } else if (tipo == 'furca') {
     // Furca
+    $(elem).val(function() { return this.value.toUpperCase(); });
     valor = $(elem).val();
 
   } else if (tipo == 'ss') {

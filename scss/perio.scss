@@ -1,0 +1,113 @@
+@import 'variables';
+
+.container {
+  > :not(.cover) {
+    display: block;
+    animation: 4s desaparecer-circulo;
+  }
+
+  > .cover {
+    display: none;
+  }
+
+  table {
+    background-color: $back-color-5;
+    margin: 30px;
+    padding: 50px 20px;
+    text-align: center;
+    border-collapse: collapse;
+
+    cursor: default;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+
+    th {
+      font: $title-font-h3;
+    }
+
+    tr:first-child th {
+      cursor: pointer;
+    }
+
+    th:not(:first-child), tr:not(:first-child) > th, td {
+      border: 1px $prim-color-1 solid;
+    }
+
+    td {
+
+      a:not(.ni) {
+        cursor: pointer;
+      }
+
+      input[type=text] {
+        font: $text-font-normal;
+        text-align: center;
+        word-break: break-word;
+      }
+
+      input[type=checkbox] {
+        width: 10px;
+        height: 10px;
+        padding: 0;
+        margin: 0;
+        background-color: white;
+        border-radius: 50%;
+        vertical-align: middle;
+        border: 1px solid $prim-color-1;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        cursor: pointer;
+      }
+      input[type=checkbox].supuración:checked {
+        background-color: #fcf230; //amarillo
+      }
+      input[type=checkbox].sangrado:checked {
+        background-color: red;
+      }
+    }
+
+    td.diente_ausente {
+      background: repeating-linear-gradient(
+        -45deg,
+        white, white 4px,
+        black 6px, black 6px,
+        white 7px);
+
+      * {
+        display: none;
+      }
+    }
+  }
+}
+
+.cargando {
+  > :not(.cover) {
+    display: none;
+  }
+
+  > .cover {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    @include center-children;
+
+    svg {
+      max-width: 75%;
+      max-height: 75%;
+      aspect-ratio: 1 / 1;
+
+      g.diente {
+        animation: 2s aparecer infinite;
+      }
+      g.encia {
+        animation: 2s mostrar-horizontal infinite;
+      }
+    }
+  }
+}

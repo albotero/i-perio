@@ -1,0 +1,120 @@
+@charset "UTF-8";
+@keyframes aparecer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mostrar-horizontal {
+  0% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+  50% {
+    clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);
+  }
+  100% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+}
+@keyframes desaparecer-circulo {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(200% at 50% 50%);
+  }
+}
+.container > :not(.cover) {
+  display: block;
+  animation: 4s desaparecer-circulo;
+}
+.container > .cover {
+  display: none;
+}
+.container table {
+  background-color: white;
+  margin: 30px;
+  padding: 50px 20px;
+  text-align: center;
+  border-collapse: collapse;
+  cursor: default;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
+}
+.container table th {
+  font: bold small-caps 14px helvetica, serif;
+}
+.container table tr:first-child th {
+  cursor: pointer;
+}
+.container table th:not(:first-child), .container table tr:not(:first-child) > th, .container table td {
+  border: 1px black solid;
+}
+.container table td a:not(.ni) {
+  cursor: pointer;
+}
+.container table td input[type=text] {
+  font: 10px helvetica, serif;
+  text-align: center;
+  word-break: break-word;
+}
+.container table td input[type=checkbox] {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  border-radius: 50%;
+  vertical-align: middle;
+  border: 1px solid black;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+.container table td input[type=checkbox].supuración:checked {
+  background-color: #fcf230;
+}
+.container table td input[type=checkbox].sangrado:checked {
+  background-color: red;
+}
+.container table td.diente_ausente {
+  background: repeating-linear-gradient(-45deg, white, white 4px, black 5px, black 6px, white 7px);
+}
+.container table td.diente_ausente * {
+  display: none;
+}
+
+.cargando > :not(.cover) {
+  display: none;
+}
+.cargando > .cover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cargando > .cover svg {
+  max-width: 75%;
+  max-height: 75%;
+  aspect-ratio: 1/1;
+}
+.cargando > .cover svg g.diente {
+  animation: 2s aparecer infinite;
+}
+.cargando > .cover svg g.encia {
+  animation: 2s mostrar-horizontal infinite;
+}
+
+/*# sourceMappingURL=perio.css.map */

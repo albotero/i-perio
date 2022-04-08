@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 from flask import Flask, render_template
+
 from flask import request
-from flask import current_app
 from flask_socketio import SocketIO, emit
 
 from scripts.diente import Diente, get_titulos
@@ -16,15 +16,12 @@ import uuid
 
 app = Flask(__name__, instance_relative_config = True)
 app.secret_key = 'perio'
-socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent', logger=True, engineio_logger=True)
+
+socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, logger=True, engineio_logger=True)
 
 os.chdir(os.path.dirname(__file__))
 
 @app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/perio')
 def perio():
     # Declaración de variables
     perio = nuevo_perio()

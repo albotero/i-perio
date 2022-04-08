@@ -2,95 +2,103 @@
 
 {% block title %} Periodontograma {% endblock %}
 
+{% block style %}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/perio.css') }}"">
+{% endblock %}
+
 {% block content %}
+    <div class="cover">{% include 'perio_blanco.svg' %}</div>
 
     {% for grupo in dict.keys() %}
         {% set titulos = dict[grupo]['titulos'] %}
-        <table id="tbl_{{ grupo }}">
-            <tbody>
-                <tr>
-                    {% for num, diente in dict[grupo].items() %}
-                        {% if num is number %}
-                            <th id="atributos-{{ num }}" onclick="actualizar_dato(this, 'attr');">{{ num }}</th>
-                        {% else %}
-                            <th></th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                {% for titulo in titulos %}
+        <div class="periodontograma">
+            <table id="tbl_{{ grupo }}">
+                <tbody>
                     <tr>
-                      <th>{{ titulo.replace('_', '') }}</th>
-                      {% for num, diente in dict[grupo].items() %}
-                          {% if num is number %}
+                        {% for num, diente in dict[grupo].items() %}
+                            {% if num is number %}
+                                <th id="atributos-{{ num }}" onclick="actualizar_dato(this, 'attr');">{{ num }}</th>
+                            {% else %}
+                                <th></th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% for titulo in titulos %}
+                        <tr>
+                          <th>{{ titulo.replace('_', '')[0]|upper }}{{ titulo.replace('_', '')[1:]|lower }}</th>
+                          {% for num, diente in dict[grupo].items() %}
+                              {% if num is number %}
 
-                              {% if titulo in 'FURCA' %}
-                                  <td id="col{{ num }}-{{ titulo }}">
-                                      {% if (num % 10 >= 6) or (num % 10 == 4 and diente['superior']): %}
-                                          {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                  {% if titulo in 'FURCA' %}
+                                      <td id="col{{ num }}-{{ titulo }}">
+                                          {% if (num % 10 >= 6) or (num % 10 == 4 and diente['superior']): %}
+                                              {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                              <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
+                                                  class="furca" onchange="actualizar_dato(this, 'furca');">
+                                          {% else: %}
+                                              <a>-</a>
+                                          {% endif %}
+                                      </td>
+
+                                  {% elif titulo in ['NI', '_NI'] %}
+                                      {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                      <td id="col{{ num }}-{{ titulo }}">
+                                        <a id="{{ titulo }}-{{ num }}" class="ni">{{ val }}</a>
+                                      </td>
+
+                                  {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}
+                                      {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
+                                      <td id="col{{ num }}-{{ titulo }}">
                                           <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
-                                              onchange="actualizar_dato(this, 'furca');">
-                                      {% else: %}
-                                          <a>-</a>
+                                              onchange="actualizar_dato(this, 'ms');">
+                                      </td>
+
+                                  {% elif titulo.replace('_', '') in 'LMG' %}
+                                      {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
+                                      <td>
+                                          <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
+                                              onchange="actualizar_dato(this, 'lmg');">
+                                      </td>
+
+                                  {% elif titulo.replace('_', '') in ['VESTIBULAR', 'PALATINO', 'LINGUAL'] %}
+                                      {% if num in primer_diente %}
+                                          {% set area = 'a' if titulo in ['VESTIBULAR', 'LINGUAL'] else 'b' %}
+                                          {% set img_id = '{}_{}'.format(grupo, area) %}
+                                          <td colspan=16>
+                                              <img id="{{ img_id }}" src="{{ imagenes[img_id] }}"/>
+                                          </td>
                                       {% endif %}
-                                  </td>
 
-                              {% elif titulo in ['NI', '_NI'] %}
-                                  {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
-                                  <td id="col{{ num }}-{{ titulo }}">
-                                    <a id="{{ titulo }}-{{ num }}">{{ val }}</a>
-                                  </td>
+                                  {% elif titulo.replace('_', '') in ['SANGRADO', 'SUPURACIÓN'] %}
+                                      <td id="col{{ num }}-{{ titulo }}">
+                                          {% for i in range(3) %}
+                                              <input type="checkbox" value="" id="{{ titulo }}-{{ num }}{{ i }}"
+                                                 class="{{titulo.replace('_', '')|lower}}"
+                                                 onchange="actualizar_dato(this, 'ss');"
+                                                 {{ 'checked' if diente['valores'][titulo][i] else '' }} />
+                                          {% endfor %}
+                                      </td>
 
-                              {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}
-                                  {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
-                                  <td id="col{{ num }}-{{ titulo }}">
-                                      <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
-                                          onchange="actualizar_dato(this, 'ms');">
-                                  </td>
-
-                              {% elif titulo.replace('_', '') in 'LMG' %}
-                                  {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
-                                  <td>
-                                      <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
-                                          onchange="actualizar_dato(this, 'lmg');">
-                                  </td>
-
-                              {% elif titulo.replace('_', '') in ['VESTIBULAR', 'PALATINO', 'LINGUAL'] %}
-                                  {% if num in primer_diente %}
-                                      {% set area = 'a' if titulo in ['VESTIBULAR', 'LINGUAL'] else 'b' %}
-                                      {% set img_id = '{}_{}'.format(grupo, area) %}
-                                      <td colspan=16>
-                                          <img id="{{ img_id }}" src="{{ imagenes[img_id] }}"/>
+                                  {% else %}
+                                      {# Vitalidad, Implante, Movilidad, Placa #}
+                                      <td id="col{{ num }}-{{ titulo }}">
+                                        <a id="{{ titulo }}-{{ num }}" onclick="actualizar_dato(this, 'vimp');"
+                                          >{{ diente['valores'][titulo] }}</a>
                                       </td>
                                   {% endif %}
-
-                              {% elif titulo.replace('_', '') in ['SANGRADO', 'SUPURACIÓN'] %}
-                                  <td id="col{{ num }}-{{ titulo }}">
-                                      {% for i in range(3) %}
-                                          <input type="checkbox" value="" id="{{ titulo }}-{{ num }}{{ i }}"
-                                             onchange="actualizar_dato(this, 'ss');"
-                                             {{ 'checked' if diente['valores'][titulo][i] else '' }} />
-                                      {% endfor %}
-                                  </td>
-
-                              {% else %}
-                                  {# Vitalidad, Implante, Movilidad, Placa #}
-                                  <td id="col{{ num }}-{{ titulo }}">
-                                    <a id="{{ titulo }}-{{ num }}" onclick="actualizar_dato(this, 'vimp');"
-                                      >{{ diente['valores'][titulo] }}</a>
-                                  </td>
                               {% endif %}
-                          {% endif %}
-                      {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                          {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endfor %}
 
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/socket.io.min-4.4.1.js') }}" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
     <script type="text/javascript">const tmp = '{{ tmp }}';</script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}" />
 {% endblock%}

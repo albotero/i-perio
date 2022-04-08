@@ -263,7 +263,6 @@ class NuevoDiente(object):
 
     def dibujar_furcas(self):
         '''Pinta un círculo en las furcas si tiene un valor válido'''
-        print(self.area)
 
         if self.diente['superior']:
             # Molares superiores
@@ -296,7 +295,6 @@ class NuevoDiente(object):
             x = int(int(x) * self.zoom_factor)
             y = int(int(y) * self.zoom_factor)
 
-            print('## {} ## furca {} - x: {} - y: {}'.format(self.diente['diente'], f, x, y))
             self.img_procesada = cv2.circle(self.img_procesada,
                                             (x, y),
                                             radius = int(5 * self.zoom_factor),

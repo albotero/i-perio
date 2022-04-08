@@ -1,0 +1,14 @@
+@import 'variables';
+
+body {
+  background-color: $back-color-1;
+  color: $prim-color-1;
+  font: $text-font-normal;
+
+  .container {
+    width: 80%;
+    min-width: 500px;
+    overflow-x: auto;
+    margin: auto;
+  }
+}

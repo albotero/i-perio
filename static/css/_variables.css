@@ -1,0 +1,32 @@
+@keyframes aparecer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mostrar-horizontal {
+  0% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+  50% {
+    clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);
+  }
+  100% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+}
+@keyframes desaparecer-circulo {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(200% at 50% 50%);
+  }
+}
+
+/*# sourceMappingURL=_variables.css.map */

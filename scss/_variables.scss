@@ -1,0 +1,45 @@
+// Color palette
+$prim-color-1: black;
+$prim-color-2: black;
+$prim-color-3: black;
+$prim-color-4: black;
+$prim-color-5: black;
+
+$back-color-1: darkgrey;
+$back-color-2: grey;
+$back-color-3: lightgrey;
+$back-color-4: lightgrey;
+$back-color-5: white;
+
+// Font sets
+$title-font-h1: bold 20px helvetica, serif;
+$title-font-h2: bold 16px helvetica, serif;
+$title-font-h3: bold small-caps 14px helvetica, serif;
+
+$text-font-normal: 10px helvetica, serif;
+$text-font-cursiva: italic 10px helvetica, serif;
+$text-font-peq: helvetica, serif;
+
+
+@mixin center-children {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes aparecer {
+  0% { opacity: 0; }
+  50% { opacity: 100%; }
+  100% { opacity: 0; }
+}
+
+@keyframes mostrar-horizontal {
+  0% { clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%); }
+  50% { clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);}
+  100% { clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%); }
+}
+
+@keyframes desaparecer-circulo {
+  0% { clip-path: circle(0% at 50% 50%); }
+  100% { clip-path: circle(200% at 50% 50%); }
+}
