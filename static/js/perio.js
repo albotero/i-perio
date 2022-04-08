@@ -66,6 +66,8 @@ function actualizar_dato(elem, tipo) {
   var [titulo, diente] = id.split('-');
   var valor;
 
+  $('#frm_perio')[0].reportValidity();
+
   if (tipo == 'attr') {
     // Atributos
     var quitar_ausente = false;
