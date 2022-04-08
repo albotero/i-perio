@@ -1,21 +1,27 @@
 @import 'variables';
 
-.container {
-  > :not(.cover) {
-    display: block;
-    animation: 4s desaparecer-circulo;
-  }
+.periodontograma {
+  background-color: $back-color-5;
+  margin: 50px;
+  padding: 10px 30px 30px 30px;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 30px;
+  overflow-x: auto;
 
-  > .cover {
-    display: none;
+  h1 {
+    font: $title-font-h1;
+    color: $prim-color-2;
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   table {
     background-color: $back-color-5;
-    margin: 30px;
-    padding: 50px 20px;
     text-align: center;
     border-collapse: collapse;
+    margin-top: 50px;
 
     cursor: default;
     -webkit-user-select: none;
@@ -38,6 +44,19 @@
 
     td {
 
+      &.diente_ausente {
+        background: repeating-linear-gradient(
+          -45deg,
+          white, white 4px,
+          black 6px, black 6px,
+          white 7px
+          );
+
+        * {
+          display: none;
+        }
+      }
+
       a:not(.ni) {
         cursor: pointer;
       }
@@ -45,7 +64,6 @@
       input[type=text] {
         font: $text-font-normal;
         text-align: center;
-        word-break: break-word;
       }
 
       input[type=checkbox] {
@@ -61,52 +79,14 @@
         -webkit-appearance: none;
         outline: none;
         cursor: pointer;
-      }
-      input[type=checkbox].supuración:checked {
-        background-color: #fcf230; //amarillo
-      }
-      input[type=checkbox].sangrado:checked {
-        background-color: red;
-      }
-    }
 
-    td.diente_ausente {
-      background: repeating-linear-gradient(
-        -45deg,
-        white, white 4px,
-        black 6px, black 6px,
-        white 7px);
+        &.supuración:checked {
+          background-color: #fcf230; //amarillo
+        }
 
-      * {
-        display: none;
-      }
-    }
-  }
-}
-
-.cargando {
-  > :not(.cover) {
-    display: none;
-  }
-
-  > .cover {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    @include center-children;
-
-    svg {
-      max-width: 75%;
-      max-height: 75%;
-      aspect-ratio: 1 / 1;
-
-      g.diente {
-        animation: 2s aparecer infinite;
-      }
-      g.encia {
-        animation: 2s mostrar-horizontal infinite;
+        &.sangrado:checked {
+          background-color: red;
+        }
       }
     }
   }

@@ -39,5 +39,35 @@ body .container {
   overflow-x: auto;
   margin: auto;
 }
+body .container > :not(.cover) {
+  display: block;
+  animation: 4s desaparecer-circulo;
+}
+body .container > .cover {
+  display: none;
+}
+body .cargando > :not(.cover) {
+  display: none;
+}
+body .cargando > .cover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body .cargando > .cover svg {
+  max-width: 75%;
+  max-height: 75%;
+  aspect-ratio: 1/1;
+}
+body .cargando > .cover svg g.diente {
+  animation: 2s aparecer infinite;
+}
+body .cargando > .cover svg g.encia {
+  animation: 2s mostrar-horizontal infinite;
+}
 
 /*# sourceMappingURL=base.css.map */

@@ -7,11 +7,10 @@
 {% endblock %}
 
 {% block content %}
-    <div class="cover">{% include 'perio_blanco.svg' %}</div>
-
     {% for grupo in dict.keys() %}
         {% set titulos = dict[grupo]['titulos'] %}
         <div class="periodontograma">
+            <h1>{{ 'Superior' if grupo == 'sup' else 'Inferior' }}</h1>
             <table id="tbl_{{ grupo }}">
                 <tbody>
                     <tr>
@@ -32,11 +31,17 @@
                                   {% if titulo in 'FURCA' %}
                                       <td id="col{{ num }}-{{ titulo }}">
                                           {% if (num % 10 >= 6) or (num % 10 == 4 and diente['superior']): %}
+                                              {% if num % 10 >= 6 %}
+                                                  {% set ej = 'VI MPIII DPII' if diente['superior'] else 'LIII VI' %}
+                                              {% else %}
+                                                  {% set ej = 'MI DII' %}
+                                              {% endif %}
                                               {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
                                               <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
+                                                  title="Inicial y grado de cada furca separado por espacios [ p.ej. {{ ej }} ]"
                                                   class="furca" onchange="actualizar_dato(this, 'furca');">
                                           {% else: %}
-                                              <a>-</a>
+                                              -
                                           {% endif %}
                                       </td>
 
@@ -48,15 +53,19 @@
 
                                   {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}
                                       {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
+                                      {% set ej = '1 -2 0' if titulo.replace('_', '') == 'MARGEN' else '4 2 3' %}
                                       <td id="col{{ num }}-{{ titulo }}">
                                           <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
-                                              onchange="actualizar_dato(this, 'ms');">
+                                               title="3 números separados por un espacio [ p.ej. {{ ej }} ]"
+                                               pattern="[a-z]{4,8}"
+                                               onchange="actualizar_dato(this, 'ms');">
                                       </td>
 
                                   {% elif titulo.replace('_', '') in 'LMG' %}
                                       {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
                                       <td>
                                           <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
+                                              title="Número entero [ p.ej. 6 ]"
                                               onchange="actualizar_dato(this, 'lmg');">
                                       </td>
 

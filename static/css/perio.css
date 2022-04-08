@@ -29,19 +29,27 @@
     clip-path: circle(200% at 50% 50%);
   }
 }
-.container > :not(.cover) {
-  display: block;
-  animation: 4s desaparecer-circulo;
-}
-.container > .cover {
-  display: none;
-}
-.container table {
+.periodontograma {
   background-color: white;
-  margin: 30px;
-  padding: 50px 20px;
+  margin: 50px;
+  padding: 10px 30px 30px 30px;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 30px;
+  overflow-x: auto;
+}
+.periodontograma h1 {
+  font: bold 20px helvetica, serif;
+  color: black;
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.periodontograma table {
+  background-color: white;
   text-align: center;
   border-collapse: collapse;
+  margin-top: 50px;
   cursor: default;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -49,24 +57,29 @@
   -o-user-select: none;
   user-select: none;
 }
-.container table th {
+.periodontograma table th {
   font: bold small-caps 14px helvetica, serif;
 }
-.container table tr:first-child th {
+.periodontograma table tr:first-child th {
   cursor: pointer;
 }
-.container table th:not(:first-child), .container table tr:not(:first-child) > th, .container table td {
+.periodontograma table th:not(:first-child), .periodontograma table tr:not(:first-child) > th, .periodontograma table td {
   border: 1px black solid;
 }
-.container table td a:not(.ni) {
+.periodontograma table td.diente_ausente {
+  background: repeating-linear-gradient(-45deg, white, white 4px, black 6px, black 6px, white 7px);
+}
+.periodontograma table td.diente_ausente * {
+  display: none;
+}
+.periodontograma table td a:not(.ni) {
   cursor: pointer;
 }
-.container table td input[type=text] {
+.periodontograma table td input[type=text] {
   font: 10px helvetica, serif;
   text-align: center;
-  word-break: break-word;
 }
-.container table td input[type=checkbox] {
+.periodontograma table td input[type=checkbox] {
   width: 10px;
   height: 10px;
   padding: 0;
@@ -80,41 +93,11 @@
   outline: none;
   cursor: pointer;
 }
-.container table td input[type=checkbox].supuración:checked {
+.periodontograma table td input[type=checkbox].supuración:checked {
   background-color: #fcf230;
 }
-.container table td input[type=checkbox].sangrado:checked {
+.periodontograma table td input[type=checkbox].sangrado:checked {
   background-color: red;
-}
-.container table td.diente_ausente {
-  background: repeating-linear-gradient(-45deg, white, white 4px, black 5px, black 6px, white 7px);
-}
-.container table td.diente_ausente * {
-  display: none;
-}
-
-.cargando > :not(.cover) {
-  display: none;
-}
-.cargando > .cover {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.cargando > .cover svg {
-  max-width: 75%;
-  max-height: 75%;
-  aspect-ratio: 1/1;
-}
-.cargando > .cover svg g.diente {
-  animation: 2s aparecer infinite;
-}
-.cargando > .cover svg g.encia {
-  animation: 2s mostrar-horizontal infinite;
 }
 
 /*# sourceMappingURL=perio.css.map */
