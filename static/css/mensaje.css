@@ -1,0 +1,51 @@
+@keyframes aparecer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mostrar-horizontal {
+  0% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+  50% {
+    clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);
+  }
+  100% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+}
+@keyframes desaparecer-circulo {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(200% at 50% 50%);
+  }
+}
+div.mensaje {
+  width: 450px;
+  max-width: 50%;
+  padding: 15px 30px;
+  font: 10px helvetica, serif;
+  font-size: 13px;
+}
+div.mensaje .titulo {
+  font: bold small-caps 16px helvetica, serif;
+}
+div.mensaje .titulo.error {
+  color: red;
+}
+div.mensaje .titulo.exito {
+  color: green;
+}
+div.mensaje form > table {
+  margin: auto;
+}
+
+/*# sourceMappingURL=mensaje.css.map */

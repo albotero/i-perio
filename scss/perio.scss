@@ -1,23 +1,7 @@
 @import 'variables';
 
 .periodontograma {
-  background-color: $back-color-5;
-  margin: 50px;
-  padding: 10px 30px 30px 30px;
-  border-radius: 20px;
-  box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 30px;
-  overflow-x: auto;
-
-  h1 {
-    font: $title-font-h1;
-    color: $prim-color-2;
-    text-align: center;
-    position: absolute;
-    margin-top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
+  
   table {
     background-color: $back-color-5;
     text-align: center;

@@ -13,11 +13,7 @@
     <title>{% block title %} {% endblock %}</title>
   </head>
   <body>
-    <script type="text/javascript">initial_time = (new Date()).getTime();</script>
-    <div class="container cargando">
-        <div class="cover">{% include 'perio_blanco.svg' %}</div>
-        {% block content %} {% endblock %}
-    </div>
+  {% block content %} {% endblock %}
 
     <!-- jQuery first -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

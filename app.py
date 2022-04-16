@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-from flask import Flask, render_template
-
-from flask import request
+from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import SocketIO, emit
 
 from scripts.diente import Diente, get_titulos
@@ -10,6 +8,7 @@ from scripts.grafico import nuevo_canvas
 from scripts.guardar_perio import Guardar
 from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
+from scripts.usuarios import Usuario
 
 import os
 import uuid
@@ -23,6 +22,10 @@ os.chdir(os.path.dirname(__file__))
 
 @app.route('/')
 def perio():
+    # Verifica que esté loggeado
+    if 'id_usuario' not in session:
+        return redirect(url_for('login'))
+
     # Declaración de variables
     perio = nuevo_perio()
     dict_perio = { 'sup': {}, 'inf': {} }
@@ -49,10 +52,11 @@ def perio():
     filename = uuid.uuid4().hex
     Guardar.perio_to_file(perio, filename, silent = True)
 
-    return render_template('perio.html', tmp=filename, dict=dict_perio,
-        primer_diente=primer_diente, imagenes=imagenes)
+    return render_template('perio.html', tmp=filename,
+        dict=dict_perio, primer_diente=primer_diente,
+        imagenes=imagenes, id_usuario=session['id_usuario'])
 
-@socketio.on("update_perio")
+@socketio.on('update_perio')
 def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
@@ -100,3 +104,52 @@ def update_perio(data):
 
     # Devuelve los datos
     emit('response_perio', respuesta)
+
+def login_user(user: Usuario, contrasena = None):
+    result = None
+
+    if user.get('id_usuario'):
+        if contrasena is None:
+            # Viene de la página de Registro
+            result = True
+        else:
+            # Viene de la página de Login
+            result = user.comprobar_contrasena(contrasena)
+
+        if result:
+            # Login user
+            session["id_usuario"] = user['id_usuario']
+
+    # En este punto:
+    # -> Si result es True se inició la sesión
+    # -> Si result es False es que la contraseña es inválida
+    # -> Si existe user['error'] es que ocurrió un error y devuelve el mensaje
+    return user.get('error', result)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    result = None
+
+    if request.method == 'POST':
+        email = request.values.get('email')
+        contrasena = request.values.get('key')
+        result = login_user( Usuario(email), contrasena )
+
+    return render_template('login.html', result=result)
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    datos = {}
+    result = None
+
+    if request.method == 'POST':
+        datos.update(request.values)
+        datos['suscripcion'] = datos.get('suscripcion', 'off')
+        result = login_user( Usuario(nuevousuario=datos) )
+
+    return render_template('registro.html', result=result, datos=datos)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return render_template('login.html', logout=True)
