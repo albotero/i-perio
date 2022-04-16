@@ -1,19 +1,14 @@
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/* Muestra animación cargando durante mínimo 3 segundos o hasta que cargue la página*/
+/* Muestra animación cargando durante mínimo 2 segundos o hasta que cargue la página */
 $(async function() {
   var curr_time = (new Date()).getTime();
-  while (curr_time < initial_time + 3000) {
+  while (curr_time < initial_time + 2000) {
     curr_time = (new Date()).getTime();
     await sleep(500);
   }
   $('div.cargando').toggleClass('cargando');
 });
-
-
-/* Este diccionario almacena los cambios hasta que se envíen al servidor */
-var dict_actualizar = { };
-var socket = io();
 
 function enviar_update() {
   // Envía los datos al servidor
@@ -22,6 +17,10 @@ function enviar_update() {
   socket.emit('update_perio', dict_actualizar);
   dict_actualizar = { };
 }
+
+/* Este diccionario almacena los cambios hasta que se envíen al servidor */
+var dict_actualizar = { };
+var socket = io();
 
 socket.on('response_perio', function(datos) {
   // Actualiza las imágenes que correspondan
@@ -123,3 +122,31 @@ function actualizar_dato(elem, tipo) {
   dict_actualizar[diente][titulo] = valor;
   enviar_update();
 }
+
+/* Actualizar créditos */
+$(async function() {
+  while (true) {
+    socket.emit('update_time');
+    await sleep(1000);
+  }
+});
+
+socket.on('response_cred', function(datos) {
+  // Actualiza hora y créditos
+  $('#hora').text(datos['hora']);
+  $('#id').text(datos['id']);
+  $('#cred').text(datos['val']);
+});
+
+function redirect_post(url, datos) {
+  html = `<form action="${url}" method="post">`;
+  for (var key in datos) {
+    html += `<input type="hidden" name="${key}" value="${datos[key]}" />`
+  }
+  html += `</form>`
+  $(html).appendTo('body').submit().remove();
+}
+
+socket.on('redirect', function(datos) {
+  redirect_post(datos.url, {'tmp': tmp});
+});

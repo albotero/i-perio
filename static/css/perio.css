@@ -33,7 +33,7 @@
   background-color: white;
   text-align: center;
   border-collapse: collapse;
-  margin-top: 50px;
+  margin: 50px auto 10px auto;
   cursor: default;
   -webkit-user-select: none;
   -khtml-user-select: none;

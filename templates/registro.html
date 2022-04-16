@@ -3,7 +3,7 @@
 {% block title %} Crear Usuario {% endblock %}
 
 {% block style %}
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/mensaje.css') }}"">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/mensaje.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -73,6 +73,8 @@
           </tr>
           <tr>
             <td colspan="2">
+              <input type="button" value="Ya estoy registrado"
+                     onclick="window.location.href='{{ url_for('login') }}'" />
               <input type="submit" value="Registrarme" />
             </td>
           </tr>

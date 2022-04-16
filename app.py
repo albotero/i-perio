@@ -6,9 +6,13 @@ from flask_socketio import SocketIO, emit
 from scripts.diente import Diente, get_titulos
 from scripts.grafico import nuevo_canvas
 from scripts.guardar_perio import Guardar
+from scripts.log import Log
 from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
 from scripts.usuarios import Usuario
+
+from datetime import datetime
+import pytz
 
 import os
 import uuid
@@ -20,14 +24,25 @@ socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, log
 
 os.chdir(os.path.dirname(__file__))
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def perio():
     # Verifica que esté loggeado
-    if 'id_usuario' not in session:
+    if 'usuario' not in session:
         return redirect(url_for('login'))
 
+    if request.method == 'POST':
+        # Carga un perio existente
+        filename = request.values.get('tmp')
+        try:
+            perio = Guardar.file_to_perio(filename, silent = True)
+        except:
+            perio = nuevo_perio()
+    else:
+        # Genera un archivo temporal para guardar el perio
+        filename = uuid.uuid4().hex
+        perio = nuevo_perio()
+
     # Declaración de variables
-    perio = nuevo_perio()
     dict_perio = { 'sup': {}, 'inf': {} }
     primer_diente = [18, 48]
 
@@ -48,19 +63,17 @@ def perio():
     # Obtiene los str de las imágenes
     imagenes = actualizar_imagenes(nuevo_canvas(perio))
 
-    # Genera un archivo temporal para guardar el perio
-    filename = uuid.uuid4().hex
-    Guardar.perio_to_file(perio, filename, silent = True)
+    Guardar.perio_to_file(perio, filename, session['usuario'], silent = True)
 
     return render_template('perio.html', tmp=filename,
         dict=dict_perio, primer_diente=primer_diente,
-        imagenes=imagenes, id_usuario=session['id_usuario'])
+        imagenes=imagenes)
 
 @socketio.on('update_perio')
 def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
-    perio = Guardar.file_to_perio(data['tmp'], silent = True)
+    perio = Guardar.file_to_perio(data['tmp'], session['usuario'], silent = True)
 
     # Actualiza los datos
     filtro = set()
@@ -118,7 +131,7 @@ def login_user(user: Usuario, contrasena = None):
 
         if result:
             # Login user
-            session["id_usuario"] = user['id_usuario']
+            session['usuario'] = user['id_usuario']
 
     # En este punto:
     # -> Si result es True se inició la sesión
@@ -133,7 +146,7 @@ def login():
     if request.method == 'POST':
         email = request.values.get('email')
         contrasena = request.values.get('key')
-        result = login_user( Usuario(email), contrasena )
+        result = login_user( Usuario(email=email), contrasena )
 
     return render_template('login.html', result=result)
 
@@ -153,3 +166,42 @@ def registro():
 def logout():
     session.clear()
     return render_template('login.html', logout=True)
+
+@socketio.on('update_time')
+def update_time():
+    '''Es llamado cada segundo desde JS, si es necesario descuenta un crédito,
+        y devuelve la hora y la cantidad de créditos que tiene restantes'''
+
+    try:
+        # Obtiene la hora actual en Colombia
+        tz = pytz.timezone('America/Bogota')
+        hora = datetime.now(tz)
+
+        # Si es un nuevo minuto (segundos == 0), descuenta un crédito
+        cobrar = hora.second == 0
+
+        # Obtiene la cantidad actualizada de créditos
+        usuario = Usuario(id_usuario=session['usuario'])
+        creditos = usuario.obtener_creditos(cobrar)
+
+        if creditos == 0:
+            emit('redirect', {'url': url_for('creditos')})
+
+        respuesta = {
+            'id': usuario['usuarios']['email'],
+            'val': creditos,
+            'hora': hora.strftime('%H:%M:%S')
+        }
+
+        # Devuelve los datos
+        emit('response_cred', respuesta)
+    except Exception as ex:
+        Log.out(f'id_usuario {session.get("usuario")}: {ex}',
+                'error', silent=False, origen='app.update_time')
+
+@app.route('/creditos', methods=['GET', 'POST'])
+def creditos():
+    if request.method == 'POST':
+        return 'Si no paga, no va a volver al ' + request.values.get('tmp')
+        
+    return 'Pague, tacaño'

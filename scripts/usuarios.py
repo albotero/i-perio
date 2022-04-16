@@ -12,6 +12,9 @@ usuario = 'iperio'
 host = 'localhost'
 contrasena = 'contrasena'
 
+# 60 minutos valen COP 5000
+valor_credito = 5000 / 60;
+
 def ejecutar_mysql(comando, origen='usuarios.ejecutar_mysql'):
     dbconnect = MySQLdb.connect(host, usuario, contrasena, base_datos)
     cursor = dbconnect.cursor(MySQLdb.cursors.DictCursor)
@@ -132,14 +135,58 @@ class Usuario (dict):
         return nuevousuario.get("email")
 
 
-    def __init__ (self, email = None, nuevousuario = {}):
+    def obtener_creditos(self, descontar_credito = False):
+        '''Evalúa el número de créditos disponibles que tiene el usuario,
+            y descuenta uno si descontar_credito es True'''
+
+        if descontar_credito:
+            comando = f'''
+                UPDATE `creditos`
+                SET `gastado_cop` = `gastado_cop` + {valor_credito}
+                WHERE `id_usuario` = {self["id_usuario"]} AND `numero_transaccion` = "gastos";
+                '''
+            ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
+
+        comando = f'''
+            SELECT (
+                (SUM(`monto_cop`)-SUM(`gastado_cop`)) / {valor_credito}
+            ) as `restante_creditos`
+            FROM `creditos` WHERE `id_usuario` = {self["id_usuario"]};
+            '''
+        rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
+
+        if rows == 0:
+            # El usuario no tiene ninguna transacción
+            return 0
+
+        valores = [ x['restante_creditos'] for x in valores ]
+
+        creditos = int(sum(valores))
+
+        if creditos < 0:
+            comando = f'''
+                UPDATE `creditos`'
+                SET `gastado_cop` = SUM(SELECT(`monto_cop` WHERE `id_usuario` = {self["id_usuario"]}))'
+                WHERE `id_usuario` = {self["id_usuario"]} AND `numero_transaccion` = "gastos";
+                '''
+            ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
+            return 0
+
+        return creditos
+
+
+    def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):
         '''Si existe el usuario carga los datos de la BD, si no, crea uno nuevo'''
-        if email is None: # Debe crear un nuevo usuario
+
+        if email is None and id_usuario is None: # Debe crear un nuevo usuario
             email = self.crear_usuario(nuevousuario)
             if email is None: # No pudo crear el nuevo usuario
                 return
 
-        self['id_usuario'] = self.obtener_id_usuario(email)
+        if id_usuario is not None:
+            self['id_usuario'] = id_usuario
+        else:
+            self['id_usuario'] = self.obtener_id_usuario(email)
 
         if self.get('id_usuario'):
             self.cargar_datos('usuarios')

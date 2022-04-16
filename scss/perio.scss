@@ -1,12 +1,12 @@
 @import 'variables';
 
 .periodontograma {
-  
+
   table {
     background-color: $back-color-5;
     text-align: center;
     border-collapse: collapse;
-    margin-top: 50px;
+    margin: 50px auto 10px auto;
 
     cursor: default;
     -webkit-user-select: none;

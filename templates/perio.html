@@ -11,6 +11,8 @@
     <div class="container cargando">
         <div class="cover">{% include 'perio_blanco.svg' %}</div>
 
+        {% include 'menu.html' %}
+
         {% for grupo in dict.keys() %}
             {% set titulos = dict[grupo]['titulos'] %}
             <div class="caja periodontograma">

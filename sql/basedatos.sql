@@ -13,14 +13,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
   `suscripcion` text(3)
 );
 
-/*
+
 CREATE TABLE IF NOT EXISTS creditos (
   `id_usuario` int,
-  `numero_transaccion` int,
+  `numero_transaccion` text,
   `fecha_transaccion` timestamp,
   `medio_pago` text,
   `estado` text,
   `monto_cop` int,
   `gastado_cop` int
 );
-*/

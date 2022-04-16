@@ -4,6 +4,9 @@ from .diente import Diente
 from .grafico import nuevo_canvas
 from .guardar_perio import Guardar
 
+from datetime import datetime
+import pytz
+
 def crear_diente(indice, pediatrico):
     '''Crea un nuevo Diente, el número del diente lo toma según el índice'''
     cuadrante = indice // 8 + 1
@@ -32,8 +35,14 @@ def crear_diente(indice, pediatrico):
 
 def nuevo_perio(pediatrico = False):
     '''Inicializa un nuevo periodontograma'''
+
+    tz = pytz.timezone('America/Bogota')
+    hora = datetime.now(tz).strftime('%Y-%m-%d, %H:%M:%S')
+
     perio = {
         'pediatrico': pediatrico,
+        'creado': hora,
+        'modificado': hora
         #'paciente' = {datos del paciente}
         #'usuario' = {datos del usuario que lo creo}
     }

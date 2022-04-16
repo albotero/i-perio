@@ -4,15 +4,15 @@ import json
 import os
 import time
 
-def file_path(archivo):
+def file_path(archivo, id_usuario):
     '''Define la ruta donde se guardan los archivos para cada usuario'''
-    return '/tmp/iperio/' + archivo + '.perio'
+    return f'../periodontogramas/{id_usuario}/{archivo}.perio'
 
 class Guardar():
 
-    def file_to_perio(archivo, silent = False):
+    def file_to_perio(archivo, id_usuario = 'invitado', silent = False):
         '''Carga un archivo .perio a un perio (diccionario de Dientes)'''
-        ruta = file_path(archivo)
+        ruta = file_path(archivo, id_usuario)
         if not silent:
             print('Cargando archivo: {}'.format(ruta))
         try:
@@ -27,11 +27,11 @@ class Guardar():
             Log.out(ex, 'error', silent,
                     origen='guardar_perio.file_to_perio')
 
-    def perio_to_file(perio, archivo = None, silent = False):
+    def perio_to_file(perio, archivo = None, id_usuario = 'invitado', silent = False):
         '''Guarda el perio (diccionario de Dientes) a un archivo .perio'''
         if archivo is None:
             archivo = time.strftime("%Y%m%d-%H%M%S")
-        ruta = file_path(archivo)
+        ruta = file_path(archivo, id_usuario)
         if not silent:
             print('Guardando archivo: {}'.format(ruta))
         try:
