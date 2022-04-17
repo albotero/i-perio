@@ -143,15 +143,17 @@ class Usuario (dict):
             comando = f'''
                 UPDATE `creditos`
                 SET `gastado_cop` = `gastado_cop` + {valor_credito}
-                WHERE `id_usuario` = {self["id_usuario"]} AND `numero_transaccion` = "gastos";
+                WHERE `id_usuario` = {self.get("id_usuario")}
+                    AND `transaccion` = "gastos";
                 '''
             ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
 
         comando = f'''
-            SELECT (
-                (SUM(`monto_cop`)-SUM(`gastado_cop`)) / {valor_credito}
-            ) as `restante_creditos`
-            FROM `creditos` WHERE `id_usuario` = {self["id_usuario"]};
+            SELECT
+                (SUM(CASE WHEN `estado` = 'Aprobado' THEN `monto_cop` ELSE 0 END)
+                - SUM(`gastado_cop`)) / {valor_credito} AS `restante_creditos`
+            FROM `creditos`
+            WHERE `id_usuario` = {self.get("id_usuario")};
             '''
         rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
 
@@ -159,15 +161,24 @@ class Usuario (dict):
             # El usuario no tiene ninguna transacción
             return 0
 
-        valores = [ x['restante_creditos'] for x in valores ]
+        valores = [ x.get('restante_creditos') for x in valores ]
 
         creditos = int(sum(valores))
 
         if creditos < 0:
             comando = f'''
-                UPDATE `creditos`'
-                SET `gastado_cop` = SUM(SELECT(`monto_cop` WHERE `id_usuario` = {self["id_usuario"]}))'
-                WHERE `id_usuario` = {self["id_usuario"]} AND `numero_transaccion` = "gastos";
+                UPDATE `creditos` AS r
+                JOIN (
+                    SELECT
+                        `id_usuario`,
+                        SUM(`monto_cop`) AS `sum_monto_cop`
+                    FROM `creditos`
+                    WHERE `id_usuario` = {self.get("id_usuario")}
+                        AND `estado` = 'Aprobado'
+                    ) AS grp
+                ON grp.id_usuario = r.id_usuario
+                SET r.gastado_cop = grp.sum_monto_cop
+                WHERE r.transaccion = 'gastos';
                 '''
             ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
             return 0

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 CREATE TABLE IF NOT EXISTS creditos (
   `id_usuario` int,
-  `numero_transaccion` text,
+  `transaccion` text,
   `fecha_transaccion` timestamp,
   `medio_pago` text,
   `estado` text,
