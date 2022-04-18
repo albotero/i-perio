@@ -11,8 +11,6 @@
     <div class="container cargando">
         <div class="cover">{% include 'perio_blanco.svg' %}</div>
 
-        {% include 'menu.html' %}
-
         {% for grupo in dict.keys() %}
             {% set titulos = dict[grupo]['titulos'] %}
             <div class="caja periodontograma">
@@ -121,7 +119,11 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/socket.io.min-4.4.1.js') }}" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
     <script type="text/javascript">const tmp = '{{ tmp }}';</script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}"></script>
+{% endblock%}
+
+{% block menu %}
+    {% include 'menu.html' %}
 {% endblock%}

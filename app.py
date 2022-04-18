@@ -12,6 +12,7 @@ from scripts.process_images import actualizar_imagenes
 from scripts.usuarios import Usuario
 
 from datetime import datetime
+from babel.dates import format_datetime
 import pytz
 
 import os
@@ -63,7 +64,10 @@ def perio():
     # Obtiene los str de las imágenes
     imagenes = actualizar_imagenes(nuevo_canvas(perio))
 
-    Guardar.perio_to_file(perio, filename, session['usuario'], silent = True)
+    Guardar.perio_to_file(perio,
+                archivo = filename,
+                id_usuario = session['usuario'],
+                silent = True)
 
     return render_template('perio.html', tmp=filename,
         dict=dict_perio, primer_diente=primer_diente,
@@ -73,7 +77,9 @@ def perio():
 def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
-    perio = Guardar.file_to_perio(data['tmp'], session['usuario'], silent = True)
+    perio = Guardar.file_to_perio(data['tmp'],
+                id_usuario = session['usuario'],
+                silent = True)
 
     # Actualiza los datos
     filtro = set()
@@ -109,7 +115,10 @@ def update_perio(data):
                     respuesta['{}-{}'.format(ni, num)] = ' '.join(map(str, perio[num]['valores'][ni]))
 
     # Guarda el tmp
-    Guardar.perio_to_file(perio, data['tmp'], silent = True)
+    Guardar.perio_to_file(perio,
+                archivo = data['tmp'],
+                id_usuario = session['usuario'],
+                silent = True)
 
     # Obtiene los str de las imágenes actualizadas
     if len(filtro) > 0:
@@ -187,14 +196,25 @@ def update_time():
         if creditos == 0:
             emit('redirect', {'url': url_for('creditos')})
 
+        horas_restantes = creditos//60
+        if horas_restantes > 0:
+            horas_restantes = f'{horas_restantes} horas y '
+        else:
+            horas_restantes = ''
+
+        minutos_restantes = f'{creditos%60} minutos'
+
         respuesta = {
-            'id': usuario['usuarios']['email'],
-            'val': creditos,
-            'hora': hora.strftime('%H:%M:%S')
+            'usuario': usuario['usuarios']['email'],
+            'cred': f'{creditos:,}'.replace(',', '.'),
+            'cred-tiempo': f'Restan {horas_restantes}{minutos_restantes}',
+            'hora': format_datetime(hora,
+                                    "h:mm:ss a, EEEE dd 'de' MMMM 'de' YYYY",
+                                    locale='es_CO')
         }
 
         # Devuelve los datos
-        emit('response_cred', respuesta)
+        emit('response_time', respuesta)
     except Exception as ex:
         Log.out(f'id_usuario {session.get("usuario")}: {ex}',
                 'error', silent=False, origen='app.update_time')
@@ -203,5 +223,5 @@ def update_time():
 def creditos():
     if request.method == 'POST':
         return 'Si no paga, no va a volver al ' + request.values.get('tmp')
-        
+
     return 'Pague, tacaño'

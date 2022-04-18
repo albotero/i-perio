@@ -122,31 +122,3 @@ function actualizar_dato(elem, tipo) {
   dict_actualizar[diente][titulo] = valor;
   enviar_update();
 }
-
-/* Actualizar créditos */
-$(async function() {
-  while (true) {
-    socket.emit('update_time');
-    await sleep(1000);
-  }
-});
-
-socket.on('response_cred', function(datos) {
-  // Actualiza hora y créditos
-  $('#hora').text(datos['hora']);
-  $('#id').text(datos['id']);
-  $('#cred').text(datos['val']);
-});
-
-function redirect_post(url, datos) {
-  html = `<form action="${url}" method="post">`;
-  for (var key in datos) {
-    html += `<input type="hidden" name="${key}" value="${datos[key]}" />`
-  }
-  html += `</form>`
-  $(html).appendTo('body').submit().remove();
-}
-
-socket.on('redirect', function(datos) {
-  redirect_post(datos.url, {'tmp': tmp});
-});

@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@keyframes aparecer {
+@keyframes aparecer-desaparecer {
   0% {
     opacity: 0;
   }
@@ -64,7 +64,7 @@
   text-align: center;
 }
 .periodontograma table td input[type=text] :invalid {
-  color: #F96565;
+  color: #EE4848;
 }
 .periodontograma table td input[type=checkbox] {
   width: 10px;
