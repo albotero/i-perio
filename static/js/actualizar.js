@@ -1,3 +1,6 @@
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+var socket = io();
+
 socket.on('response_time', function(datos) {
   // Actualiza hora y créditos
   for (var val in datos) {
@@ -10,8 +13,8 @@ socket.on('response_time', function(datos) {
   }
 });
 
-function redirect_post(url, datos) {
-  html = `<form action="${url}" method="post">`;
+function redirect(url, method, datos) {
+  html = `<form action="${url}" method="${method}">`;
   for (var key in datos) {
     html += `<input type="hidden" name="${key}" value="${datos[key]}" />`
   }
@@ -20,5 +23,5 @@ function redirect_post(url, datos) {
 }
 
 socket.on('redirect', function(datos) {
-  redirect_post(datos.url, {'tmp': tmp});
+  redirect_post(datos.url, {'tmp': tmp}, 'get');
 });

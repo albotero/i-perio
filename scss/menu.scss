@@ -114,6 +114,10 @@
       @include add-icono-menu ('/static/svg/usuario.svg', 16px);
     }
 
+    #nuevoperio::before {
+      @include add-icono-menu ('/static/svg/favicon.svg', 16px);
+    }
+
     a {
       display: block;
       padding: 8px 12px;

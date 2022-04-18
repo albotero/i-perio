@@ -1,4 +1,4 @@
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+upd_opt = false;
 
 /* Muestra animación cargando durante mínimo 2 segundos o hasta que cargue la página */
 $(async function() {
@@ -20,7 +20,6 @@ function enviar_update() {
 
 /* Este diccionario almacena los cambios hasta que se envíen al servidor */
 var dict_actualizar = { };
-var socket = io();
 
 socket.on('response_perio', function(datos) {
   // Actualiza las imágenes que correspondan

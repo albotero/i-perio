@@ -1,44 +1,45 @@
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/menu.css') }}">
 
-<div class="container cargando">
-  <div class="menu">
-    <nav>
-      <ul>
-        <li>
-          <a id="usuario"></a>
-          <ul>
-            <li><a>Configuraci&oacute;n</a></li>
-            <li class="sub">
-              <a>Ayuda</a>
-              <ul>
-                <li><a>¿C&oacute;mo usar el Periodontograma?</a></li>
-                <li><a>¿Qu&eacute; son los cr&eacute;ditos?</a></li>
-                <li><a>Acerca de i-Perio</a></li>
-                <li><a>Contactar al administrador</a></li>
-              </ul>
-            </li>
-            <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
-          </ul>
-        </li>
-        <li>
-          <a id="cred"></a>
-          <ul>
-            <li class="cred-tiempo"><div id="cred-tiempo"></div></li>
-            <li><a href="{{ url_for('creditos') }}">Recargas</a></li>
-          </ul>
-        </li>
-        <div id="hora" class="hora"></div>
-      </ul>
-    </nav>
-  </div>
+<div class="menu">
+  <nav>
+    <ul>
+      <li>
+        <a id="usuario"></a>
+        <ul>
+          <li><a>Configuraci&oacute;n</a></li>
+          <li class="sub">
+            <a>Ayuda</a>
+            <ul>
+              <li><a>¿C&oacute;mo usar el Periodontograma?</a></li>
+              <li><a>¿Qu&eacute; son los cr&eacute;ditos?</a></li>
+              <li><a>Acerca de i-Perio</a></li>
+              <li><a>Contactar al administrador</a></li>
+            </ul>
+          </li>
+          <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+        </ul>
+      </li>
+      <li>
+        <a id="cred"></a>
+        <ul>
+          <li class="cred-tiempo"><div id="cred-tiempo"></div></li>
+          <li><a href="{{ url_for('creditos') }}">Recargas</a></li>
+        </ul>
+      </li>
+      <li><a id="nuevoperio" href="/">Nuevo periodontograma</a></li>
+      <div id="hora" class="hora"></div>
+    </ul>
+  </nav>
 </div>
 
 <script type="text/javascript">
+  var upd_opt = true;
   $(async function() {
     while (true) {
-      socket.emit('update_time');
+      socket.emit('update_time', upd_opt);
       await sleep(1000);
     }
   });
 </script>
+<script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/actualizar.js') }}"></script>

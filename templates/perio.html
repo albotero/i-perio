@@ -42,13 +42,13 @@
                                                           {% set opciones = ['M', 'D'] %}
                                                       {% endif %}
                                                       {% set ej = [] %}
-                                                      {% set regex = '{}{}{}'.format('^[^\\w]*(?:', opciones|join('I{1,3}[^\\w]*|'), 'I{1,3}[^\\w]*)+$') %}
+                                                      {% set regex = '(?:{}{}{})|-'.format('^[^\\w]*(?:', opciones|join('I{1,3}[^\\w]*|'), 'I{1,3}[^\\w]*)+$') %}
                                                       {% for i in range(opciones|length) %}
                                                           {% set ej = ej.append(opciones[i] + 'I'*(i+1)) %}
                                                       {% endfor %}
                                                       {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
                                                       <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
-                                                          title="Iniciales y grado de cada furca separado por espacios [ p.ej. {{ ej|join(' ') }} ]"
+                                                          title="Iniciales y grado de cada furca separado por espacios [ p.ej. {{ ej|join(' ') }} ] o negativo [ - ]"
                                                           class="furca" pattern="{{ regex }}" onchange="actualizar_dato(this, 'furca');">
                                                   {% else: %}
                                                       -

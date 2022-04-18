@@ -13,7 +13,7 @@ html {
       min-width: 500px;
       overflow-x: auto;
       margin: auto;
-      
+
       > :not(.cover) {
         display: block;
         animation: 4s desaparecer-circulo;

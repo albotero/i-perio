@@ -177,7 +177,7 @@ def logout():
     return render_template('login.html', logout=True)
 
 @socketio.on('update_time')
-def update_time():
+def update_time(readonly):
     '''Es llamado cada segundo desde JS, si es necesario descuenta un crédito,
         y devuelve la hora y la cantidad de créditos que tiene restantes'''
 
@@ -187,7 +187,7 @@ def update_time():
         hora = datetime.now(tz)
 
         # Si es un nuevo minuto (segundos == 0), descuenta un crédito
-        cobrar = hora.second == 0
+        cobrar = hora.second == 0 and not readonly
 
         # Obtiene la cantidad actualizada de créditos
         usuario = Usuario(id_usuario=session['usuario'])
@@ -221,7 +221,7 @@ def update_time():
 
 @app.route('/creditos', methods=['GET', 'POST'])
 def creditos():
-    if request.method == 'POST':
-        return 'Si no paga, no va a volver al ' + request.values.get('tmp')
-
-    return 'Pague, tacaño'
+    ''' Si es GET muestra los creditos que tiene
+        Si es POST muestra confirmación de la compra'''
+    tmp = request.values.get('tmp')
+    return render_template('creditos.html', tmp=tmp)
