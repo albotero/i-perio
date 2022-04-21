@@ -1,5 +1,5 @@
 _opt_datos = {
-    'VITALIDAD': ['-', '+'],
+    'VITALIDAD': ['+', '-'],
     'IMPLANTE': ['No', 'Si'],
     'MOVILIDAD': ['-', '1', '2', '3'],
     'PLACA': ['0', '1']
