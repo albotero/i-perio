@@ -23,10 +23,15 @@
         <a id="cred"></a>
         <ul>
           <li class="cred-tiempo"><div id="cred-tiempo"></div></li>
-          <li><a href="{{ url_for('creditos') }}">Recargas</a></li>
+          <li><a onclick="redirect('{{ url_for('creditos') }}', 'post', {'tmp':  tmp});">Recargas</a></li>
         </ul>
       </li>
-      <li><a id="nuevoperio" href="/">Nuevo periodontograma</a></li>
+      <li><a id="menuperio">Periodontograma</a>
+        <ul>
+          <li><a href="/">Abrir nuevo</a></li>
+          <li><a href="#">Cargar</a></li>
+        </ul>
+      </li>
       <div id="hora" class="hora"></div>
     </ul>
   </nav>

@@ -3,7 +3,63 @@
 {% block title %} Cr&eacute;ditos {% endblock %}
 
 {% block content %}
-  <div>holi usuario</div>
+  <div class="caja mensaje">
+    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">Te quedan {{ creditos }} cr&eacute;ditos disponibles.</p>
+    {% if creditos <= 15 %}
+      <p class="centro">Recarga ahora para seguir utilizando la aplicaci&oacute;n.</p>
+    {% endif %}
+  </div>
+
+  <div class="caja mensaje">
+    <p class="titulo">Recargar</p>
+    <form action="{{ url_for('checkout') }}" method="post">
+      <table>
+        <tr>
+          <td><label for="email">Correo electr&oacute;nico:</label></td>
+          <td><input type="text" name="email" value="{{ email }}" required /></td>
+        </tr>
+        <tr>
+          <td><label for="monto">Valor de la recarga:</label></td>
+          <td>
+            <input type="range" name="monto" value="{{ 20000 }}"
+                  min="5000" max="100000" step="1000"
+                  oninput="this.nextElementSibling.value = `COP$ ${new Intl.NumberFormat().format(this.value).replaceAll(',', '.')}`;"
+                  required />
+            <output>COP$ 20.000</output>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <input type="submit" value="Pagar" />
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+
+  {% if transacciones is not none %}
+    <div class="caja mensaje transacciones">
+      <p class="titulo">Historial de Transacciones</p>
+      <table>
+        <tr>
+          <th>fecha</th>
+          <th>transacci&oacute;n</th>
+          <th>medio de pago</th>
+          <th>monto</th>
+          <th>estado</th>
+        </tr>
+        {% for transaccion in transacciones %}
+          <tr>
+            <td>{{ transaccion.get('fecha_transaccion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
+            <td>{{ transaccion.get('transaccion') }}</td>
+            <td>{{ transaccion.get('medio_pago') }}</td>
+            <td class="monto">{{ '{:,}'.format(transaccion.get('monto'))|replace(',', '.') }}</td>
+            <td><div class="estado {{ transaccion.get('estado') }}"></div></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

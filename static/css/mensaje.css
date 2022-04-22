@@ -37,6 +37,7 @@ div.mensaje {
 }
 div.mensaje .titulo {
   font: bold small-caps 16px helvetica, serif;
+  color: black;
 }
 div.mensaje .titulo.error {
   color: red;
@@ -44,8 +45,61 @@ div.mensaje .titulo.error {
 div.mensaje .titulo.exito {
   color: green;
 }
+div.mensaje .centro {
+  text-align: center;
+}
 div.mensaje form > table {
   margin: auto;
+}
+
+div.transacciones table {
+  width: 100%;
+  border-collapse: collapse;
+}
+div.transacciones table th, div.transacciones table td {
+  border: 1px solid #616161;
+  padding: 3px 8px;
+}
+div.transacciones table th {
+  font: bold small-caps 16px helvetica, serif;
+}
+div.transacciones table td {
+  font: 10px helvetica, serif;
+  text-align: center;
+  white-space: nowrap;
+}
+div.transacciones table td.monto::before {
+  content: "COP$ ";
+}
+div.transacciones table td div.estado {
+  font-weight: bold;
+}
+div.transacciones table td div.estado.aprobado::before {
+  content: "Aprobado";
+  color: #0E4402;
+  background: #97D379;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+div.transacciones table td div.estado.proceso::before {
+  content: "En proceso";
+  color: #AB4909;
+  background: #F5C75D;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+div.transacciones table td div.estado.rechazado::before {
+  content: "Rechazado";
+  color: #A80000;
+  background: #FBA3A3;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
 
 /*# sourceMappingURL=mensaje.css.map */

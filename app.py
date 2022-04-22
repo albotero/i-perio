@@ -221,7 +221,28 @@ def update_time(readonly):
 
 @app.route('/creditos', methods=['GET', 'POST'])
 def creditos():
-    ''' Si es GET muestra los creditos que tiene
-        Si es POST muestra confirmación de la compra'''
+    '''Muestra créditos actuales, botón de pago, e historial de transacciones'''
     tmp = request.values.get('tmp')
-    return render_template('creditos.html', tmp=tmp)
+
+    # Verifica que esté loggeado
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    usuario = Usuario(id_usuario=session['usuario'])
+    # Obtiene la cantidad actualizada de créditos
+    creditos = usuario.obtener_creditos(False)
+    # Obtiene el historial de transacciones
+    transacciones = usuario.obtener_transacciones()
+
+    return render_template('creditos.html', tmp=tmp, creditos=creditos,
+                            transacciones=transacciones, email=usuario['usuarios']['email'])
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    '''Utiliza la API para cobrar un pago'''
+    pass
+
+@app.route('/confirmacion')
+def confirmacion_pago():
+    '''Recibe el resultado del pago, actualiza la BD, y muestra el estado del pago'''
+    pass

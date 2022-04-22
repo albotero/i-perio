@@ -114,7 +114,7 @@
       @include add-icono-menu ('/static/svg/usuario.svg', 16px);
     }
 
-    #nuevoperio::before {
+    #menuperio::before {
       @include add-icono-menu ('/static/svg/favicon.svg', 16px);
     }
 

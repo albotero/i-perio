@@ -9,6 +9,7 @@ div.mensaje {
 
   .titulo {
     font: $title-font-h2;
+    color: $prim-color-1;
 
     &.error {
       color: red;
@@ -19,7 +20,61 @@ div.mensaje {
     }
   }
 
+  .centro {
+    text-align: center;
+  }
+
   form > table {
     margin: auto;
+  }
+}
+
+@mixin color-estado($estado, $color1, $color2) {
+  content: $estado;
+  color: $color1;
+  background: $color2;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  @include sombra;
+}
+
+div.transacciones {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      border: 1px solid $prim-color-3;
+      padding: 3px 8px;
+    }
+
+    th {
+      font: $title-font-h2;
+    }
+
+    td {
+      font: $text-font-normal;
+      text-align: center;
+      white-space: nowrap;
+
+      &.monto::before {
+          content: 'COP$ ';
+      }
+
+      div.estado {
+        font-weight: bold;
+
+        &.aprobado::before {
+          @include color-estado('Aprobado', $exito-prim-color, $exito-sec-color);
+        }
+        &.proceso::before {
+          @include color-estado('En proceso', $procesando-prim-color, $procesando-sec-color);
+        }
+        &.rechazado::before {
+          @include color-estado('Rechazado', $rechazado-prim-color, $rechazado-sec-color);
+        }
+      }
+    }
   }
 }

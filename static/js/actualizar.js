@@ -23,5 +23,8 @@ function redirect(url, method, datos) {
 }
 
 socket.on('redirect', function(datos) {
-  redirect_post(datos.url, {'tmp': tmp}, 'get');
+  try {
+    redirect(datos.url, 'post', {'tmp': tmp}, 'get');
+  }
+  catch {}
 });

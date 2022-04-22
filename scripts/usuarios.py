@@ -142,7 +142,7 @@ class Usuario (dict):
         if descontar_credito:
             comando = f'''
                 UPDATE `creditos`
-                SET `gastado_cop` = `gastado_cop` + {valor_credito}
+                SET `gastado` = `gastado` + {valor_credito}
                 WHERE `id_usuario` = {self.get("id_usuario")}
                     AND `transaccion` = "gastos";
                 '''
@@ -150,8 +150,8 @@ class Usuario (dict):
 
         comando = f'''
             SELECT
-                (SUM(CASE WHEN `estado` = 'Aprobado' THEN `monto_cop` ELSE 0 END)
-                - SUM(`gastado_cop`)) / {valor_credito} AS `restante_creditos`
+                (SUM(CASE WHEN `estado` = 'Aprobado' THEN `monto` ELSE 0 END)
+                - SUM(`gastado`)) / {valor_credito} AS `restante_creditos`
             FROM `creditos`
             WHERE `id_usuario` = {self.get("id_usuario")};
             '''
@@ -171,19 +171,33 @@ class Usuario (dict):
                 JOIN (
                     SELECT
                         `id_usuario`,
-                        SUM(`monto_cop`) AS `sum_monto_cop`
+                        SUM(`monto`) AS `sum_monto`
                     FROM `creditos`
                     WHERE `id_usuario` = {self.get("id_usuario")}
                         AND `estado` = 'Aprobado'
                     ) AS grp
                 ON grp.id_usuario = r.id_usuario
-                SET r.gastado_cop = grp.sum_monto_cop
+                SET r.gastado = grp.sum_monto
                 WHERE r.transaccion = 'gastos';
                 '''
             ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
             return 0
 
         return creditos
+
+    def obtener_transacciones(self):
+        comando = f'''
+            SELECT *
+            FROM `creditos`
+            WHERE `id_usuario` = {self.get("id_usuario")}
+            AND `transaccion` != "gastos"
+            ORDER BY `fecha_transaccion` DESC;
+            '''
+        rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_transacciones')
+        if rows is None or rows == 0:
+            return [{}]
+        return valores
+
 
 
     def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):
