@@ -69,6 +69,25 @@ html {
         left: 50%;
         transform: translateX(-50%);
       }
+
+      input[type=submit], input[type=button], button {
+        min-width: 100px;
+        line-height: 26px;
+        background: $back-color-4;
+        border-radius: 8px;
+        margin: 12px 5px 0 5px;
+
+        &:hover {
+          background: $back-color-3;
+          cursor: pointer;
+        }
+
+        &:active {
+          background: $back-color-2;
+          color: $prim-color-4;
+          cursor: pointer;
+        }
+      }
     }
   }
 }

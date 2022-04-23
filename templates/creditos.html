@@ -23,14 +23,19 @@
           <td>
             <input type="range" name="monto" value="{{ 20000 }}"
                   min="5000" max="100000" step="1000"
-                  oninput="this.nextElementSibling.value = `COP$ ${new Intl.NumberFormat().format(this.value).replaceAll(',', '.')}`;"
+                  oninput="slider(this.value);"
                   required />
-            <output>COP$ 20.000</output>
+            <div id="monto-cop" class="recarga"></div>
           </td>
         </tr>
         <tr>
+          <td colspan="2"><div id="creditos-recarga" class="recarga"></div></td>
+        </tr>
+        <tr>
           <td colspan="2">
-            <input type="submit" value="Pagar" />
+            <div class="botones">
+              <input type="submit" value="Pagar" />
+            </div>
           </td>
         </tr>
       </table>
@@ -65,6 +70,36 @@
 {% block scripts %}
   <script type="text/javascript">
     $('div.cargando').toggleClass('cargando');
+
+    function format_numero(numero, prefijo = '', sufijo = '') {
+      var formatted_val = new Intl.NumberFormat().format(numero); // Separador de miles
+      formatted_val = formatted_val.replaceAll(',', '.'); // Cambia comas por puntos
+      formatted_val = `${prefijo}${formatted_val}${sufijo}`; // Agrega prefijo y sufijo
+      return formatted_val;
+    }
+
+    function slider(valor) {
+      $('#monto-cop').html(format_numero(valor, prefijo = 'COP$ '));
+
+      var recarga = parseInt(valor / {{ valor_credito }});
+      var tiempo = '';
+      var horas = ~~(recarga / 60);
+      var minutos = recarga % 60;
+
+      if (horas > 0) {
+        tiempo += ' ' + horas + ' hora' + (horas == 1 ? '' : 's');
+        if (minutos > 0)
+          tiempo += ' y ' + minutos + ' minuto' + (minutos == 1 ? '' : 's');
+      } else {
+        tiempo += ' ' + minutos + ' minuto' + (minutos == 1 ? '' : 's');
+      }
+
+      $('#creditos-recarga').html(
+        `Equivale a${tiempo} de uso`
+      );
+    }
+
+    $(slider(20000));
   </script>
 {% endblock%}
 

@@ -7,6 +7,10 @@ div.mensaje {
   font: $text-font-normal;
   font-size: 13px;
 
+  div, p, td {
+    font: $text-font-normal;
+  }
+
   .titulo {
     font: $title-font-h2;
     color: $prim-color-1;
@@ -26,6 +30,26 @@ div.mensaje {
 
   form > table {
     margin: auto;
+    border-collapse: separate;
+    border-spacing: 8px;
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    div.botones{
+      text-align: center;
+    }
+
+    div.recarga{
+      text-align: center;
+      margin: 0 auto;
+
+      &#creditos-recarga {
+        font: $text-font-cursiva;
+        font-weight: bold;
+      }
+    }
   }
 }
 
@@ -54,7 +78,6 @@ div.transacciones {
     }
 
     td {
-      font: $text-font-normal;
       text-align: center;
       white-space: nowrap;
 

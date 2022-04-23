@@ -34,7 +34,7 @@ html {
 html body {
   background-color: darkgrey;
   color: black;
-  font: 10px helvetica, serif;
+  font: 12px helvetica, serif;
 }
 html body .container {
   width: 80%;
@@ -88,6 +88,22 @@ html body .caja h1 {
   margin-top: -40px;
   left: 50%;
   transform: translateX(-50%);
+}
+html body .caja input[type=submit], html body .caja input[type=button], html body .caja button {
+  min-width: 100px;
+  line-height: 26px;
+  background: #EAEAEA;
+  border-radius: 8px;
+  margin: 12px 5px 0 5px;
+}
+html body .caja input[type=submit]:hover, html body .caja input[type=button]:hover, html body .caja button:hover {
+  background: lightgrey;
+  cursor: pointer;
+}
+html body .caja input[type=submit]:active, html body .caja input[type=button]:active, html body .caja button:active {
+  background: grey;
+  color: white;
+  cursor: pointer;
 }
 
 /*# sourceMappingURL=base.css.map */

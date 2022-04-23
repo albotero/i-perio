@@ -32,8 +32,11 @@ div.mensaje {
   width: 450px;
   max-width: 50%;
   padding: 15px 30px;
-  font: 10px helvetica, serif;
+  font: 12px helvetica, serif;
   font-size: 13px;
+}
+div.mensaje div, div.mensaje p, div.mensaje td {
+  font: 12px helvetica, serif;
 }
 div.mensaje .titulo {
   font: bold small-caps 16px helvetica, serif;
@@ -50,6 +53,22 @@ div.mensaje .centro {
 }
 div.mensaje form > table {
   margin: auto;
+  border-collapse: separate;
+  border-spacing: 8px;
+}
+div.mensaje form > table input[type=range] {
+  width: 100%;
+}
+div.mensaje form > table div.botones {
+  text-align: center;
+}
+div.mensaje form > table div.recarga {
+  text-align: center;
+  margin: 0 auto;
+}
+div.mensaje form > table div.recarga#creditos-recarga {
+  font: italic 12px helvetica, serif;
+  font-weight: bold;
 }
 
 div.transacciones table {
@@ -64,7 +83,6 @@ div.transacciones table th {
   font: bold small-caps 16px helvetica, serif;
 }
 div.transacciones table td {
-  font: 10px helvetica, serif;
   text-align: center;
   white-space: nowrap;
 }

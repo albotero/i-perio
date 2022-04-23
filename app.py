@@ -9,7 +9,7 @@ from scripts.guardar_perio import Guardar
 from scripts.log import Log
 from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
-from scripts.usuarios import Usuario
+from scripts.usuarios import valor_credito, ejecutar_mysql, Usuario
 
 from datetime import datetime
 from babel.dates import format_datetime
@@ -198,11 +198,12 @@ def update_time(readonly):
 
         horas_restantes = creditos//60
         if horas_restantes > 0:
-            horas_restantes = f'{horas_restantes} horas y '
+            horas_restantes = f'{horas_restantes} hora{"" if horas_restantes == 1 else "s"} y '
         else:
             horas_restantes = ''
 
-        minutos_restantes = f'{creditos%60} minutos'
+        minutos_restantes = creditos%60
+        minutos_restantes = f'{minutos_restantes} minuto{"" if minutos_restantes == 1 else "s"}'
 
         respuesta = {
             'usuario': usuario['usuarios']['email'],
@@ -235,12 +236,26 @@ def creditos():
     transacciones = usuario.obtener_transacciones()
 
     return render_template('creditos.html', tmp=tmp, creditos=creditos,
-                            transacciones=transacciones, email=usuario['usuarios']['email'])
+                            transacciones=transacciones,
+                            email=usuario['usuarios']['email'],
+                            valor_credito=valor_credito)
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
     '''Utiliza la API para cobrar un pago'''
-    pass
+    comando = f'''
+        SELECT MAX(`transaccion`) as MAX
+        FROM `creditos`
+        WHERE `transaccion` != "gastos";
+        '''
+    _, prev_cups, _ = ejecutar_mysql(comando, origen='app.checkout')
+    if len(prev_cups) == 0:
+        prev_cups = 0
+    else:
+        prev_cups = int(prev_cups[0].get('MAX')[3:])
+    nuevo_cups = f'CUP{prev_cups + 1:05}'
+    return nuevo_cups;
+
 
 @app.route('/confirmacion')
 def confirmacion_pago():

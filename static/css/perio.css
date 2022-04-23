@@ -60,7 +60,7 @@
   cursor: pointer;
 }
 .periodontograma table td input[type=text] {
-  font: 10px helvetica, serif;
+  font: 12px helvetica, serif;
   text-align: center;
   border: none;
   -webkit-box-sizing: border-box;
