@@ -21,9 +21,8 @@
         <tr>
           <td><label for="monto">Valor de la recarga:</label></td>
           <td>
-            <input type="range" name="monto" value="{{ 20000 }}"
+            <input type="range" name="monto" value="20000"
                   min="5000" max="100000" step="1000"
-                  oninput="slider(this.value);"
                   required />
             <div id="monto-cop" class="recarga"></div>
           </td>
@@ -78,7 +77,12 @@
       return formatted_val;
     }
 
-    function slider(valor) {
+    var monto = $('input[name=monto]');
+
+    monto.on('change input', function () {
+      valor = monto.val();
+      monto.val(valor); // actualiza el valor cuando se regresa a la página
+
       $('#monto-cop').html(format_numero(valor, prefijo = 'COP$ '));
 
       var recarga = parseInt(valor / {{ valor_credito }});
@@ -97,9 +101,9 @@
       $('#creditos-recarga').html(
         `Equivale a${tiempo} de uso`
       );
-    }
+    });
 
-    $(slider(20000));
+    monto.trigger('change');
   </script>
 {% endblock%}
 

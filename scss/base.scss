@@ -73,12 +73,12 @@ html {
       input[type=submit], input[type=button], button {
         min-width: 100px;
         line-height: 26px;
-        background: $back-color-4;
+        background: $back-color-3;
         border-radius: 8px;
         margin: 12px 5px 0 5px;
 
         &:hover {
-          background: $back-color-3;
+          background: $back-color-4;
           cursor: pointer;
         }
 

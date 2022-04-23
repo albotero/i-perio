@@ -132,6 +132,18 @@ class Usuario (dict):
                             +f'Por favor contacte al administrador - [usuarios.Usuario.crear_usuario].')
             return
 
+        # Agrega la fila de gastos a la tabla de créditos
+        comando = f'''
+            INSERT INTO `creditos`
+            ( `id_usuario`, `transaccion`, `gastado` )
+            VALUES
+            ( '${self['usuarios']['id_usuario']}', 'gastos', 0 );
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.crear_usuario')
+        if rows is not None and rows > 0:
+            self['error'] = (f'Error al crear la el registro de gastos en la tabla `cr&eacute;ditos`.')
+            return
+
         return nuevousuario.get("email")
 
 

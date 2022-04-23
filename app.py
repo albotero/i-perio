@@ -243,6 +243,7 @@ def creditos():
 @app.route('/checkout', methods=['POST'])
 def checkout():
     '''Utiliza la API para cobrar un pago'''
+    # Crea un nuevo consecutivo
     comando = f'''
         SELECT MAX(`transaccion`) as MAX
         FROM `creditos`
@@ -254,7 +255,12 @@ def checkout():
     else:
         prev_cups = int(prev_cups[0].get('MAX')[3:])
     nuevo_cups = f'CUP{prev_cups + 1:05}'
-    return nuevo_cups;
+
+    # Obtiene los datos del formulario
+    email = request.values.get('email')
+    monto = request.values.get('monto')
+
+    return f'{nuevo_cups}, {email}, {monto}';
 
 
 @app.route('/confirmacion')
