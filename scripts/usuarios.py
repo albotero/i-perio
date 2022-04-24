@@ -132,15 +132,13 @@ class Usuario (dict):
                             +f'Por favor contacte al administrador - [usuarios.Usuario.crear_usuario].')
             return
 
-        # Agrega la fila de gastos a la tabla de créditos
-        comando = f'''
-            INSERT INTO `creditos`
-            ( `id_usuario`, `transaccion`, `gastado` )
-            VALUES
-            ( '${self['usuarios']['id_usuario']}', 'gastos', 0 );
-            '''
-        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.crear_usuario')
-        if rows is not None and rows > 0:
+        # Agrega la fila de gastos a la tabla
+        gastos = {
+            'id_usuario': self['id_usuario'],
+            'gastado': 0
+        }
+        res = self.guardar_datos('gastos', dict_valores=gastos)
+        if res is None or res == 0:
             self['error'] = (f'Error al crear la el registro de gastos en la tabla `cr&eacute;ditos`.')
             return
 
@@ -153,23 +151,35 @@ class Usuario (dict):
 
         if descontar_credito:
             comando = f'''
-                UPDATE `creditos`
+                UPDATE `gastos`
                 SET `gastado` = `gastado` + {valor_credito}
-                WHERE `id_usuario` = {self.get("id_usuario")}
-                    AND `transaccion` = "gastos";
+                WHERE `id_usuario` = {self.get("id_usuario")};
                 '''
             ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
 
         comando = f'''
             SELECT
-                (SUM(CASE WHEN `estado` = 'Aprobado' THEN `monto` ELSE 0 END)
-                - SUM(`gastado`)) / {valor_credito} AS `restante_creditos`
-            FROM `creditos`
-            WHERE `id_usuario` = {self.get("id_usuario")};
+                `recargas`,
+                g.`gastado`,
+                (`recargas` - g.`gastado`) / {valor_credito} AS `restante_creditos`
+            FROM
+                (SELECT
+                    c.`id_usuario`,
+                    SUM(
+                        CASE WHEN c.`estado` = 'approved'
+                        THEN c.`monto`
+                        ELSE 0
+                        END
+                    ) AS `recargas`
+                FROM `creditos` c
+                WHERE c.`id_usuario` = {self.get("id_usuario")}
+                ) AS tabla
+                INNER JOIN `gastos` g;
             '''
+
         rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
 
-        if rows == 0:
+        if valores is None or valores[0].get('recargas') is None:
             # El usuario no tiene ninguna transacción
             return 0
 
@@ -179,37 +189,114 @@ class Usuario (dict):
 
         if creditos < 0:
             comando = f'''
-                UPDATE `creditos` AS r
+                UPDATE `gastos` AS r
                 JOIN (
                     SELECT
                         `id_usuario`,
                         SUM(`monto`) AS `sum_monto`
                     FROM `creditos`
                     WHERE `id_usuario` = {self.get("id_usuario")}
-                        AND `estado` = 'Aprobado'
+                        AND `estado` = 'approved'
                     ) AS grp
                 ON grp.id_usuario = r.id_usuario
-                SET r.gastado = grp.sum_monto
-                WHERE r.transaccion = 'gastos';
+                SET `gastado` = grp.sum_monto
+                WHERE `id_usuario` = {self.get("id_usuario")};
                 '''
             ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
             return 0
 
         return creditos
 
+
+    dict_pago = {
+        'tipo_pago': {
+            'account_money': 'Mercado Pago',
+            'ticket': 'Ticket',
+            'bank_transfer': 'Transferencia bancaria',
+            'atm': 'Pago en ATM',
+            'credit_card': 'T. Cr&eacute;dito',
+            'debit_card': 'T. D&eacute;bito',
+            'prepaid_card': 'T. Prepaga'
+        },
+        'metodo_pago': {
+            '': ''
+        },
+        'estado': {
+            'pending': 'Pendiente',
+            'approved': 'Aprobado',
+            'authorized': 'Autorizado',
+            'in_process': 'En revisi&oacute;n',
+            'in_mediation': 'En disputa',
+            'rejected': 'Rechazado',
+            'cancelled': 'Cancelado',
+            'refunded': 'Reembolsado',
+            'charged_back': 'Reversado'
+        },
+        'detalle_estado': {
+            'accredited': 'Pago acreditado',
+            'pending_contingency': 'El pago est&aacute; siendo procesado',
+            'pending_review_manual': 'El pago est&aacute; en revisi&oacute;n',
+            'pending_waiting_payment': 'Esperando que se realice el pago',
+            'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta',
+            'cc_rejected_bad_filled_other': 'Datos de la tarjeta incorrectos',
+            'cc_rejected_bad_filled_security_code': 'CVV incorrecto',
+            'cc_rejected_blacklist': 'Tarjeta bloqueada por robo/denuncias/fraude',
+            'cc_rejected_call_for_authorize': 'Requiere autorizar previamente el monto',
+            'cc_rejected_card_disabled': 'Tarjeta encuentra inactiva',
+            'cc_rejected_duplicated_payment': 'Transacci&oacute;n duplicada',
+            'cc_rejected_high_risk': 'Rechazo por Prevenci&oacute;n de Fraude',
+            'cc_rejected_insufficient_amount': 'Monto insuficiente',
+            'cc_rejected_invalid_installments': 'N&uacute;mero de cuotas inv&aacute;lidas',
+            'cc_rejected_max_attempts': 'Super&oacute; m&aacute;ximo de intentos',
+            'cc_rejected_other_reason': 'Error gen&eacute;rico'
+        }
+    }
+
+
+    def diccionario_pago(self, key, dicc):
+        return self.dict_pago[key].get(dicc[key], dicc[key])
+
+
     def obtener_transacciones(self):
         comando = f'''
             SELECT *
             FROM `creditos`
             WHERE `id_usuario` = {self.get("id_usuario")}
-            AND `transaccion` != "gastos"
             ORDER BY `fecha_transaccion` DESC;
             '''
         rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_transacciones')
         if rows is None or rows == 0:
-            return [{}]
+            return
+
+        for transaccion in valores:
+            tipo = self.diccionario_pago('tipo_pago', transaccion)
+            metodo = self.diccionario_pago('metodo_pago', transaccion)
+            transaccion['medio_pago'] = f'{tipo}<br/>{metodo}'
+
+            transaccion['_estado'] = self.diccionario_pago('estado', transaccion)
+            transaccion['detalle_estado'] = self.diccionario_pago('detalle_estado', transaccion)
+
         return valores
 
+
+    def registrar_pago(self, transaccion, fecha_transaccion, estado,
+                        detalle_estado, tipo_pago, metodo_pago, monto):
+        comando = f'''
+            INSERT INTO `creditos`
+                (`transaccion`, `id_usuario`, `fecha_transaccion`, `estado`,
+                `detalle_estado`, `tipo_pago`, `metodo_pago`, `monto`)
+            VALUES
+                ("{transaccion}", "{self['id_usuario']}", "{fecha_transaccion}", "{estado}",
+                "{detalle_estado}", "{tipo_pago}", "{metodo_pago}", "{monto}")
+            ON DUPLICATE KEY UPDATE
+                `fecha_transaccion`="{fecha_transaccion}",
+                `estado`="{estado}",
+                `detalle_estado`="{detalle_estado}",
+                `tipo_pago`="{tipo_pago}",
+                `metodo_pago`="{metodo_pago}",
+                `monto`="{monto}";
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.registrar_pago')
 
 
     def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):

@@ -51,22 +51,22 @@ div.mensaje .titulo.exito {
 div.mensaje .centro {
   text-align: center;
 }
-div.mensaje form > table {
+div.mensaje form, div.mensaje div.form > table {
   margin: auto;
   border-collapse: separate;
   border-spacing: 8px;
 }
-div.mensaje form > table input[type=range] {
+div.mensaje form input[type=range], div.mensaje div.form > table input[type=range] {
   width: 100%;
 }
-div.mensaje form > table div.botones {
+div.mensaje form div.botones, div.mensaje div.form > table div.botones {
   text-align: center;
 }
-div.mensaje form > table div.recarga {
+div.mensaje form div.recarga, div.mensaje div.form > table div.recarga {
   text-align: center;
   margin: 0 auto;
 }
-div.mensaje form > table div.recarga#creditos-recarga {
+div.mensaje form div.recarga#creditos-recarga, div.mensaje div.form > table div.recarga#creditos-recarga {
   font: italic 12px helvetica, serif;
   font-weight: bold;
 }
@@ -92,32 +92,66 @@ div.transacciones table td.monto::before {
 div.transacciones table td div.estado {
   font-weight: bold;
 }
-div.transacciones table td div.estado.aprobado::before {
-  content: "Aprobado";
+div.transacciones table td div.estado.approved {
   color: #0E4402;
   background: #97D379;
   padding: 5px 10px;
   margin: 3px;
   border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.transacciones table td div.estado.proceso::before {
-  content: "En proceso";
+div.transacciones table td div.estado.authorized, div.transacciones table td div.estado.pending, div.transacciones table td div.estado.in_process, div.transacciones table td div.estado.in_mediation {
   color: #AB4909;
   background: #F5C75D;
   padding: 5px 10px;
   margin: 3px;
   border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.transacciones table td div.estado.rechazado::before {
-  content: "Rechazado";
+div.transacciones table td div.estado.rejected, div.transacciones table td div.estado.cancelled, div.transacciones table td div.estado.refunded, div.transacciones table td div.estado.charged_back {
   color: #A80000;
   background: #FBA3A3;
   padding: 5px 10px;
   margin: 3px;
   border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+
+.tooltip {
+  position: relative;
+}
+.tooltip .tooltiptext {
+  display: none;
+  background-color: #463F3F;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  margin-right: 5px;
+  position: absolute;
+  top: 0;
+  right: 100%;
+  z-index: 100;
+  transition: opacity 0.3s;
+}
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(0%, -50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent #463F3F;
+}
+.tooltip:hover .tooltiptext {
+  display: block;
 }
 
 /*# sourceMappingURL=mensaje.css.map */

@@ -91,19 +91,24 @@ html body .caja h1 {
 }
 html body .caja input[type=submit], html body .caja input[type=button], html body .caja button {
   min-width: 100px;
-  line-height: 26px;
-  background: lightgrey;
-  border-radius: 8px;
   margin: 12px 5px 0 5px;
+  padding: 2px 8px;
+  font: 12px helvetica, serif;
+  line-height: 26px;
+  background: darkgrey;
+  color: black;
+  cursor: pointer;
+  border: 2px solid #463F3F;
+  border-right-color: #616161;
+  border-bottom-color: #616161;
+  border-radius: 8px;
 }
 html body .caja input[type=submit]:hover, html body .caja input[type=button]:hover, html body .caja button:hover {
   background: #EAEAEA;
-  cursor: pointer;
 }
 html body .caja input[type=submit]:active, html body .caja input[type=button]:active, html body .caja button:active {
   background: grey;
   color: white;
-  cursor: pointer;
 }
 
 /*# sourceMappingURL=base.css.map */

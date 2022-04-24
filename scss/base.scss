@@ -4,7 +4,7 @@ html {
   height: 100%;
 
   body {
-    background-color: $back-color-1;
+    background-color: $back-color-2;
     color: $prim-color-1;
     font: $text-font-normal;
 
@@ -72,20 +72,25 @@ html {
 
       input[type=submit], input[type=button], button {
         min-width: 100px;
-        line-height: 26px;
-        background: $back-color-3;
-        border-radius: 8px;
         margin: 12px 5px 0 5px;
+        padding: 2px 8px;
+        font: $text-font-normal;
+        line-height: 26px;
+        background: $back-color-2;
+        color: $prim-color-1;
+        cursor: pointer;
+        border: 2px solid $back-color-1;
+        border-right-color: $prim-color-3;
+        border-bottom-color: $prim-color-3;
+        border-radius: 8px;
 
         &:hover {
           background: $back-color-4;
-          cursor: pointer;
         }
 
         &:active {
-          background: $back-color-2;
+          background: $back-color-3;
           color: $prim-color-4;
-          cursor: pointer;
         }
       }
     }

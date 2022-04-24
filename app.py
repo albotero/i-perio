@@ -9,7 +9,7 @@ from scripts.guardar_perio import Guardar
 from scripts.log import Log
 from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
-from scripts.usuarios import valor_credito, ejecutar_mysql, Usuario
+from scripts.usuarios import valor_credito, Usuario
 
 from datetime import datetime
 from babel.dates import format_datetime
@@ -18,12 +18,27 @@ import pytz
 import os
 import uuid
 
+import mercadopago as mp
+import requests
+import json # prueba solo para print
+
 app = Flask(__name__, instance_relative_config = True)
 app.secret_key = 'perio'
+app.debug = True
 
 socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, logger=True, engineio_logger=True)
 
 os.chdir(os.path.dirname(__file__))
+
+if app.debug:
+    # Pruebas
+    mp_access_token = 'TEST-5314041922096496-083002-55909990b064c9ba4c1bfad56a2b6a51-61341214'
+    mp_public_key = 'TEST-b02a8226-f0de-404f-ad06-ef30edb58dec'
+else:
+    # Producción
+    mp_access_token = 'APP_USR-5314041922096496-083002-a9b9979144558e5fae30d3e2d10097a5-61341214'
+    mp_public_key = 'APP_USR-892809af-d19e-4f7b-bc7e-a101e7566d33'
+mp_sdk = mp.SDK(mp_access_token)
 
 @app.route('/', methods=['GET', 'POST'])
 def perio():
@@ -240,30 +255,74 @@ def creditos():
                             email=usuario['usuarios']['email'],
                             valor_credito=valor_credito)
 
-@app.route('/checkout', methods=['POST'])
-def checkout():
+@socketio.on('checkout')
+def checkout(datos):
     '''Utiliza la API para cobrar un pago'''
-    # Crea un nuevo consecutivo
-    comando = f'''
-        SELECT MAX(`transaccion`) as MAX
-        FROM `creditos`
-        WHERE `transaccion` != "gastos";
-        '''
-    _, prev_cups, _ = ejecutar_mysql(comando, origen='app.checkout')
-    if len(prev_cups) == 0:
-        prev_cups = 0
-    else:
-        prev_cups = int(prev_cups[0].get('MAX')[3:])
-    nuevo_cups = f'CUP{prev_cups + 1:05}'
 
     # Obtiene los datos del formulario
-    email = request.values.get('email')
-    monto = request.values.get('monto')
+    email = datos.get('email')
+    monto = datos.get('monto')
+    tiempo = datos.get('tiempo')
 
-    return f'{nuevo_cups}, {email}, {monto}';
+    # Crea un ítem en la preferencia
+    preference_data = {
+        'items': [
+            {
+                'title': f'Acceso a iPerio.com por{tiempo}',
+                'quantity': 1,
+                'unit_price': int(monto),
+            }
+        ],
+        'back_urls': {
+            'failure': url_for("confirmacion_pago", _external=True),
+            'pending': url_for("confirmacion_pago", _external=True),
+            'success': url_for("confirmacion_pago", _external=True),
+        },
+        'notification_url': '' if app.debug else url_for("confirmacion_pago", _external=True),
+        'payer': {
+            'email': email
+        },
+        'auto_return': 'all',
+        'external_reference': session.get('usuario')
+    }
+
+    preference_response = mp_sdk.preference().create(preference_data)
+    preference = preference_response['response']
+
+    emit('mercadopago', {
+        'public_key': mp_public_key,
+        'preference_id': preference.get('id')
+    })
 
 
-@app.route('/confirmacion')
+@app.route('/confirmacion', methods=['GET', 'POST'])
 def confirmacion_pago():
-    '''Recibe el resultado del pago, actualiza la BD, y muestra el estado del pago'''
-    pass
+    '''Recibe el resultado del pago y actualiza la BD, y muestra el estado del pago'''
+
+    if request.method == 'POST':
+        # Recibida desde Instant Payments Notifications IPN
+        codigo = request.values.get('id')
+    else:
+        # El cliente es redirigido desde la pasarela
+        codigo = request.args.get('payment_id')
+
+    headers = { 'Authorization': f'Bearer {mp_access_token}' }
+    response = requests.get(
+                        f'https://api.mercadopago.com/v1/payments/{codigo}',
+                        headers=headers
+                        )
+    response = response.json()
+
+    id_usuario = response['external_reference']
+    usuario = Usuario(id_usuario=id_usuario)
+    usuario.registrar_pago(
+                        transaccion = codigo,
+                        fecha_transaccion = response['date_created'],
+                        estado = response['status'],
+                        detalle_estado = response['status_detail'],
+                        tipo_pago = response['payment_type_id'],
+                        metodo_pago = response['payment_method_id'],
+                        monto = response['transaction_amount']
+                        )
+
+    return redirect(url_for('creditos'))

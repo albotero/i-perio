@@ -4,7 +4,7 @@
 
 {% block content %}
   <div class="caja mensaje">
-    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">Te quedan {{ creditos }} cr&eacute;ditos disponibles.</p>
+    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">Te quedan {{ creditos }} cr&eacute;ditos disponibles</p>
     {% if creditos <= 15 %}
       <p class="centro">Recarga ahora para seguir utilizando la aplicaci&oacute;n.</p>
     {% endif %}
@@ -12,7 +12,7 @@
 
   <div class="caja mensaje">
     <p class="titulo">Recargar</p>
-    <form action="{{ url_for('checkout') }}" method="post">
+    <div class="form">
       <table>
         <tr>
           <td><label for="email">Correo electr&oacute;nico:</label></td>
@@ -28,17 +28,16 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><div id="creditos-recarga" class="recarga"></div></td>
-        </tr>
-        <tr>
           <td colspan="2">
-            <div class="botones">
-              <input type="submit" value="Pagar" />
-            </div>
+            <div id="creditos-recarga" class="recarga"></div>
+            <input type="hidden" name="tiempo" />
           </td>
         </tr>
+        <tr>
+          <td colspan="2"><div class="botones"></div></td>
+        </tr>
       </table>
-    </form>
+    </div>
   </div>
 
   {% if transacciones is not none %}
@@ -56,9 +55,14 @@
           <tr>
             <td>{{ transaccion.get('fecha_transaccion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
             <td>{{ transaccion.get('transaccion') }}</td>
-            <td>{{ transaccion.get('medio_pago') }}</td>
+            <td>{{ transaccion.get('medio_pago') | safe }}</td>
             <td class="monto">{{ '{:,}'.format(transaccion.get('monto'))|replace(',', '.') }}</td>
-            <td><div class="estado {{ transaccion.get('estado') }}"></div></td>
+            <td>
+              <div class="estado tooltip {{ transaccion.get('estado') }}">
+                {{ transaccion.get('_estado') | safe }}
+                <div class="tooltiptext">{{ transaccion.get('detalle_estado') | safe }}</div>
+              </div>
+            </td>
           </tr>
         {% endfor %}
       </table>
@@ -67,6 +71,9 @@
 {% endblock %}
 
 {% block scripts %}
+  <!-- SDK MercadoPago.js V2 -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+
   <script type="text/javascript">
     $('div.cargando').toggleClass('cargando');
 
@@ -98,12 +105,38 @@
         tiempo += ' ' + minutos + ' minuto' + (minutos == 1 ? '' : 's');
       }
 
-      $('#creditos-recarga').html(
-        `Equivale a${tiempo} de uso`
-      );
+      $('#creditos-recarga').html(`Equivale a${tiempo} de uso`);
+      $('input[name=tiempo]').val(tiempo);
+
+      socket.emit('checkout', {
+        'email': $('input[name=email]').val(),
+        'monto': valor,
+        'tiempo': tiempo
+      });
     });
 
     monto.trigger('change');
+
+    socket.on('mercadopago', function(datos) {
+      // Borra los botones previos
+      $('.botones').html('');
+
+      // Agrega credenciales de SDK
+      const mp = new MercadoPago(datos['public_key'], {
+        locale: "es-CO",
+      });
+
+      // Inicializa el checkout
+      mp.checkout({
+        preference: {
+          id: datos['preference_id'],
+        },
+        render: {
+          container: '.botones', // Indica el nombre de la clase donde se mostrará el botón de pago
+          label: 'Pagar', // Cambia el texto del botón de pago (opcional)
+        },
+      });
+    });
   </script>
 {% endblock%}
 

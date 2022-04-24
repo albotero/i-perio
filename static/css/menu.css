@@ -63,7 +63,7 @@
 }
 .menu ul li:not(.cred-tiempo):hover {
   color: white;
-  background: grey;
+  background: darkgrey;
 }
 .menu ul li:not(.cred-tiempo):hover > a {
   color: white;
@@ -84,7 +84,7 @@
 .menu ul li ul li {
   width: 100%;
   text-align: right;
-  border-top: 1px solid lightgrey;
+  border-top: 1px solid grey;
   cursor: pointer;
 }
 .menu ul li ul li div {

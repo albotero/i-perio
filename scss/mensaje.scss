@@ -28,7 +28,7 @@ div.mensaje {
     text-align: center;
   }
 
-  form > table {
+  form, div.form > table {
     margin: auto;
     border-collapse: separate;
     border-spacing: 8px;
@@ -53,13 +53,14 @@ div.mensaje {
   }
 }
 
-@mixin color-estado($estado, $color1, $color2) {
-  content: $estado;
+@mixin color-estado($color1, $color2) {
   color: $color1;
   background: $color2;
   padding: 5px 10px;
   margin: 3px;
   border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
   @include sombra;
 }
 
@@ -88,16 +89,50 @@ div.transacciones {
       div.estado {
         font-weight: bold;
 
-        &.aprobado::before {
-          @include color-estado('Aprobado', $exito-prim-color, $exito-sec-color);
+        &.approved {
+          @include color-estado($exito-prim-color, $exito-sec-color);
         }
-        &.proceso::before {
-          @include color-estado('En proceso', $procesando-prim-color, $procesando-sec-color);
+        &.authorized, &.pending, &.in_process, &.in_mediation {
+          @include color-estado($procesando-prim-color, $procesando-sec-color);
         }
-        &.rechazado::before {
-          @include color-estado('Rechazado', $rechazado-prim-color, $rechazado-sec-color);
+        &.rejected, &.cancelled, &.refunded, &.charged_back {
+          @include color-estado($rechazado-prim-color, $rechazado-sec-color);
         }
       }
     }
+  }
+}
+
+.tooltip {
+  position: relative;
+
+  .tooltiptext {
+    display: none;
+    background-color: $back-color-1;
+    color: $prim-color-4;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    margin-right: 5px;
+    position: absolute;
+    top:0;
+    right: 100%;
+    z-index: 100;
+    transition: opacity 0.3s;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      transform: translate(0%, -50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent $back-color-1;
+    }
+  }
+
+  &:hover .tooltiptext {
+      display: block;
   }
 }
