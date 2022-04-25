@@ -159,6 +159,7 @@ class Usuario (dict):
 
         comando = f'''
             SELECT
+                g.`id_usuario`
                 `recargas`,
                 g.`gastado`,
                 (`recargas` - g.`gastado`) / {valor_credito} AS `restante_creditos`
@@ -174,12 +175,15 @@ class Usuario (dict):
                 FROM `creditos` c
                 WHERE c.`id_usuario` = {self.get("id_usuario")}
                 ) AS tabla
-                INNER JOIN `gastos` g;
+                INNER JOIN `gastos` g
+                WHERE g.`id_usuario` = {self.get("id_usuario")};
             '''
 
         rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_creditos')
 
-        if valores is None or valores[0].get('recargas') is None:
+        if (valores is None or
+            valores[0].get('recargas') is None or
+            valores[0].get('restante_creditos') is None):
             # El usuario no tiene ninguna transacción
             return 0
 

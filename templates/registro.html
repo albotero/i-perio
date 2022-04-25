@@ -35,34 +35,29 @@
       <form action="" method="post">
         <table>
           <tr>
-            <td><label for="nombres">Nombre(s):</label></td>
+            <td><label for="nombres" class="required">Nombre(s):</label></td>
             <td><input type="text" name="nombres" id="nombres"
                        value="{{ datos.get('nombres', '') }}" required /></td>
           </tr>
           <tr>
-            <td><label for="apellidos">Apellido(s):</label></td>
+            <td><label for="apellidos" class="required">Apellido(s):</label></td>
             <td><input type="text" name="apellidos" id="apellidos"
                        value="{{ datos.get('apellidos', '') }}" required /></td>
           </tr>
           <tr>
-            <td><label for="email">Correo electr&oacute;nico:</label></td>
+            <td><label for="email" class="required">Correo electr&oacute;nico:</label></td>
             <td><input type="text" name="email" id="email"
                        value="{{ datos.get('email', '') }}" required /></td>
           </tr>
           <tr>
-            <td><label for="key">Contrase&ntilde;a:</label></td>
+            <td><label for="key" class="required">Contrase&ntilde;a:</label></td>
             <td><input type="password" name="key" id="key"
                        value="{{ datos.get('key', '') }}" required /></td>
           </tr>
           <tr>
             <td><label for="telefono">Tel&eacute;fono:</label></td>
             <td><input type="tel" name="telefono" id="telefono"
-                       value="{{ datos.get('telefono', '') }}" required /></td>
-          </tr>
-          <tr>
-            <td><label for="fecha_nacimiento">Fecha de nacimiento:</label></td>
-            <td><input type="date" name="fecha_nacimiento" id="fecha_nacimiento"
-                       value="{{ datos.get('fecha_nacimiento', '2000-01-01') }}" required /></td>
+                       value="{{ datos.get('telefono', '') }}" /></td>
           </tr>
           <tr>
             <td colspan="2">

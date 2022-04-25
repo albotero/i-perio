@@ -28,10 +28,14 @@ div.mensaje {
     text-align: center;
   }
 
-  form, div.form > table {
-    margin: auto;
+  form > table, div.form > table {
+    margin: 0 auto;
     border-collapse: separate;
     border-spacing: 8px;
+
+    td {
+      width: 50%;
+    }
 
     input[type="range"] {
       width: 100%;
@@ -51,6 +55,13 @@ div.mensaje {
       }
     }
   }
+}
+
+label.required::after {
+  content: "*";
+  color: red;
+  font-weight: bold;
+  padding-left: 2px;
 }
 
 @mixin color-estado($color1, $color2) {

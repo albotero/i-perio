@@ -51,24 +51,34 @@ div.mensaje .titulo.exito {
 div.mensaje .centro {
   text-align: center;
 }
-div.mensaje form, div.mensaje div.form > table {
-  margin: auto;
+div.mensaje form > table, div.mensaje div.form > table {
+  margin: 0 auto;
   border-collapse: separate;
   border-spacing: 8px;
 }
-div.mensaje form input[type=range], div.mensaje div.form > table input[type=range] {
+div.mensaje form > table td, div.mensaje div.form > table td {
+  width: 50%;
+}
+div.mensaje form > table input[type=range], div.mensaje div.form > table input[type=range] {
   width: 100%;
 }
-div.mensaje form div.botones, div.mensaje div.form > table div.botones {
+div.mensaje form > table div.botones, div.mensaje div.form > table div.botones {
   text-align: center;
 }
-div.mensaje form div.recarga, div.mensaje div.form > table div.recarga {
+div.mensaje form > table div.recarga, div.mensaje div.form > table div.recarga {
   text-align: center;
   margin: 0 auto;
 }
-div.mensaje form div.recarga#creditos-recarga, div.mensaje div.form > table div.recarga#creditos-recarga {
+div.mensaje form > table div.recarga#creditos-recarga, div.mensaje div.form > table div.recarga#creditos-recarga {
   font: italic 12px helvetica, serif;
   font-weight: bold;
+}
+
+label.required::after {
+  content: "*";
+  color: red;
+  font-weight: bold;
+  padding-left: 2px;
 }
 
 div.transacciones table {

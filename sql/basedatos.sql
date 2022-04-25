@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
   `email` text,
   `creacion` timestamp,
   `telefono` text(12),
-  `fecha_nacimiento` date,
   `suscripcion` text(3)
 );
 
