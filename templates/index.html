@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %} i-Perio.com {% endblock %}
+
+{% block content %}
+  <div class="caja mensaje">
+    <!-- Nuevo perio => url a /perio -->
+    <p class="titulo">Nuevo Periodontograma</p>
+    <div class="centro">
+      <input type="button" value="Iniciar nuevo periodontograma"
+              onclick="window.location = '{{ url_for('perio') }}';" />
+    </div>
+  </div>
+
+  <div class="caja mensaje extendido">
+    <!-- Perios del usuario -->
+    <p class="titulo">Periodontogramas Guardados</p>
+    {% if perios_guardados|length == 0 %}
+      <p>No tiene ning&uacute;n periodontograma guardado</p>
+    {% else %}
+      <table>
+        <tr>
+          <th>Fecha de Creaci&oacute;n</th>
+          <th>&Uacute;ltima Modificaci&oacute;n</th>
+          <th>Acciones</th>
+        </tr>
+        {% for perio in perios_guardados %}
+          <tr>
+            <td>{{ perio.get('creacion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
+            <td>{{ perio.get('modificacion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
+            <td>
+              <div class="centro nobreak">
+                <input type="button" value="Abrir"
+                        onclick="window.location = '{{ url_for('.cargar_perio', usuario=usuario, id_perio=perio.get('filename')) }}';" />
+                <input type="button" value="Eliminar" class="cancelar"
+                        onclick="eliminar_perio({{ usuario }}, '{{ perio.get('filename') }}');" />
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}
+
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
+  <script type="text/javascript">
+    function eliminar_perio(usuario, filename) {
+
+      $.confirm(
+        'Eliminar',
+        `<p>¿Est&aacute; seguro que desea eliminar el periodontograma?</p>
+        <p>Esta acci&oacute;n no se puede revertir.</p>`,
+        'Si',
+        function() {
+          window.location = `{{ url_for('eliminar_perio') }}?u=${usuario}&p=${filename}`;
+        },
+        'No'
+      )
+    }
+  </script>
+{% endblock%}
+
+
+{% block menu %}
+    {% include 'menu.html' %}
+{% endblock%}

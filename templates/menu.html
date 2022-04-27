@@ -23,15 +23,16 @@
         <a id="cred"></a>
         <ul>
           <li class="cred-tiempo"><div id="cred-tiempo"></div></li>
-          <li><a onclick="redirect('{{ url_for('creditos') }}', 'post', {'tmp':  tmp});">Recargas</a></li>
+          <li>
+            {% if tmp %}
+              <a onclick="redirect('{{ url_for('creditos') }}', 'post', {'tmp':  tmp});">Recargas</a>
+            {% else %}
+              <a onclick="window.location = '{{ url_for('creditos') }}';">Recargas</a>
+            {% endif %}
+          </li>
         </ul>
       </li>
-      <li><a id="menuperio">Periodontograma</a>
-        <ul>
-          <li><a href="/">Abrir nuevo</a></li>
-          <li><a href="#">Cargar</a></li>
-        </ul>
-      </li>
+      <li><a id="menuperio" href="/">Inicio</a></li>
       <div id="hora" class="hora"></div>
     </ul>
   </nav>

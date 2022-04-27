@@ -110,5 +110,8 @@ html body .caja input[type=submit]:active, html body .caja input[type=button]:ac
   background: grey;
   color: white;
 }
+html body .caja input[type=submit].cancelar:hover, html body .caja input[type=button].cancelar:hover, html body .caja button.cancelar:hover {
+  background: #BB0D0D;
+}
 
 /*# sourceMappingURL=base.css.map */

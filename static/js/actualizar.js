@@ -28,3 +28,30 @@ socket.on('redirect', function(datos) {
   }
   catch {}
 });
+
+$.extend({
+  confirm: function(titulo, mensaje, texto_si, funcion_si, texto_no) {
+    $('<div></div>').dialog({
+      // Remove the closing 'X' from the dialog
+      open: function(event, ui) { $('.ui-dialog-titlebar-close').hide(); },
+      width: 400,
+      buttons: [{
+        text: texto_si,
+        click: function() {
+          $(this).dialog('close');
+          funcion_si();
+        }
+      },
+      {
+        text: texto_no,
+        click: function() {
+          $(this).dialog('close');
+        }
+      }],
+      close: function(event, ui) { $(this).remove(); },
+      resizable: false,
+      title: titulo,
+      modal: true
+    }).html(mensaje);
+  }
+});

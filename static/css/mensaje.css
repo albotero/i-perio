@@ -29,8 +29,8 @@
   }
 }
 div.mensaje {
-  width: 450px;
-  max-width: 50%;
+  width: 50%;
+  max-width: 450px;
   padding: 15px 30px;
   font: 12px helvetica, serif;
   font-size: 13px;
@@ -51,6 +51,9 @@ div.mensaje .titulo.exito {
 div.mensaje .centro {
   text-align: center;
 }
+div.mensaje .nobreak {
+  white-space: nowrap;
+}
 div.mensaje form > table, div.mensaje div.form > table {
   margin: 0 auto;
   border-collapse: separate;
@@ -61,9 +64,6 @@ div.mensaje form > table td, div.mensaje div.form > table td {
 }
 div.mensaje form > table input[type=range], div.mensaje div.form > table input[type=range] {
   width: 100%;
-}
-div.mensaje form > table div.botones, div.mensaje div.form > table div.botones {
-  text-align: center;
 }
 div.mensaje form > table div.recarga, div.mensaje div.form > table div.recarga {
   text-align: center;
@@ -81,28 +81,32 @@ label.required::after {
   padding-left: 2px;
 }
 
-div.transacciones table {
+div.extendido {
+  width: 80%;
+  max-width: 650px;
+}
+div.extendido table {
   width: 100%;
   border-collapse: collapse;
 }
-div.transacciones table th, div.transacciones table td {
+div.extendido table th, div.extendido table td {
   border: 1px solid #616161;
   padding: 3px 8px;
 }
-div.transacciones table th {
+div.extendido table th {
   font: bold small-caps 16px helvetica, serif;
 }
-div.transacciones table td {
+div.extendido table td {
   text-align: center;
   white-space: nowrap;
 }
-div.transacciones table td.monto::before {
+div.extendido table td.monto::before {
   content: "COP$ ";
 }
-div.transacciones table td div.estado {
+div.extendido table td div.estado {
   font-weight: bold;
 }
-div.transacciones table td div.estado.approved {
+div.extendido table td div.estado.approved {
   color: #0E4402;
   background: #97D379;
   padding: 5px 10px;
@@ -112,7 +116,7 @@ div.transacciones table td div.estado.approved {
   user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.transacciones table td div.estado.authorized, div.transacciones table td div.estado.pending, div.transacciones table td div.estado.in_process, div.transacciones table td div.estado.in_mediation {
+div.extendido table td div.estado.authorized, div.extendido table td div.estado.pending, div.extendido table td div.estado.in_process, div.extendido table td div.estado.in_mediation {
   color: #AB4909;
   background: #F5C75D;
   padding: 5px 10px;
@@ -122,8 +126,8 @@ div.transacciones table td div.estado.authorized, div.transacciones table td div
   user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.transacciones table td div.estado.rejected, div.transacciones table td div.estado.cancelled, div.transacciones table td div.estado.refunded, div.transacciones table td div.estado.charged_back {
-  color: #A80000;
+div.extendido table td div.estado.rejected, div.extendido table td div.estado.cancelled, div.extendido table td div.estado.refunded, div.extendido table td div.estado.charged_back {
+  color: #BB0D0D;
   background: #FBA3A3;
   padding: 5px 10px;
   margin: 3px;

@@ -1,8 +1,8 @@
 @import 'variables';
 
 div.mensaje {
-  width: 450px;
-  max-width: 50%;
+  width: 50%;
+  max-width: 450px;
   padding: 15px 30px;
   font: $text-font-normal;
   font-size: 13px;
@@ -28,6 +28,10 @@ div.mensaje {
     text-align: center;
   }
 
+  .nobreak {
+    white-space: nowrap;
+  }
+
   form > table, div.form > table {
     margin: 0 auto;
     border-collapse: separate;
@@ -39,10 +43,6 @@ div.mensaje {
 
     input[type="range"] {
       width: 100%;
-    }
-
-    div.botones{
-      text-align: center;
     }
 
     div.recarga{
@@ -75,7 +75,10 @@ label.required::after {
   @include sombra;
 }
 
-div.transacciones {
+div.extendido {
+  width: 80%;
+  max-width: 650px;
+
   table {
     width: 100%;
     border-collapse: collapse;

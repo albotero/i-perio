@@ -40,23 +40,63 @@ else:
     mp_public_key = 'APP_USR-892809af-d19e-4f7b-bc7e-a101e7566d33'
 mp_sdk = mp.SDK(mp_access_token)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def index():
+    # Verifica que esté loggeado
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    perios_guardados = [
+        {
+        'filename': '0b8c4a952c1d4f9b99b0a4973eff1d9a',
+        'creacion': '2022-04-10 20:22',
+        'modificacion': '2022-04-20 07:18'
+        }
+    ]
+
+    return render_template('index.html',
+                            usuario = session['usuario'],
+                            perios_guardados = Guardar.list_perios(session['usuario'])
+                            )
+
+@app.route('/perio/')
 def perio():
     # Verifica que esté loggeado
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        # Carga un perio existente
-        filename = request.values.get('tmp')
-        try:
-            perio = Guardar.file_to_perio(filename, silent = True)
-        except:
-            perio = nuevo_perio()
-    else:
-        # Genera un archivo temporal para guardar el perio
-        filename = uuid.uuid4().hex
-        perio = nuevo_perio()
+    # Genera un archivo temporal para guardar el perio
+    filename = uuid.uuid4().hex
+    perio = nuevo_perio()
+
+    Guardar.perio_to_file(
+                perio,
+                archivo = filename,
+                id_usuario = session['usuario'],
+                silent = True)
+
+    return redirect(url_for('.cargar_perio', usuario=session['usuario'], id_perio=filename))
+
+@app.route('/perio/<int:usuario>/<id_perio>')
+def cargar_perio(usuario, id_perio):
+    # Verifica que esté loggeado
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Verifica si tiene acceso al archivo
+    # Por ahora solo verifica si es el propietario
+    if session['usuario'] != usuario:
+        return 'No tiene acceso a este perio'
+
+    # Carga un perio existente
+    try:
+        perio = Guardar.file_to_perio(
+                            archivo=id_perio,
+                            id_usuario=usuario,
+                            silent = True,
+                            throwerror = True)
+    except Exception as ex:
+        return f'ID inv&aacute;lido<br/>{ex}'
 
     # Declaración de variables
     dict_perio = { 'sup': {}, 'inf': {} }
@@ -70,21 +110,17 @@ def perio():
 
     # Agrega el diente al grupo correspondiente
     for num, diente in perio.items():
-        if type(num) is not int:
+        if not num.isnumeric():
             continue
+
         # Si hace parte del perio superior o del inferior
         grupo = 'sup' if diente['superior'] else 'inf'
-        dict_perio[grupo][num] = diente
+        dict_perio[grupo][int(num)] = diente
 
     # Obtiene los str de las imágenes
     imagenes = actualizar_imagenes(nuevo_canvas(perio))
 
-    Guardar.perio_to_file(perio,
-                archivo = filename,
-                id_usuario = session['usuario'],
-                silent = True)
-
-    return render_template('perio.html', tmp=filename,
+    return render_template('perio.html', tmp=id_perio,
         dict=dict_perio, primer_diente=primer_diente,
         imagenes=imagenes)
 
@@ -142,6 +178,19 @@ def update_perio(data):
     # Devuelve los datos
     emit('response_perio', respuesta)
 
+
+@app.route('/eliminar_perio')
+def eliminar_perio():
+    '''Elimina el perio de la carpeta del usuario'''
+
+    usuario = int(request.args.get('u'))
+    id_perio = request.args.get('p')
+
+    if usuario == session['usuario']:
+        Guardar.eliminar_perio(usuario, id_perio)
+
+    return redirect(url_for('.index'))
+
 def login_user(user: Usuario, contrasena = None):
     result = None
 
@@ -165,6 +214,10 @@ def login_user(user: Usuario, contrasena = None):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Verifica que esté loggeado
+    if 'usuario' in session:
+        return redirect(url_for('.index'))
+
     result = None
 
     if request.method == 'POST':
@@ -186,7 +239,7 @@ def registro():
 
     return render_template('registro.html', result=result, datos=datos)
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
     return render_template('login.html', logout=True)

@@ -92,6 +92,10 @@ html {
           background: $back-color-3;
           color: $prim-color-4;
         }
+
+        &.cancelar:hover {
+          background: $rechazado-prim-color;
+        }
       }
     }
   }
