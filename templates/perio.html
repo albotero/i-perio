@@ -60,7 +60,7 @@
                                           {% elif titulo in ['NI', '_NI'] %}
                                               {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
                                               <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
-                                                <a id="{{ titulo }}-{{ num }}" class="ni">{{ val }}</a>
+                                                <a id="{{ titulo }}-{{ num }}" class="ni">{{ val | join(' ') }}</a>
                                               </td>
 
                                           {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}

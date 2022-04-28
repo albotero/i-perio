@@ -68,7 +68,7 @@
   box-sizing: border-box;
   width: 100%;
 }
-.periodontograma table td input[type=text] :invalid {
+.periodontograma table td input[type=text]:invalid {
   color: #EE4848;
 }
 .periodontograma table td input[type=checkbox] {

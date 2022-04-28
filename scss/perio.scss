@@ -48,7 +48,7 @@
         -moz-box-sizing: border-box;    // Firefox, other Gecko
         box-sizing: border-box;         // Opera/IE 8+
         width: 100%;
-        :invalid {
+        &:invalid {
           color: $error-color;
         }
       }
