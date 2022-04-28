@@ -64,9 +64,10 @@ def index():
 
 @app.route('/perio/')
 def perio():
-    # Verifica que esté loggeado
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
+    # Verifica que tenga créditos suficientes
+    creditos, _ = consultar_creditos()
+    if creditos == 0:
+        return redirect(url_for('creditos'))
 
     # Genera un archivo temporal para guardar el perio
     filename = uuid.uuid4().hex
@@ -82,9 +83,10 @@ def perio():
 
 @app.route('/perio/<int:usuario>/<id_perio>')
 def cargar_perio(usuario, id_perio):
-    # Verifica que esté loggeado
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
+    # Verifica que tenga créditos suficientes
+    creditos, _ = consultar_creditos()
+    if creditos == 0:
+        return redirect(url_for('creditos'))
 
     # Verifica si tiene acceso al archivo
     # Por ahora solo verifica si es el propietario
@@ -291,11 +293,8 @@ def update_time(readonly):
         Log.out(f'id_usuario {session.get("usuario")}: {ex}',
                 'error', silent=False, origen='app.update_time')
 
-@app.route('/creditos', methods=['GET', 'POST'])
-def creditos():
-    '''Muestra créditos actuales, botón de pago, e historial de transacciones'''
-    tmp = request.values.get('tmp')
-
+def consultar_creditos():
+    '''Consulta los créditos en la BD'''
     # Verifica que esté loggeado
     if 'usuario' not in session:
         return redirect(url_for('login'))
@@ -303,6 +302,15 @@ def creditos():
     usuario = Usuario(id_usuario=session['usuario'])
     # Obtiene la cantidad actualizada de créditos
     creditos = usuario.obtener_creditos(False)
+
+    return creditos, usuario
+
+@app.route('/creditos', methods=['GET', 'POST'])
+def creditos():
+    '''Muestra créditos actuales, botón de pago, e historial de transacciones'''
+    tmp = request.values.get('tmp')
+
+    creditos, usuario = consultar_creditos()
     # Obtiene el historial de transacciones
     transacciones = usuario.obtener_transacciones()
 
