@@ -57,28 +57,31 @@ class Guardar():
                     origen='guardar_perio.perio_to_file')
             return ex
 
-    def list_perios(id_usuario):
+    def list_perios(id_usuario, orden, desc):
         ''' Evalúa la carpeta del usuario y devuelve un diccionario con:
             nombre de archivo, creación y modificación '''
         ruta = file_path(id_usuario)
-        res = []
+        lista = {}
         try:
             filenames = os.listdir(ruta)
 
             for filename in filenames:
                 with open(os.path.join(ruta, filename), 'r') as file:
                     perio = json.load(file)
-                res.append( {
+                valores = {
                     'filename': filename.replace('.perio', ''),
                     'creacion': datetime.strptime(perio['creado'], formato_dt),
                     'modificacion': datetime.strptime(perio['modificado'], formato_dt)
-                })
+                }
+                lista[valores[orden]] = valores
         except Exception as ex:
             Log.out(ex, 'error', silent=False,
                     origen='guardar_perio.list_perios')
             return ex
 
-        return res
+        lista = dict(sorted(lista.items(), reverse=desc))
+
+        return lista.values()
 
     def eliminar_perio(id_usuario, id_perio):
         '''Elimina el archivo del periodontograma guardado'''

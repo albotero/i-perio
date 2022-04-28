@@ -40,24 +40,27 @@ else:
     mp_public_key = 'APP_USR-892809af-d19e-4f7b-bc7e-a101e7566d33'
 mp_sdk = mp.SDK(mp_access_token)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     # Verifica que esté loggeado
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    perios_guardados = [
-        {
-        'filename': '0b8c4a952c1d4f9b99b0a4973eff1d9a',
-        'creacion': '2022-04-10 20:22',
-        'modificacion': '2022-04-20 07:18'
-        }
-    ]
+    orden = request.values.get('orden', 'modificacion')
+    desc = request.values.get('desc', 'true').lower() == 'true'
+    tipos_orden = {
+        'creacion': 'Fecha de Creaci&oacute;n',
+        'modificacion': '&Uacute;ltima Modificaci&oacute;n'
+    }
+
+    perios = Guardar.list_perios(session['usuario'], orden, desc)
 
     return render_template('index.html',
                             usuario = session['usuario'],
-                            perios_guardados = Guardar.list_perios(session['usuario'])
-                            )
+                            perios_guardados = perios,
+                            orden = orden,
+                            desc = desc,
+                            tipos_orden = tipos_orden)
 
 @app.route('/perio/')
 def perio():

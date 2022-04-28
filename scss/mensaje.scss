@@ -33,13 +33,9 @@ div.mensaje {
   }
 
   form > table, div.form > table {
-    margin: 0 auto;
+    margin: 0 auto 15px auto;
     border-collapse: separate;
     border-spacing: 8px;
-
-    td {
-      width: 50%;
-    }
 
     input[type="range"] {
       width: 100%;
@@ -63,6 +59,20 @@ label.required::after {
   font-weight: bold;
   padding-left: 2px;
 }
+
+
+@mixin add-icono-sort($url) {
+    background-image: url($url);
+    background-size: 16px;
+    background-position: center;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: -3px 5px -4px 0px;
+    content: "";
+    filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%); // $boton-active-color
+}
+
 
 @mixin color-estado($color1, $color2) {
   color: $color1;
@@ -90,6 +100,17 @@ div.extendido {
 
     th {
       font: $title-font-h2;
+
+      &.ordenar {
+        cursor: pointer;
+
+        &.asc::after {
+          @include add-icono-sort('/static/svg/sort_asc.svg');
+        }
+        &.desc::after {
+          @include add-icono-sort('/static/svg/sort_desc.svg');
+        }
+      }
     }
 
     td {

@@ -67,24 +67,23 @@ function actualizar_dato(elem, tipo) {
   $('#frm_perio')[0].reportValidity();
 
   if (tipo == 'attr') {
-    // Atributos
-    var quitar_ausente = false;
     // Obtiene el valor siguiente y actualiza el elemento
     if ($(elem).attr('tag') === undefined) {
       valor = next_dato(titulo, next_dato(titulo, $(elem).attr('tag')));
     } else {
-      quitar_ausente = $(elem).attr('tag') == 'Ausente';
       valor = next_dato(titulo, $(elem).attr('tag'));
     }
     $(elem).attr('tag', valor);
 
     // Modifica la columna si el diente es Ausente
-    mostrar = valor != 'Ausente';
+    mostrar = $(elem).attr('tag') != 'Ausente';
     celdas_columna = $('td[id^="col' + diente + '"]');
     // Muestra u oculta todos los elementos de esa columna
     // Pinta u oculta un patrón negro en los espacios de los elementos
-    if ((mostrar && quitar_ausente) || !mostrar) {
-      celdas_columna.toggleClass('diente_ausente');
+    if (mostrar) {
+      celdas_columna.removeClass('diente_ausente');
+    } else {
+      celdas_columna.addClass('diente_ausente');
     }
 
   } else if (tipo == 'vimp') {

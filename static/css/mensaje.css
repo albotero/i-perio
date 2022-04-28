@@ -55,12 +55,9 @@ div.mensaje .nobreak {
   white-space: nowrap;
 }
 div.mensaje form > table, div.mensaje div.form > table {
-  margin: 0 auto;
+  margin: 0 auto 15px auto;
   border-collapse: separate;
   border-spacing: 8px;
-}
-div.mensaje form > table td, div.mensaje div.form > table td {
-  width: 50%;
 }
 div.mensaje form > table input[type=range], div.mensaje div.form > table input[type=range] {
   width: 100%;
@@ -95,6 +92,31 @@ div.extendido table th, div.extendido table td {
 }
 div.extendido table th {
   font: bold small-caps 16px helvetica, serif;
+}
+div.extendido table th.ordenar {
+  cursor: pointer;
+}
+div.extendido table th.ordenar.asc::after {
+  background-image: url("/static/svg/sort_asc.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+  filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
+}
+div.extendido table th.ordenar.desc::after {
+  background-image: url("/static/svg/sort_desc.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+  filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
 }
 div.extendido table td {
   text-align: center;

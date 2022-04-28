@@ -74,18 +74,15 @@
             <td><label for="key">Contrase&ntilde;a:</label></td>
             <td><input type="password" name="key" /></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <div class="centro">
-                <input type="button" value="Olvid&eacute; mi contrase&ntilde;a"
-                       onclick="" />
-                <input type="button" value="No me he registrado"
-                      onclick="window.location.href='{{ url_for('registro') }}'" />
-                <input type="submit" value="Ingresar" />
-              </div>
-            </td>
-          </tr>
         </table>
+
+        <div class="centro">
+          <input type="button" value="Olvid&eacute; mi contrase&ntilde;a"
+                 onclick="" />
+          <input type="button" value="No me he registrado"
+                onclick="window.location.href='{{ url_for('registro') }}'" />
+          <input type="submit" value="Ingresar" />
+        </div>
       </form>
     </div>
 

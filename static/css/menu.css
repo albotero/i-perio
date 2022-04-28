@@ -63,10 +63,13 @@
 }
 .menu ul li:not(.cred-tiempo):hover {
   color: white;
-  background: darkgrey;
+  background: #77A9C1;
 }
 .menu ul li:not(.cred-tiempo):hover > a {
   color: white;
+}
+.menu ul li:not(.cred-tiempo):hover > a:not(.cred-tiempo):active {
+  background: #3382A6;
 }
 .menu ul li .alerta, .menu ul li .alerta:hover {
   color: #EE4848;

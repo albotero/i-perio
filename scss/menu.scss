@@ -41,10 +41,14 @@
 
       &:not(.cred-tiempo):hover {
         color: $prim-color-4;
-        background: $back-color-2;
+        background: $boton-hover-color;
 
         > a {
           color: $prim-color-4;
+
+          &:not(.cred-tiempo):active {
+            background: $boton-active-color;
+          }
         }
       }
 

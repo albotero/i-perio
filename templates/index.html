@@ -20,8 +20,18 @@
     {% else %}
       <table>
         <tr>
-          <th>Fecha de Creaci&oacute;n</th>
-          <th>&Uacute;ltima Modificaci&oacute;n</th>
+          {% for tipo in tipos_orden.keys() %}
+            {% set seleccionado = '' %}
+            {% if tipo in orden %}
+              {% set seleccionado = true %}
+              {% set desc = 'desc' if desc else 'asc' %}
+            {% endif %}
+            <th id="th-{{ tipo }}"
+                class="ordenar {{ desc if seleccionado else seleccionado }}"
+                onclick="ordenar('{{ tipo }}');">
+              {{ tipos_orden[tipo] | safe }}
+            </th>
+          {% endfor %}
           <th>Acciones</th>
         </tr>
         {% for perio in perios_guardados %}
@@ -47,8 +57,25 @@
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
   <script type="text/javascript">
-    function eliminar_perio(usuario, filename) {
+    function ordenar(nuevo_orden) {
+      var elem = $(`#th-${nuevo_orden}`);
+      var desc = true;
 
+      // Si se hizo clic en el que ya estaba seleccionado, solo cambia el desc
+      if(elem.hasClass('asc') || elem.hasClass('desc')) {
+        desc = !elem.hasClass('desc');
+      }
+
+      // Selecciona el elemento en la página
+      $('#th-creacion,#th-modificacion').removeClass('asc');
+      $('#th-creacion,#th-modificacion').removeClass('desc');
+      elem.addClass(desc ? 'desc' : 'asc');
+
+      // Envía el POST con las variables
+      redirect('', 'post', {'orden': nuevo_orden, 'desc': desc});
+    }
+
+    function eliminar_perio(usuario, filename) {
       $.confirm(
         'Eliminar',
         `<p>¿Est&aacute; seguro que desea eliminar el periodontograma?</p>

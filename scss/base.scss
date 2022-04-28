@@ -72,7 +72,7 @@ html {
 
       input[type=submit], input[type=button], button {
         min-width: 100px;
-        margin: 12px 5px 0 5px;
+        margin: 0 5px;
         padding: 2px 8px;
         font: $text-font-normal;
         line-height: 26px;
@@ -85,15 +85,19 @@ html {
         border-radius: 8px;
 
         &:hover {
-          background: $back-color-4;
-        }
-
-        &:active {
-          background: $back-color-3;
+          background: $boton-hover-color;
           color: $prim-color-4;
         }
 
         &.cancelar:hover {
+          background: $error-color;
+        }
+
+        &:active {
+          background: $boton-active-color;
+        }
+
+        &.cancelar:active {
           background: $rechazado-prim-color;
         }
       }

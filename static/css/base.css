@@ -91,7 +91,7 @@ html body .caja h1 {
 }
 html body .caja input[type=submit], html body .caja input[type=button], html body .caja button {
   min-width: 100px;
-  margin: 12px 5px 0 5px;
+  margin: 0 5px;
   padding: 2px 8px;
   font: 12px helvetica, serif;
   line-height: 26px;
@@ -104,13 +104,16 @@ html body .caja input[type=submit], html body .caja input[type=button], html bod
   border-radius: 8px;
 }
 html body .caja input[type=submit]:hover, html body .caja input[type=button]:hover, html body .caja button:hover {
-  background: #EAEAEA;
-}
-html body .caja input[type=submit]:active, html body .caja input[type=button]:active, html body .caja button:active {
-  background: grey;
+  background: #77A9C1;
   color: white;
 }
 html body .caja input[type=submit].cancelar:hover, html body .caja input[type=button].cancelar:hover, html body .caja button.cancelar:hover {
+  background: #EE4848;
+}
+html body .caja input[type=submit]:active, html body .caja input[type=button]:active, html body .caja button:active {
+  background: #3382A6;
+}
+html body .caja input[type=submit].cancelar:active, html body .caja input[type=button].cancelar:active, html body .caja button.cancelar:active {
   background: #BB0D0D;
 }
 

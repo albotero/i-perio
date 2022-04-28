@@ -21,7 +21,8 @@
                             <tr>
                                 {% for num, diente in dict[grupo].items() %}
                                     {% if num is number %}
-                                        <th id="atributos-{{ num }}" onclick="actualizar_dato(this, 'attr');">{{ num }}</th>
+                                        <th id="atributos-{{ num }}" onclick="actualizar_dato(this, 'attr');"
+                                            tag="{{ diente.get('atributos') }}">{{ num }}</th>
                                     {% else %}
                                         <th></th>
                                     {% endif %}
@@ -32,9 +33,10 @@
                                   <th>{{ titulo.replace('_', '')[0]|upper }}{{ titulo.replace('_', '')[1:]|lower }}</th>
                                   {% for num, diente in dict[grupo].items() %}
                                       {% if num is number %}
+                                          {% set class_ausente = 'class="diente_ausente"' if diente['atributos'] == 'Ausente' else ''%}
 
                                           {% if titulo in 'FURCA' %}
-                                              <td id="col{{ num }}-{{ titulo }}">
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                   {% if (num % 10 >= 6) or (num % 10 == 4 and diente['superior']) %}
                                                       {% if num % 10 >= 6 %}
                                                           {% set opciones = ['V', 'MP', 'DP'] if diente['superior'] else ['L', 'V'] %}
@@ -57,14 +59,14 @@
 
                                           {% elif titulo in ['NI', '_NI'] %}
                                               {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
-                                              <td id="col{{ num }}-{{ titulo }}">
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                 <a id="{{ titulo }}-{{ num }}" class="ni">{{ val }}</a>
                                               </td>
 
                                           {% elif titulo.replace('_', '') in ['SONDAJE', 'MARGEN'] %}
-                                              {% set val = diente['valores'][titulo]|join(' ') if diente['valores'][titulo] else '' %}
+                                              {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
                                               {% set ej = '1 -2 0' if titulo.replace('_', '') == 'MARGEN' else '4 2 3' %}
-                                              <td id="col{{ num }}-{{ titulo }}">
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                   <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
                                                        title="3 números separados por un espacio [ p.ej. {{ ej }} ]"
                                                        pattern="^ ?-?\d{1,2} -?\d{1,2} -?\d{1,2} ?$"
@@ -89,7 +91,7 @@
                                               {% endif %}
 
                                           {% elif titulo.replace('_', '') in ['SANGRADO', 'SUPURACIÓN'] %}
-                                              <td id="col{{ num }}-{{ titulo }}">
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                   {% for i in range(3) %}
                                                       <input type="checkbox" value="" id="{{ titulo }}-{{ num }}{{ i }}"
                                                          class="{{titulo.replace('_', '')|lower}}"
@@ -100,7 +102,7 @@
 
                                           {% else %}
                                               {# Vitalidad, Implante, Movilidad, Placa #}
-                                              <td id="col{{ num }}-{{ titulo }}">
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                 <a id="{{ titulo }}-{{ num }}" onclick="actualizar_dato(this, 'vimp');"
                                                   >{{ diente['valores'][titulo] }}</a>
                                               </td>
