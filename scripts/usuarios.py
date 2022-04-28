@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from .log import Log
+from .guardar_perio import file_path
 from datetime import datetime
 import hashlib
 import os
@@ -71,7 +72,10 @@ class Usuario (dict):
             valores = ', '.join([f'\'{val}\'' for val in dict_valores.values() ])
             comando = f'INSERT INTO `{tabla}` ({columnas}) VALUES ({valores});'
 
-        rows, _, self['id_usuario'] = ejecutar_mysql(comando, origen='usuarios.guardar_datos')
+        rows, _, id_usuario = ejecutar_mysql(comando, origen='usuarios.guardar_datos')
+        
+        if id_usuario > 0:
+            self['id_usuario'] = id_usuario
 
         if rows == 0:
             Log.out(f'id_usuario {self["id_usuario"]}: No se guardaron datos en la tabla `{tabla}` de la BD',
@@ -141,6 +145,9 @@ class Usuario (dict):
         if res is None or res == 0:
             self['error'] = (f'Error al crear la el registro de gastos en la tabla `cr&eacute;ditos`.')
             return
+
+        # Crea la carpeta de los perios
+        os.makedirs(file_path(self['id_usuario']), exist_ok=True)
 
         return nuevousuario.get("email")
 
