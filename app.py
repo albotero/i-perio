@@ -395,7 +395,6 @@ def confirmacion_pago():
     if request.method == 'POST':
         # Recibida desde Instant Payments Notifications IPN
         codigo = request.values.get('id')
-        print
     else:
         # El cliente es redirigido desde la pasarela
         codigo = request.args.get('payment_id')
@@ -410,12 +409,16 @@ def confirmacion_pago():
     id_usuario = response.get('external_reference')
 
     if not id_usuario:
-        return ''
+        return redirect(url_for('creditos'))
+
+    fecha = datetime.fromisoformat(response['date_created'])
+    fecha = fecha.astimezone(pytz.timezone('America/Bogota'))
+    fecha = fecha.strftime('%Y-%m-%d %H:%M:%S')
 
     usuario = Usuario(id_usuario=id_usuario)
     usuario.registrar_pago(
                         transaccion = codigo,
-                        fecha_transaccion = response['date_created'],
+                        fecha_transaccion = fecha,
                         estado = response['status'],
                         detalle_estado = response['status_detail'],
                         tipo_pago = response['payment_type_id'],
