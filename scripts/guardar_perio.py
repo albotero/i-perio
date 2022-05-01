@@ -63,6 +63,7 @@ class Guardar():
         ruta = file_path(id_usuario)
         lista = {}
         try:
+            os.makedirs(ruta, exist_ok=True)
             filenames = os.listdir(ruta)
 
             for filename in filenames:

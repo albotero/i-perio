@@ -136,6 +136,9 @@ class Usuario (dict):
                             +f'Por favor contacte al administrador - [usuarios.Usuario.crear_usuario].')
             return
 
+        # Crea la carpeta de los perios
+        os.makedirs(file_path(self['id_usuario']), exist_ok=True)
+
         # Agrega la fila de gastos a la tabla
         gastos = {
             'id_usuario': self['id_usuario'],
@@ -145,9 +148,6 @@ class Usuario (dict):
         if res is None or res == 0:
             self['error'] = (f'Error al crear la el registro de gastos en la tabla `cr&eacute;ditos`.')
             return
-
-        # Crea la carpeta de los perios
-        os.makedirs(file_path(self['id_usuario']), exist_ok=True)
 
         return nuevousuario.get("email")
 
