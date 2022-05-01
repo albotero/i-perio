@@ -53,7 +53,7 @@ html {
     }
 
     .caja {
-      background-color: $back-color-5;
+      background-color: $back-color-6;
       margin: 50px auto;
       padding: 10px 30px 30px 30px;
       border-radius: 20px;
@@ -76,13 +76,20 @@ html {
         padding: 2px 8px;
         font: $text-font-normal;
         line-height: 26px;
-        background: $back-color-2;
+        background: $back-color-4;
         color: $prim-color-1;
         cursor: pointer;
         border: 2px solid $back-color-1;
         border-right-color: $prim-color-3;
         border-bottom-color: $prim-color-3;
         border-radius: 8px;
+
+        &.peq {
+          min-width: 50px;
+          padding: 0 8px;
+          line-height: 18px;
+          border-radius: 5px;
+        }
 
         &:hover {
           background: $boton-hover-color;

@@ -33,7 +33,7 @@ def crear_diente(indice, pediatrico):
 
     return Diente(diente = numero_diente)
 
-def nuevo_perio(pediatrico = False):
+def nuevo_perio(nombre, id, dob, pediatrico = False):
     '''Inicializa un nuevo periodontograma'''
 
     tz = pytz.timezone('America/Bogota')
@@ -42,22 +42,15 @@ def nuevo_perio(pediatrico = False):
     perio = {
         'pediatrico': pediatrico,
         'creado': hora,
-        'modificado': hora
-        #'paciente' = {datos del paciente}
-        #'usuario' = {datos del usuario que lo creo}
+        'modificado': hora,
+        'paciente': {
+            'nombre': nombre,
+            'id': id,
+            'dob': dob
+        }
     }
     for i in range(32):
         nuevo_diente = crear_diente(i, pediatrico)
         if nuevo_diente is not None:
             perio[nuevo_diente['diente']] = nuevo_diente
     return perio
-
-def __main__():
-    '''Clase principal desde la cual se genera el periodontograma'''
-    perio = nuevo_perio()
-
-    #perio[16]['valores']['VITALIDAD'] = '+'
-    #Guardar.perio_to_file(perio)
-
-if __name__ == '__main__':
-    __main__()

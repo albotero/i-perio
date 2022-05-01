@@ -95,13 +95,19 @@ html body .caja input[type=submit], html body .caja input[type=button], html bod
   padding: 2px 8px;
   font: 12px helvetica, serif;
   line-height: 26px;
-  background: darkgrey;
+  background: #D5D5D5;
   color: black;
   cursor: pointer;
   border: 2px solid #463F3F;
   border-right-color: #616161;
   border-bottom-color: #616161;
   border-radius: 8px;
+}
+html body .caja input[type=submit].peq, html body .caja input[type=button].peq, html body .caja button.peq {
+  min-width: 50px;
+  padding: 0 8px;
+  line-height: 18px;
+  border-radius: 5px;
 }
 html body .caja input[type=submit]:hover, html body .caja input[type=button]:hover, html body .caja button:hover {
   background: #77A9C1;

@@ -11,7 +11,26 @@
     <div class="container cargando">
         <div class="cover">{% include 'perio_blanco.svg' %}</div>
 
-        {% for grupo in dict.keys() %}
+        <div class="caja mensaje extendido">
+          <table class="paciente">
+            <tr>
+              <th>Paciente:</th>
+              <td>{{ dict['paciente']['nombre'] }}</td>
+              <th>Identificaci&oacute;n:</th>
+              <td>{{ dict['paciente']['id'] }}</td>
+              <th>Edad:</th>
+              <td>{{ dict['paciente']['edad'] }} a&ntilde;os</td>
+            </tr>
+            <tr>
+              <th>Nacimiento:</th>
+              <td>{{ dict['paciente']['dob'] }}</td>
+              <th>Valoraci&oacute;n:</th>
+              <td colspan="3">{{ dict['creado'] }}</td>
+            </tr>
+          </table>
+        </div>
+
+        {% for grupo in ['sup', 'inf'] %}
             {% set titulos = dict[grupo]['titulos'] %}
             <div class="caja periodontograma">
                 <form id="frm_perio">

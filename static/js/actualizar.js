@@ -30,7 +30,7 @@ socket.on('redirect', function(datos) {
 });
 
 $.extend({
-  confirm: function(titulo, mensaje, texto_si, funcion_si, texto_no) {
+  confirm: function(titulo, mensaje, texto_si, funcion_si, texto_no, cerrar=true) {
     $('<div></div>').dialog({
       // Remove the closing 'X' from the dialog
       open: function(event, ui) { $('.ui-dialog-titlebar-close').hide(); },
@@ -38,8 +38,8 @@ $.extend({
       buttons: [{
         text: texto_si,
         click: function() {
-          $(this).dialog('close');
           funcion_si();
+          if (cerrar) $(this).dialog('close');
         }
       },
       {

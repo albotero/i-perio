@@ -71,7 +71,9 @@ class Guardar():
                 valores = {
                     'filename': filename.replace('.perio', ''),
                     'creacion': datetime.strptime(perio['creado'], formato_dt),
-                    'modificacion': datetime.strptime(perio['modificado'], formato_dt)
+                    'modificacion': datetime.strptime(perio['modificado'], formato_dt),
+                    'paciente_id': perio['paciente']['id'],
+                    'paciente_nombre': perio['paciente']['nombre']
                 }
                 lista[valores[orden]] = valores
         except Exception as ex:

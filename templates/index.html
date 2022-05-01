@@ -8,7 +8,7 @@
     <p class="titulo">Nuevo Periodontograma</p>
     <div class="centro">
       <input type="button" value="Iniciar nuevo periodontograma"
-              onclick="window.location = '{{ url_for('perio') }}';" />
+              onclick="nuevo_perio();" />
     </div>
   </div>
 
@@ -36,13 +36,15 @@
         </tr>
         {% for perio in perios_guardados %}
           <tr>
-            <td>{{ perio.get('creacion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
-            <td>{{ perio.get('modificacion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
+            <td>{{ perio.get('paciente_id') }}</td>
+            <td>{{ perio.get('paciente_nombre') }}</td>
+            <td>{{ perio.get('creacion') | safe }}</td>
+            <td>{{ perio.get('modificacion') | safe }}</td>
             <td>
               <div class="centro nobreak">
-                <input type="button" value="Abrir"
+                <input type="button" value="Abrir" class="peq"
                         onclick="window.location = '{{ url_for('.cargar_perio', usuario=usuario, id_perio=perio.get('filename')) }}';" />
-                <input type="button" value="Eliminar" class="cancelar"
+                <input type="button" value="Eliminar" class="peq cancelar"
                         onclick="eliminar_perio({{ usuario }}, '{{ perio.get('filename') }}');" />
               </div>
             </td>
@@ -85,6 +87,37 @@
           window.location = `{{ url_for('eliminar_perio') }}?u=${usuario}&p=${filename}`;
         },
         'No'
+      )
+    }
+
+    function nuevo_perio() {
+      $.confirm(
+        'Nuevo Periodontograma',
+        `<p>Por favor ingrese los datos del paciente para iniciar la Valoraci&oacute;n:</p>
+        <form action="{{ url_for('perio') }}" method="post" id="frm-pac">
+          <table style="margin: 0 auto;">
+            <tr>
+              <td><label for="pac-nombre" class="required">Nombre:</label></td>
+              <td><input type="text" name="pac-nombre" required /></td>
+            </tr>
+            <tr>
+              <td><label for="pac-id" class="required">Documento:</label></td>
+              <td><input type="text" name="pac-id" required /></td>
+            </tr>
+            <tr>
+              <td><label for="pac-dob" class="required">Fecha Nacimiento:</label></td>
+              <td><input type="date" name="pac-dob" required /></td>
+            </tr>
+          </table>
+        </form>`,
+        'Si',
+        function() {
+          var valido = $('#frm-pac')[0].reportValidity();
+          if (valido)
+            $('#frm-pac').submit();
+        },
+        'No',
+        cerrar = false
       )
     }
   </script>

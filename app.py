@@ -11,7 +11,7 @@ from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
 from scripts.usuarios import valor_credito, Usuario
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from babel.dates import format_datetime
 import pytz
 
@@ -46,14 +46,22 @@ def index():
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    orden = request.values.get('orden', 'modificacion')
+    orden = request.values.get('orden', 'creacion')
     desc = request.values.get('desc', 'true').lower() == 'true'
+
     tipos_orden = {
-        'creacion': 'Fecha de Creaci&oacute;n',
-        'modificacion': '&Uacute;ltima Modificaci&oacute;n'
+        'paciente_id': 'Identificaci&oacute;n',
+        'paciente_nombre': 'Nombre',
+        'creacion': 'Valoraci&oacute;n',
+        'modificacion': 'Modificado'
     }
 
     perios = Guardar.list_perios(session['usuario'], orden, desc)
+    for perio in perios:
+        perio['creacion'] = format_datetime(perio['creacion'],
+                                "dd MMM YYYY<br/>h:mm a", locale='es_CO')
+        perio['modificacion'] = format_datetime(perio['modificacion'],
+                                "dd MMM YYYY<br/>h:mm a", locale='es_CO')
 
     return render_template('index.html',
                             usuario = session['usuario'],
@@ -62,7 +70,7 @@ def index():
                             desc = desc,
                             tipos_orden = tipos_orden)
 
-@app.route('/perio/')
+@app.route('/perio/', methods=['POST'])
 def perio():
     # Verifica que tenga créditos suficientes
     creditos, _ = consultar_creditos()
@@ -71,7 +79,9 @@ def perio():
 
     # Genera un archivo temporal para guardar el perio
     filename = uuid.uuid4().hex
-    perio = nuevo_perio()
+    perio = nuevo_perio(request.values.get('pac-nombre'),
+                        request.values.get('pac-id'),
+                        request.values.get('pac-dob'))
 
     Guardar.perio_to_file(
                 perio,
@@ -106,6 +116,21 @@ def cargar_perio(usuario, id_perio):
     # Declaración de variables
     dict_perio = { 'sup': {}, 'inf': {} }
     primer_diente = [18, 48]
+
+    # Obtiene las fechas
+    birth_date = datetime.strptime(perio['paciente']['dob'], '%Y-%m-%d').date()
+    valoracion = datetime.strptime(perio['creado'], '%Y-%m-%d, %H:%M:%S')
+    edad = (valoracion.date() - birth_date) // timedelta(days=365.2425)
+
+    # Agrega los datos del paciente
+    dict_perio['paciente'] = perio['paciente']
+    dict_perio['paciente']['edad'] = edad
+    dict_perio['paciente']['dob'] = format_datetime(birth_date,
+                            "dd MMM YYYY", locale='es_CO')
+
+    # Agrega la fecha de valoración
+    dict_perio['creado'] = format_datetime(valoracion,
+                            "dd MMM YYYY - h:mm:ss a", locale='es_CO')
 
     # Obtiene los encabezados de las filas
     for d in primer_diente:
@@ -329,6 +354,8 @@ def checkout(datos):
     tiempo = datos.get('tiempo')
 
     # Crea un ítem en la preferencia
+    back_url = url_for(".confirmacion_pago", _external=True,
+                    _scheme='http' if '8888' in url_for('.index') else 'https')
     preference_data = {
         'items': [
             {
@@ -338,11 +365,11 @@ def checkout(datos):
             }
         ],
         'back_urls': {
-            'failure': url_for("confirmacion_pago", _external=True),
-            'pending': url_for("confirmacion_pago", _external=True),
-            'success': url_for("confirmacion_pago", _external=True),
+            'failure': back_url,
+            'pending': back_url,
+            'success': back_url,
         },
-        'notification_url': '' if app.debug else url_for("confirmacion_pago", _external=True),
+        'notification_url': back_url,
         'payer': {
             'email': email
         },

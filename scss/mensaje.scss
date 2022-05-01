@@ -89,13 +89,38 @@ div.extendido {
   width: 80%;
   max-width: 650px;
 
+  table:not(.paciente) {
+    th, td {
+      border: 1px solid $prim-color-3;
+      padding: 3px 8px;
+    }
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
 
-    th, td {
-      border: 1px solid $prim-color-3;
-      padding: 3px 8px;
+    &.paciente {
+      margin-top: 10px;
+
+      th, td {
+        border-color: none;
+        padding-top: 15px;
+        text-align: left;
+      }
+
+      th {
+        width: 10%;
+
+        + td {
+          width: 35%;
+          padding-left: 15px;
+        }
+
+        &:first-child + td {
+          width: 45%
+        }
+      }
     }
 
     th {

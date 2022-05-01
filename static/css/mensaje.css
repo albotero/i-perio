@@ -82,13 +82,31 @@ div.extendido {
   width: 80%;
   max-width: 650px;
 }
+div.extendido table:not(.paciente) th, div.extendido table:not(.paciente) td {
+  border: 1px solid #616161;
+  padding: 3px 8px;
+}
 div.extendido table {
   width: 100%;
   border-collapse: collapse;
 }
-div.extendido table th, div.extendido table td {
-  border: 1px solid #616161;
-  padding: 3px 8px;
+div.extendido table.paciente {
+  margin-top: 10px;
+}
+div.extendido table.paciente th, div.extendido table.paciente td {
+  border-color: none;
+  padding-top: 15px;
+  text-align: left;
+}
+div.extendido table.paciente th {
+  width: 10%;
+}
+div.extendido table.paciente th + td {
+  width: 35%;
+  padding-left: 15px;
+}
+div.extendido table.paciente th:first-child + td {
+  width: 45%;
 }
 div.extendido table th {
   font: bold small-caps 16px helvetica, serif;
