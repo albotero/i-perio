@@ -395,6 +395,7 @@ def confirmacion_pago():
     if request.method == 'POST':
         # Recibida desde Instant Payments Notifications IPN
         codigo = request.values.get('id')
+        print
     else:
         # El cliente es redirigido desde la pasarela
         codigo = request.args.get('payment_id')
@@ -406,7 +407,11 @@ def confirmacion_pago():
                         )
     response = response.json()
 
-    id_usuario = response['external_reference']
+    id_usuario = response.get('external_reference')
+
+    if not id_usuario:
+        return ''
+
     usuario = Usuario(id_usuario=id_usuario)
     usuario.registrar_pago(
                         transaccion = codigo,

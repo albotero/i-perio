@@ -73,7 +73,7 @@ class Usuario (dict):
             comando = f'INSERT INTO `{tabla}` ({columnas}) VALUES ({valores});'
 
         rows, _, id_usuario = ejecutar_mysql(comando, origen='usuarios.guardar_datos')
-        
+
         if id_usuario > 0:
             self['id_usuario'] = id_usuario
 
@@ -297,15 +297,15 @@ class Usuario (dict):
                 (`transaccion`, `id_usuario`, `fecha_transaccion`, `estado`,
                 `detalle_estado`, `tipo_pago`, `metodo_pago`, `monto`)
             VALUES
-                ("{transaccion}", "{self['id_usuario']}", "{fecha_transaccion}", "{estado}",
-                "{detalle_estado}", "{tipo_pago}", "{metodo_pago}", "{monto}")
+                ({transaccion}, {self['id_usuario']}, "{fecha_transaccion}", "{estado}",
+                "{detalle_estado}", "{tipo_pago}", "{metodo_pago}", {monto})
             ON DUPLICATE KEY UPDATE
                 `fecha_transaccion`="{fecha_transaccion}",
                 `estado`="{estado}",
                 `detalle_estado`="{detalle_estado}",
                 `tipo_pago`="{tipo_pago}",
                 `metodo_pago`="{metodo_pago}",
-                `monto`="{monto}";
+                `monto`={monto};
             '''
         rows, _, _ = ejecutar_mysql(comando, origen='usuarios.registrar_pago')
 

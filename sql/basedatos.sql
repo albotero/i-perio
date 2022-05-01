@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 
 CREATE TABLE IF NOT EXISTS creditos (
-  `transaccion` int primary key,
+  `transaccion` varchar(16) primary key,
   `id_usuario` int,
   `fecha_transaccion` timestamp,
   `tipo_pago` text,
