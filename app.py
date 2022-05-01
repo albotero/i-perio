@@ -20,17 +20,18 @@ import uuid
 
 import mercadopago as mp
 import requests
-import json # prueba solo para print
 
 app = Flask(__name__, instance_relative_config = True)
 app.secret_key = 'perio'
-app.debug = True
 
 socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, logger=True, engineio_logger=True)
 
 os.chdir(os.path.dirname(__file__))
 
-if app.debug:
+
+# Credenciales MercadoPago
+pruebas = False
+if pruebas:
     # Pruebas
     mp_access_token = 'TEST-5314041922096496-083002-55909990b064c9ba4c1bfad56a2b6a51-61341214'
     mp_public_key = 'TEST-b02a8226-f0de-404f-ad06-ef30edb58dec'
@@ -355,7 +356,8 @@ def checkout(datos):
 
     # Crea un ítem en la preferencia
     back_url = url_for(".confirmacion_pago", _external=True,
-                    _scheme='http' if '8888' in url_for('.index') else 'https')
+                    _scheme='http' if pruebas else 'https')
+
     preference_data = {
         'items': [
             {
@@ -369,7 +371,7 @@ def checkout(datos):
             'pending': back_url,
             'success': back_url,
         },
-        'notification_url': back_url,
+        'notification_url': '' if '8888' in back_url else back_url,
         'payer': {
             'email': email
         },
