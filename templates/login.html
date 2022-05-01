@@ -1,0 +1,91 @@
+<!--
+  Result:
+    True: inicio de sesión exitoso, muestra mensaje de éxito, será redirigido
+    False: inicio de sesión fallido, muestra mensaje de error y el formulario
+    None: no se hizo un POST request, muestra el formulario
+-->
+
+{% extends 'base.html' %}
+
+{% block title %} Ingresar {% endblock %}
+
+{% block content %}
+
+  {% if logout %}
+
+    <div class="caja mensaje">
+      <p class="titulo exito">Se Cerr&oacute; La Sesi&oacute;n</p>
+      <p>
+        Ser&aacute; redirigido a la p&aacute;gina de inicio en 3 segundos.
+      </p>
+    </div>
+    <script>
+        var timer = setTimeout(function() {
+            window.location=`{{ url_for('login') }}`
+        }, 3000);
+    </script>
+
+  {% elif result is true %}
+
+    <div class="caja mensaje">
+      <p class="titulo exito">&Eacute;xito</p>
+      <p>
+        Inicio de sesi&oacute;n exitoso, ser&aacute; redirigido al
+        periodontograma en 3 segundos.
+      </p>
+    </div>
+    <script>
+        var timer = setTimeout(function() {
+            window.location='/'
+        }, 3000);
+    </script>
+
+  {% else %}
+
+    {% if result is false %}
+      <div class="caja mensaje">
+        <p class="titulo error">Error</p>
+        <p>
+          Contrase&ntilde;a inv&aacute;lida.
+          Por favor int&eacute;ntelo nuevamente.
+        </p>
+      </div>
+    {% elif result is not none %}
+      <div class="caja mensaje">
+        <p class="titulo error">Error</p>
+        <p>
+          {{ result | safe }}<br />
+          Por favor int&eacute;ntelo nuevamente.
+        </p>
+      </div>
+    {% endif %}
+
+
+    <div class="caja mensaje">
+      <p class="titulo">Iniciar Sesi&oacute;n</p>
+
+      <form action="" method="post">
+        <table>
+          <tr>
+            <td><label for="email">Correo electr&oacute;nico:</label></td>
+            <td><input type="text" name="email" /></td>
+          </tr>
+          <tr>
+            <td><label for="key">Contrase&ntilde;a:</label></td>
+            <td><input type="password" name="key" /></td>
+          </tr>
+        </table>
+
+        <div class="centro">
+          <input type="button" value="Olvid&eacute; mi contrase&ntilde;a"
+                 onclick="" />
+          <input type="button" value="No me he registrado"
+                onclick="window.location.href='{{ url_for('registro') }}'" />
+          <input type="submit" value="Ingresar" />
+        </div>
+      </form>
+    </div>
+
+  {% endif %}
+
+{% endblock %}

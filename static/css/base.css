@@ -1,4 +1,4 @@
-@keyframes aparecer {
+@keyframes aparecer-desaparecer {
   0% {
     opacity: 0;
   }
@@ -28,28 +28,31 @@
     clip-path: circle(200% at 50% 50%);
   }
 }
-body {
+html {
+  height: 100%;
+}
+html body {
   background-color: darkgrey;
   color: black;
-  font: 10px helvetica, serif;
+  font: 12px helvetica, serif;
 }
-body .container {
+html body .container {
   width: 80%;
   min-width: 500px;
   overflow-x: auto;
   margin: auto;
 }
-body .container > :not(.cover) {
+html body .container > :not(.cover) {
   display: block;
   animation: 4s desaparecer-circulo;
 }
-body .container > .cover {
+html body .container > .cover {
   display: none;
 }
-body .cargando > :not(.cover) {
+html body .cargando > :not(.cover) {
   display: none;
 }
-body .cargando > .cover {
+html body .cargando > .cover {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -58,16 +61,66 @@ body .cargando > .cover {
   justify-content: center;
   align-items: center;
 }
-body .cargando > .cover svg {
+html body .cargando > .cover svg {
   max-width: 75%;
   max-height: 75%;
   aspect-ratio: 1/1;
 }
-body .cargando > .cover svg g.diente {
-  animation: 2s aparecer infinite;
+html body .cargando > .cover svg g.diente {
+  animation: 2s aparecer-desaparecer infinite;
 }
-body .cargando > .cover svg g.encia {
+html body .cargando > .cover svg g.encia {
   animation: 2s mostrar-horizontal infinite;
+}
+html body .caja {
+  background-color: white;
+  margin: 50px auto;
+  padding: 10px 30px 30px 30px;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 30px;
+  overflow-x: auto;
+}
+html body .caja h1 {
+  font: bold 20px helvetica, serif;
+  color: #060055;
+  text-align: center;
+  position: absolute;
+  margin-top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+html body .caja input[type=submit], html body .caja input[type=button], html body .caja button {
+  min-width: 100px;
+  margin: 0 5px;
+  padding: 2px 8px;
+  font: 12px helvetica, serif;
+  line-height: 26px;
+  background: #D5D5D5;
+  color: black;
+  cursor: pointer;
+  border: 2px solid #463F3F;
+  border-right-color: #616161;
+  border-bottom-color: #616161;
+  border-radius: 8px;
+}
+html body .caja input[type=submit].peq, html body .caja input[type=button].peq, html body .caja button.peq {
+  min-width: 50px;
+  padding: 0 8px;
+  line-height: 18px;
+  border-radius: 5px;
+}
+html body .caja input[type=submit]:hover, html body .caja input[type=button]:hover, html body .caja button:hover {
+  background: #77A9C1;
+  color: white;
+}
+html body .caja input[type=submit].cancelar:hover, html body .caja input[type=button].cancelar:hover, html body .caja button.cancelar:hover {
+  background: #EE4848;
+}
+html body .caja input[type=submit]:active, html body .caja input[type=button]:active, html body .caja button:active {
+  background: #3382A6;
+}
+html body .caja input[type=submit].cancelar:active, html body .caja input[type=button].cancelar:active, html body .caja button.cancelar:active {
+  background: #BB0D0D;
 }
 
 /*# sourceMappingURL=base.css.map */

@@ -1,19 +1,14 @@
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+upd_opt = false;
 
-/* Muestra animación cargando durante mínimo 3 segundos o hasta que cargue la página*/
+/* Muestra animación cargando durante mínimo 2 segundos o hasta que cargue la página */
 $(async function() {
   var curr_time = (new Date()).getTime();
-  while (curr_time < initial_time + 3000) {
+  while (curr_time < initial_time + 2000) {
     curr_time = (new Date()).getTime();
     await sleep(500);
   }
   $('div.cargando').toggleClass('cargando');
 });
-
-
-/* Este diccionario almacena los cambios hasta que se envíen al servidor */
-var dict_actualizar = { };
-var socket = io();
 
 function enviar_update() {
   // Envía los datos al servidor
@@ -22,6 +17,9 @@ function enviar_update() {
   socket.emit('update_perio', dict_actualizar);
   dict_actualizar = { };
 }
+
+/* Este diccionario almacena los cambios hasta que se envíen al servidor */
+var dict_actualizar = { };
 
 socket.on('response_perio', function(datos) {
   // Actualiza las imágenes que correspondan
@@ -69,24 +67,23 @@ function actualizar_dato(elem, tipo) {
   $('#frm_perio')[0].reportValidity();
 
   if (tipo == 'attr') {
-    // Atributos
-    var quitar_ausente = false;
     // Obtiene el valor siguiente y actualiza el elemento
     if ($(elem).attr('tag') === undefined) {
       valor = next_dato(titulo, next_dato(titulo, $(elem).attr('tag')));
     } else {
-      quitar_ausente = $(elem).attr('tag') == 'Ausente';
       valor = next_dato(titulo, $(elem).attr('tag'));
     }
     $(elem).attr('tag', valor);
 
     // Modifica la columna si el diente es Ausente
-    mostrar = valor != 'Ausente';
+    mostrar = $(elem).attr('tag') != 'Ausente';
     celdas_columna = $('td[id^="col' + diente + '"]');
     // Muestra u oculta todos los elementos de esa columna
     // Pinta u oculta un patrón negro en los espacios de los elementos
-    if ((mostrar && quitar_ausente) || !mostrar) {
-      celdas_columna.toggleClass('diente_ausente');
+    if (mostrar) {
+      celdas_columna.removeClass('diente_ausente');
+    } else {
+      celdas_columna.addClass('diente_ausente');
     }
 
   } else if (tipo == 'vimp') {

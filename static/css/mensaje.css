@@ -1,0 +1,211 @@
+@keyframes aparecer-desaparecer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mostrar-horizontal {
+  0% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+  50% {
+    clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);
+  }
+  100% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+}
+@keyframes desaparecer-circulo {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(200% at 50% 50%);
+  }
+}
+div.mensaje {
+  width: 50%;
+  max-width: 450px;
+  padding: 15px 30px;
+  font: 12px helvetica, serif;
+  font-size: 13px;
+}
+div.mensaje div, div.mensaje p, div.mensaje td {
+  font: 12px helvetica, serif;
+}
+div.mensaje .titulo {
+  font: bold small-caps 16px helvetica, serif;
+  color: black;
+}
+div.mensaje .titulo.error {
+  color: red;
+}
+div.mensaje .titulo.exito {
+  color: green;
+}
+div.mensaje .centro {
+  text-align: center;
+}
+div.mensaje .nobreak {
+  white-space: nowrap;
+}
+div.mensaje form > table, div.mensaje div.form > table {
+  margin: 0 auto 15px auto;
+  border-collapse: separate;
+  border-spacing: 8px;
+}
+div.mensaje form > table input[type=range], div.mensaje div.form > table input[type=range] {
+  width: 100%;
+}
+div.mensaje form > table div.recarga, div.mensaje div.form > table div.recarga {
+  text-align: center;
+  margin: 0 auto;
+}
+div.mensaje form > table div.recarga#creditos-recarga, div.mensaje div.form > table div.recarga#creditos-recarga {
+  font: italic 12px helvetica, serif;
+  font-weight: bold;
+}
+
+label.required::after {
+  content: "*";
+  color: red;
+  font-weight: bold;
+  padding-left: 2px;
+}
+
+div.extendido {
+  width: 80%;
+  max-width: 650px;
+}
+div.extendido table:not(.paciente) th, div.extendido table:not(.paciente) td {
+  border: 1px solid #616161;
+  padding: 3px 8px;
+}
+div.extendido table {
+  width: 100%;
+  border-collapse: collapse;
+}
+div.extendido table.paciente {
+  margin-top: 10px;
+}
+div.extendido table.paciente th, div.extendido table.paciente td {
+  border-color: none;
+  padding-top: 15px;
+  text-align: left;
+}
+div.extendido table.paciente th {
+  width: 10%;
+}
+div.extendido table.paciente th + td {
+  width: 35%;
+  padding-left: 15px;
+}
+div.extendido table.paciente th:first-child + td {
+  width: 45%;
+}
+div.extendido table th {
+  font: bold small-caps 16px helvetica, serif;
+}
+div.extendido table th.ordenar {
+  cursor: pointer;
+}
+div.extendido table th.ordenar.asc::after {
+  background-image: url("/static/svg/sort_asc.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+  filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
+}
+div.extendido table th.ordenar.desc::after {
+  background-image: url("/static/svg/sort_desc.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+  filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
+}
+div.extendido table td {
+  text-align: center;
+  white-space: nowrap;
+}
+div.extendido table td.monto::before {
+  content: "COP$ ";
+}
+div.extendido table td div.estado {
+  font-weight: bold;
+}
+div.extendido table td div.estado.approved {
+  color: #0E4402;
+  background: #97D379;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+div.extendido table td div.estado.authorized, div.extendido table td div.estado.pending, div.extendido table td div.estado.in_process, div.extendido table td div.estado.in_mediation {
+  color: #AB4909;
+  background: #F5C75D;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+div.extendido table td div.estado.rejected, div.extendido table td div.estado.cancelled, div.extendido table td div.estado.refunded, div.extendido table td div.estado.charged_back {
+  color: #BB0D0D;
+  background: #FBA3A3;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  cursor: context-menu;
+  user-select: none;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+
+.tooltip {
+  position: relative;
+}
+.tooltip .tooltiptext {
+  display: none;
+  background-color: #463F3F;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  margin-right: 5px;
+  position: absolute;
+  top: 0;
+  right: 100%;
+  z-index: 100;
+  transition: opacity 0.3s;
+}
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(0%, -50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent #463F3F;
+}
+.tooltip:hover .tooltiptext {
+  display: block;
+}
+
+/*# sourceMappingURL=mensaje.css.map */

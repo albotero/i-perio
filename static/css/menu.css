@@ -1,0 +1,162 @@
+@charset "UTF-8";
+@keyframes aparecer-desaparecer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mostrar-horizontal {
+  0% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+  50% {
+    clip-path: polygon(25% -10%, 25% 110%, 100% 110%, 100% -10%);
+  }
+  100% {
+    clip-path: polygon(0% -10%, 0% 110%, 25% 110%, 25% -10%);
+  }
+}
+@keyframes desaparecer-circulo {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(200% at 50% 50%);
+  }
+}
+.menu {
+  z-index: 100;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  background: #EAEAEA;
+  color: #060055;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+  list-style-type: none;
+  cursor: default;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
+}
+.menu ul {
+  margin: 0;
+  padding: 0;
+}
+.menu ul li {
+  display: block;
+  float: right;
+  height: 100%;
+  position: relative;
+  cursor: default;
+  color: #060055;
+}
+.menu ul li:not(.cred-tiempo):hover {
+  color: white;
+  background: #77A9C1;
+}
+.menu ul li:not(.cred-tiempo):hover > a {
+  color: white;
+}
+.menu ul li:not(.cred-tiempo):hover > a:not(.cred-tiempo):active {
+  background: #3382A6;
+}
+.menu ul li .alerta, .menu ul li .alerta:hover {
+  color: #EE4848;
+}
+.menu ul li ul {
+  display: none;
+  position: absolute;
+  min-width: 120px;
+  width: 100%;
+  top: 100%;
+  right: 0;
+  background: #D5D5D5;
+  box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+.menu ul li ul li {
+  width: 100%;
+  text-align: right;
+  border-top: 1px solid grey;
+  cursor: pointer;
+}
+.menu ul li ul li div {
+  padding: 8px 12px;
+  cursor: default;
+}
+.menu ul li ul li.sub::before {
+  content: "«";
+  font-size: 14px;
+  position: absolute;
+  z-index: 200;
+  left: 5px;
+  top: 5px;
+}
+.menu ul li ul li ul {
+  width: 150px;
+  left: -150px;
+  top: 0;
+  text-align: left;
+}
+.menu ul li:hover > ul {
+  display: block;
+}
+.menu ul .hora {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+.menu ul #cred::before {
+  /*https://www.freepik.com/vectors/money-sign*/
+  background-image: url("/static/svg/coin.svg");
+  background-size: 28px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+}
+.menu ul #usuario::before {
+  /*https://icon-icons.com/es/icono/avatar-default-usuario/92824*/
+  background-image: url("/static/svg/usuario.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+}
+.menu ul #menuperio::before {
+  background-image: url("/static/svg/favicon.svg");
+  background-size: 16px;
+  background-position: center;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: -3px 5px -4px 0px;
+  content: "";
+}
+.menu ul a {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+.menu ul a:link, .menu ul a:visited, .menu ul a:hover, .menu ul a:active {
+  color: inherit;
+}
+
+/*# sourceMappingURL=menu.css.map */

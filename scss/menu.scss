@@ -1,0 +1,136 @@
+@import 'variables';
+
+@mixin add-icono-menu ($icono, $background-size) {
+    background-image: url($icono);
+    background-size: $background-size;
+    background-position: center;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: -3px 5px -4px 0px;
+    content: "";
+}
+
+.menu {
+  z-index: 100;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  background: $back-color-5;
+  color: $prim-color-2;
+  @include sombra;
+
+  list-style-type: none;
+  @include noselect;
+
+  ul {
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: block;
+      float: right;
+      height: 100%;
+      position: relative;
+      cursor: default;
+      color: $prim-color-2;
+
+      &:not(.cred-tiempo):hover {
+        color: $prim-color-4;
+        background: $boton-hover-color;
+
+        > a {
+          color: $prim-color-4;
+
+          &:not(.cred-tiempo):active {
+            background: $boton-active-color;
+          }
+        }
+      }
+
+      .alerta, .alerta:hover {
+        color: $error-color;
+      }
+
+      ul {
+        display: none;
+        position: absolute;
+        min-width: 120px;
+        width: 100%;
+        top: 100%;
+        right: 0;
+        background: $back-color-4;
+        @include sombra;
+
+        li {
+          width: 100%;
+          text-align: right;
+          border-top: 1px solid $back-color-3;
+          cursor: pointer;
+
+          div {
+            padding: 8px 12px;
+            cursor: default;
+          }
+
+          &.sub::before {
+            content: '\00AB';
+            font-size: 14px;
+            position: absolute;
+            z-index: 200;
+            left: 5px;
+            top: 5px;
+          }
+
+          ul {
+            width: 150px;
+            left: -150px;
+            top: 0;
+            text-align: left;
+          }
+        }
+      }
+
+      &:hover > ul {
+        display: block;
+      }
+    }
+
+    .hora {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+    }
+
+    #cred::before {
+      /*https://www.freepik.com/vectors/money-sign*/
+      @include add-icono-menu ('/static/svg/coin.svg', 28px);
+    }
+
+    #usuario::before {
+      /*https://icon-icons.com/es/icono/avatar-default-usuario/92824*/
+      @include add-icono-menu ('/static/svg/usuario.svg', 16px);
+    }
+
+    #menuperio::before {
+      @include add-icono-menu ('/static/svg/favicon.svg', 16px);
+    }
+
+    a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+
+      &:link, &:visited, &:hover, &:active {
+        color: inherit;
+      }
+    }
+
+  }
+}

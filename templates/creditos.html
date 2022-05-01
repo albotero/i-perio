@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %} Cr&eacute;ditos {% endblock %}
+
+{% block content %}
+  <div class="caja mensaje">
+    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">Te quedan {{ creditos }} cr&eacute;ditos disponibles</p>
+    {% if creditos <= 15 %}
+      <p class="centro">Recarga ahora para seguir utilizando la aplicaci&oacute;n.</p>
+    {% endif %}
+  </div>
+
+  <div class="caja mensaje">
+    <p class="titulo">Recargar</p>
+    <div class="form">
+      <table>
+        <tr>
+          <td><label for="email">Correo electr&oacute;nico:</label></td>
+          <td><input type="text" name="email" value="{{ email }}" required /></td>
+        </tr>
+        <tr>
+          <td><label for="monto">Valor de la recarga:</label></td>
+          <td>
+            <input type="range" name="monto" value="20000"
+                  min="5000" max="100000" step="1000"
+                  required />
+            <div id="monto-cop" class="recarga"></div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <div id="creditos-recarga" class="recarga"></div>
+            <input type="hidden" name="tiempo" />
+          </td>
+        </tr>
+      </table>
+      <div class="centro botones"></div>
+    </div>
+  </div>
+
+  {% if transacciones is not none %}
+    <div class="caja mensaje extendido">
+      <p class="titulo">Historial de Transacciones</p>
+      <table>
+        <tr>
+          <th>fecha</th>
+          <th>transacci&oacute;n</th>
+          <th>medio de pago</th>
+          <th>monto</th>
+          <th>estado</th>
+        </tr>
+        {% for transaccion in transacciones %}
+          <tr>
+            <td>{{ transaccion.get('fecha_transaccion').strftime('%-d-%m-%Y<br/>%-I:%M %p') | safe }}</td>
+            <td>{{ transaccion.get('transaccion') }}</td>
+            <td>{{ transaccion.get('medio_pago') | safe }}</td>
+            <td class="monto">{{ '{:,}'.format(transaccion.get('monto'))|replace(',', '.') }}</td>
+            <td>
+              <div class="estado tooltip {{ transaccion.get('estado') }}">
+                {{ transaccion.get('_estado') | safe }}
+                <div class="tooltiptext">{{ transaccion.get('detalle_estado') | safe }}</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <!-- SDK MercadoPago.js V2 -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+  <script type="text/javascript">
+    $('div.cargando').toggleClass('cargando');
+
+    function format_numero(numero, prefijo = '', sufijo = '') {
+      var formatted_val = new Intl.NumberFormat().format(numero); // Separador de miles
+      formatted_val = formatted_val.replaceAll(',', '.'); // Cambia comas por puntos
+      formatted_val = `${prefijo}${formatted_val}${sufijo}`; // Agrega prefijo y sufijo
+      return formatted_val;
+    }
+
+    var monto = $('input[name=monto]');
+
+    monto.on('change input', function () {
+      valor = monto.val();
+      monto.val(valor); // actualiza el valor cuando se regresa a la página
+
+      $('#monto-cop').html(format_numero(valor, prefijo = 'COP$ '));
+
+      var recarga = parseInt(valor / {{ valor_credito }});
+      var tiempo = '';
+      var horas = ~~(recarga / 60);
+      var minutos = recarga % 60;
+
+      if (horas > 0) {
+        tiempo += ' ' + horas + ' hora' + (horas == 1 ? '' : 's');
+        if (minutos > 0)
+          tiempo += ' y ' + minutos + ' minuto' + (minutos == 1 ? '' : 's');
+      } else {
+        tiempo += ' ' + minutos + ' minuto' + (minutos == 1 ? '' : 's');
+      }
+
+      $('#creditos-recarga').html(`Equivale a${tiempo} de uso`);
+      $('input[name=tiempo]').val(tiempo);
+
+      socket.emit('checkout', {
+        'email': $('input[name=email]').val(),
+        'monto': valor,
+        'tiempo': tiempo
+      });
+    });
+
+    monto.trigger('change');
+
+    socket.on('mercadopago', function(datos) {
+      // Borra los botones previos
+      $('.botones').html('');
+
+      // Agrega credenciales de SDK
+      const mp = new MercadoPago(datos['public_key'], {
+        locale: "es-CO",
+      });
+
+      // Inicializa el checkout
+      mp.checkout({
+        preference: {
+          id: datos['preference_id'],
+        },
+        render: {
+          container: '.botones', // Indica el nombre de la clase donde se mostrará el botón de pago
+          label: 'Pagar', // Cambia el texto del botón de pago (opcional)
+        },
+      });
+    });
+  </script>
+{% endblock%}
+
+{% block menu %}
+    {% include 'menu.html' %}
+{% endblock%}

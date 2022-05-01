@@ -243,10 +243,6 @@ class NuevoDiente(object):
         return coord
 
     def dibujar_in_extruido(self):
-        # Solo dibuja en los canvas _a
-        if self.area == '_b':
-            return
-
         # Define las coordenadas de los puntos
         height, width, _ = self.img_procesada.shape
         x = int(width / 2)

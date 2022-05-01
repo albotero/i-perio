@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %} i-Perio.com {% endblock %}
+
+{% block content %}
+  <div class="caja mensaje">
+    <!-- Nuevo perio => url a /perio -->
+    <p class="titulo">Nuevo Periodontograma</p>
+    <div class="centro">
+      <input type="button" value="Iniciar nuevo periodontograma"
+              onclick="nuevo_perio();" />
+    </div>
+  </div>
+
+  <div class="caja mensaje extendido">
+    <!-- Perios del usuario -->
+    <p class="titulo">Periodontogramas Guardados</p>
+    {% if perios_guardados|length == 0 %}
+      <p>No tiene ning&uacute;n periodontograma guardado</p>
+    {% else %}
+      <table>
+        <tr>
+          {% for tipo in tipos_orden.keys() %}
+            {% set seleccionado = '' %}
+            {% if tipo in orden %}
+              {% set seleccionado = true %}
+              {% set desc = 'desc' if desc else 'asc' %}
+            {% endif %}
+            <th id="th-{{ tipo }}"
+                class="ordenar {{ desc if seleccionado else seleccionado }}"
+                onclick="ordenar('{{ tipo }}');">
+              {{ tipos_orden[tipo] | safe }}
+            </th>
+          {% endfor %}
+          <th>Acciones</th>
+        </tr>
+        {% for perio in perios_guardados %}
+          <tr>
+            <td>{{ perio.get('paciente_id') }}</td>
+            <td>{{ perio.get('paciente_nombre') }}</td>
+            <td>{{ perio.get('creacion') | safe }}</td>
+            <td>{{ perio.get('modificacion') | safe }}</td>
+            <td>
+              <div class="centro nobreak">
+                <input type="button" value="Abrir" class="peq"
+                        onclick="window.location = '{{ url_for('.cargar_perio', usuario=usuario, id_perio=perio.get('filename')) }}';" />
+                <input type="button" value="Eliminar" class="peq cancelar"
+                        onclick="eliminar_perio({{ usuario }}, '{{ perio.get('filename') }}');" />
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}
+
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
+  <script type="text/javascript">
+    function ordenar(nuevo_orden) {
+      var elem = $(`#th-${nuevo_orden}`);
+      var desc = true;
+
+      // Si se hizo clic en el que ya estaba seleccionado, solo cambia el desc
+      if(elem.hasClass('asc') || elem.hasClass('desc')) {
+        desc = !elem.hasClass('desc');
+      }
+
+      // Selecciona el elemento en la página
+      $('#th-creacion,#th-modificacion').removeClass('asc');
+      $('#th-creacion,#th-modificacion').removeClass('desc');
+      elem.addClass(desc ? 'desc' : 'asc');
+
+      // Envía el POST con las variables
+      redirect('', 'post', {'orden': nuevo_orden, 'desc': desc});
+    }
+
+    function eliminar_perio(usuario, filename) {
+      $.confirm(
+        'Eliminar',
+        `<p>¿Est&aacute; seguro que desea eliminar el periodontograma?</p>
+        <p>Esta acci&oacute;n no se puede revertir.</p>`,
+        'Si',
+        function() {
+          window.location = `{{ url_for('eliminar_perio') }}?u=${usuario}&p=${filename}`;
+        },
+        'No'
+      )
+    }
+
+    function nuevo_perio() {
+      $.confirm(
+        'Nuevo Periodontograma',
+        `<p>Por favor ingrese los datos del paciente para iniciar la Valoraci&oacute;n:</p>
+        <form action="{{ url_for('perio') }}" method="post" id="frm-pac">
+          <table style="margin: 0 auto;">
+            <tr>
+              <td><label for="pac-nombre" class="required">Nombre:</label></td>
+              <td><input type="text" name="pac-nombre" required /></td>
+            </tr>
+            <tr>
+              <td><label for="pac-id" class="required">Documento:</label></td>
+              <td><input type="text" name="pac-id" required /></td>
+            </tr>
+            <tr>
+              <td><label for="pac-dob" class="required">Fecha Nacimiento:</label></td>
+              <td><input type="date" name="pac-dob" required /></td>
+            </tr>
+          </table>
+        </form>`,
+        'Si',
+        function() {
+          var valido = $('#frm-pac')[0].reportValidity();
+          if (valido)
+            $('#frm-pac').submit();
+        },
+        'No',
+        cerrar = false
+      )
+    }
+  </script>
+{% endblock%}
+
+
+{% block menu %}
+    {% include 'menu.html' %}
+{% endblock%}

@@ -1,25 +1,36 @@
 // Color palette
 $prim-color-1: black;
-$prim-color-2: black;
-$prim-color-3: black;
-$prim-color-4: black;
-$prim-color-5: black;
-$error-color: #F96565;
+$prim-color-2: #060055; // Azul oscuro
+$prim-color-3: #616161; // Gris
+$prim-color-4: white;
 
-$back-color-1: darkgrey;
-$back-color-2: grey;
-$back-color-3: lightgrey;
-$back-color-4: lightgrey;
-$back-color-5: white;
+$error-color: #EE4848; // Rosado
+
+$boton-hover-color: #77A9C1; // Azul
+$boton-active-color: #3382A6; // Azul más oscuro
+
+$exito-prim-color: #0E4402; // Verde
+$procesando-prim-color: #AB4909; // Amarillo
+$rechazado-prim-color:  #BB0D0D; //#A80000; //Rojo
+$exito-sec-color: #97D379; // Verde
+$procesando-sec-color: #F5C75D; // Amarillo
+$rechazado-sec-color: #FBA3A3; //Rojo
+
+$back-color-1: #463F3F;
+$back-color-2: darkgrey;
+$back-color-3: grey;
+$back-color-4: #D5D5D5;
+$back-color-5: #EAEAEA;
+$back-color-6: white;
 
 // Font sets
 $title-font-h1: bold 20px helvetica, serif;
-$title-font-h2: bold 16px helvetica, serif;
+$title-font-h2: bold small-caps 16px helvetica, serif;
 $title-font-h3: bold small-caps 14px helvetica, serif;
 
-$text-font-normal: 10px helvetica, serif;
-$text-font-cursiva: italic 10px helvetica, serif;
-$text-font-peq: helvetica, serif;
+$text-font-normal: 12px helvetica, serif;
+$text-font-cursiva: italic 12px helvetica, serif;
+$text-font-peq: 8px helvetica, serif;
 
 
 @mixin center-children {
@@ -28,7 +39,20 @@ $text-font-peq: helvetica, serif;
   align-items: center;
 }
 
-@keyframes aparecer {
+@mixin noselect {
+    cursor: default;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+@mixin sombra {
+  box-shadow: 0px 0px 9px 3px rgba(41,41,41,.25);
+}
+
+@keyframes aparecer-desaparecer {
   0% { opacity: 0; }
   50% { opacity: 100%; }
   100% { opacity: 0; }

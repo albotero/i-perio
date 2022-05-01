@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %} Crear Usuario {% endblock %}
+
+{% block style %}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/mensaje.css') }}">
+{% endblock %}
+
+{% block content %}
+  {% if result is true %}
+    <div class="caja mensaje">
+      <p class="titulo exito">Usuario Registrado</p>
+      <p>
+        Se registr&oacute; el usuario exitosamente.<br />
+        En 3 segundos ser&aacute; redirigido al periodontograma.
+      </p>
+    </div>
+    <script>
+        var timer = setTimeout(function() {
+            window.location='/'
+        }, 3000);
+    </script>
+  {% else %}
+    {% if result is not none %}
+      <div class="caja mensaje">
+        <p class="titulo error">Error</p>
+        <p>
+          {{ result | safe }}
+        </p>
+      </div>
+    {% endif %}
+    <div class="caja mensaje">
+      <p class="titulo">Registro</p>
+
+      <form action="" method="post">
+        <table>
+          <tr>
+            <td><label for="nombres" class="required">Nombre(s):</label></td>
+            <td><input type="text" name="nombres" id="nombres"
+                       value="{{ datos.get('nombres', '') }}" required /></td>
+          </tr>
+          <tr>
+            <td><label for="apellidos" class="required">Apellido(s):</label></td>
+            <td><input type="text" name="apellidos" id="apellidos"
+                       value="{{ datos.get('apellidos', '') }}" required /></td>
+          </tr>
+          <tr>
+            <td><label for="email" class="required">Correo electr&oacute;nico:</label></td>
+            <td><input type="text" name="email" id="email"
+                       value="{{ datos.get('email', '') }}" required /></td>
+          </tr>
+          <tr>
+            <td><label for="key" class="required">Contrase&ntilde;a:</label></td>
+            <td><input type="password" name="key" id="key"
+                       value="{{ datos.get('key', '') }}" required /></td>
+          </tr>
+          <tr>
+            <td><label for="telefono">Tel&eacute;fono:</label></td>
+            <td><input type="tel" name="telefono" id="telefono"
+                       value="{{ datos.get('telefono', '') }}" /></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <input type="checkbox" name="suscripcion" id="suscripcion" checked />
+              <label for="suscripcion">Acepto recibir informaci&oacute;n ocasional
+              a mi correo electr&oacute;nico</label>
+            </td>
+          </tr>
+        </table>
+
+        <div class="centro">
+          <input type="button" value="Ya estoy registrado"
+                 onclick="window.location.href='{{ url_for('login') }}'" />
+          <input type="submit" value="Registrarme" />
+        </div>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}
