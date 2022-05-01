@@ -36,7 +36,7 @@ class Guardar():
             if throwerror:
                 raise Exception(ex)
 
-    def perio_to_file(perio, archivo, id_usuario = 'invitado', silent = False):
+    def perio_to_file(perio, archivo, id_usuario, silent = False):
         '''Guarda el perio (diccionario de Dientes) a un archivo .perio'''
         ruta = file_path(id_usuario, archivo)
 

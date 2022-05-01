@@ -4,7 +4,9 @@
 
 {% block content %}
   <div class="caja mensaje">
-    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">Te quedan {{ creditos }} cr&eacute;ditos disponibles</p>
+    <p class="titulo centro {{ 'error' if creditos <= 15 else '' }}">
+      Te quedan {{ '{:,}'.format(creditos, ',d') | replace(',', '.') }} cr&eacute;ditos disponibles
+    </p>
     {% if creditos <= 15 %}
       <p class="centro">Recarga ahora para seguir utilizando la aplicaci&oacute;n.</p>
     {% endif %}
