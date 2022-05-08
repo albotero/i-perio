@@ -59,7 +59,7 @@ class Guardar():
 
     def list_perios(id_usuario, orden, desc):
         ''' Evalúa la carpeta del usuario y devuelve un diccionario con:
-            nombre de archivo, creación y modificación '''
+            nombre de archivo, creación, modificación y consultorio '''
         ruta = file_path(id_usuario)
         lista = {}
         try:
@@ -74,7 +74,8 @@ class Guardar():
                     'creacion': datetime.strptime(perio['creado'], formato_dt),
                     'modificacion': datetime.strptime(perio['modificado'], formato_dt),
                     'paciente_id': perio['paciente']['id'],
-                    'paciente_nombre': perio['paciente']['nombre']
+                    'paciente_nombre': perio['paciente']['nombre'],
+                    'consultorio': perio.get('consultorio')
                 }
                 lista[valores[orden]] = valores
         except Exception as ex:

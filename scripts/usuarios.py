@@ -307,7 +307,47 @@ class Usuario (dict):
                 `metodo_pago`="{metodo_pago}",
                 `monto`={monto};
             '''
-        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.registrar_pago')
+        ejecutar_mysql(comando, origen='usuarios.registrar_pago')
+
+
+    def agregar_consultorio(self, consultorio):
+        # Si no especificó ningún consultorio, no lo agrega
+        if not consultorio:
+            return
+
+        # Si el consultorio ya existe, no lo repite
+        comando = f'''
+            SELECT *
+            FROM `consultorios`
+            WHERE `id_usuario` = {self.get("id_usuario")}
+            AND `consultorio` = "{consultorio}";
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.agregar_consultorio')
+        if rows > 0:
+            return
+
+        comando = f'''
+            INSERT INTO `consultorios`
+                (`id_usuario`, `consultorio`)
+            VALUES
+                ({self['id_usuario']}, "{consultorio}");
+            '''
+        ejecutar_mysql(comando, origen='usuarios.agregar_consultorio')
+
+
+    def obtener_consultorios(self):
+        comando = f'''
+            SELECT *
+            FROM `consultorios`
+            WHERE `id_usuario` = {self.get("id_usuario")}
+            ORDER BY `consultorio`;
+            '''
+
+        rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.obtener_consultorios')
+        if rows is None or rows == 0:
+            return []
+
+        return [x['consultorio'] for x in valores]
 
 
     def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):

@@ -87,78 +87,76 @@ label.required::after {
 
 div.extendido {
   width: 80%;
-  max-width: 650px;
-
-  table:not(.paciente) {
-    th, td {
-      border: 1px solid $prim-color-3;
-      padding: 3px 8px;
-    }
-  }
+  max-width: 750px;
 
   table {
     width: 100%;
     border-collapse: collapse;
+  }
 
-    &.paciente {
+  th, td, .paciente div {
+    border: 1px solid $prim-color-3;
+    padding: 3px 8px;
+  }
+
+  th, .paciente .titulo {
+    font: $title-font-h2;
+
+    &.ordenar {
+      cursor: pointer;
+
+      &.asc::after {
+        @include add-icono-sort('/static/svg/sort_asc.svg');
+      }
+      &.desc::after {
+        @include add-icono-sort('/static/svg/sort_desc.svg');
+      }
+    }
+  }
+
+  td, .paciente div:not(.titulo) {
+    text-align: center;
+    white-space: nowrap;
+
+    &.monto::before {
+        content: 'COP$ ';
+    }
+
+    div.estado {
+      font-weight: bold;
+
+      &.approved {
+        @include color-estado($exito-prim-color, $exito-sec-color);
+      }
+      &.authorized, &.pending, &.in_process, &.in_mediation {
+        @include color-estado($procesando-prim-color, $procesando-sec-color);
+      }
+      &.rejected, &.cancelled, &.refunded, &.charged_back {
+        @include color-estado($rechazado-prim-color, $rechazado-sec-color);
+      }
+    }
+  }
+
+  .paciente {
+    display: block;
+    text-align: center;
+    line-height: 25px;
+
+    &:first-child {
       margin-top: 10px;
-
-      th, td {
-        border-color: none;
-        padding-top: 15px;
-        text-align: left;
-      }
-
-      th {
-        width: 10%;
-
-        + td {
-          width: 35%;
-          padding-left: 15px;
-        }
-
-        &:first-child + td {
-          width: 45%
-        }
-      }
     }
 
-    th {
-      font: $title-font-h2;
-
-      &.ordenar {
-        cursor: pointer;
-
-        &.asc::after {
-          @include add-icono-sort('/static/svg/sort_asc.svg');
-        }
-        &.desc::after {
-          @include add-icono-sort('/static/svg/sort_desc.svg');
-        }
-      }
+    &:last-child {
+      margin-bottom: -10px;
     }
 
-    td {
-      text-align: center;
-      white-space: nowrap;
+    div {
+      display: inline;
+      border: none;
+    }
 
-      &.monto::before {
-          content: 'COP$ ';
-      }
-
-      div.estado {
-        font-weight: bold;
-
-        &.approved {
-          @include color-estado($exito-prim-color, $exito-sec-color);
-        }
-        &.authorized, &.pending, &.in_process, &.in_mediation {
-          @include color-estado($procesando-prim-color, $procesando-sec-color);
-        }
-        &.rejected, &.cancelled, &.refunded, &.charged_back {
-          @include color-estado($rechazado-prim-color, $rechazado-sec-color);
-        }
-      }
+    .titulo:not(:first-child) {
+      margin-left: 25px;
     }
   }
 }

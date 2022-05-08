@@ -80,41 +80,23 @@ label.required::after {
 
 div.extendido {
   width: 80%;
-  max-width: 650px;
-}
-div.extendido table:not(.paciente) th, div.extendido table:not(.paciente) td {
-  border: 1px solid #616161;
-  padding: 3px 8px;
+  max-width: 750px;
 }
 div.extendido table {
   width: 100%;
   border-collapse: collapse;
 }
-div.extendido table.paciente {
-  margin-top: 10px;
+div.extendido th, div.extendido td, div.extendido .paciente div {
+  border: 1px solid #616161;
+  padding: 3px 8px;
 }
-div.extendido table.paciente th, div.extendido table.paciente td {
-  border-color: none;
-  padding-top: 15px;
-  text-align: left;
-}
-div.extendido table.paciente th {
-  width: 10%;
-}
-div.extendido table.paciente th + td {
-  width: 35%;
-  padding-left: 15px;
-}
-div.extendido table.paciente th:first-child + td {
-  width: 45%;
-}
-div.extendido table th {
+div.extendido th, div.extendido .paciente .titulo {
   font: bold small-caps 16px helvetica, serif;
 }
-div.extendido table th.ordenar {
+div.extendido th.ordenar, div.extendido .paciente .titulo.ordenar {
   cursor: pointer;
 }
-div.extendido table th.ordenar.asc::after {
+div.extendido th.ordenar.asc::after, div.extendido .paciente .titulo.ordenar.asc::after {
   background-image: url("/static/svg/sort_asc.svg");
   background-size: 16px;
   background-position: center;
@@ -125,7 +107,7 @@ div.extendido table th.ordenar.asc::after {
   content: "";
   filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
 }
-div.extendido table th.ordenar.desc::after {
+div.extendido th.ordenar.desc::after, div.extendido .paciente .titulo.ordenar.desc::after {
   background-image: url("/static/svg/sort_desc.svg");
   background-size: 16px;
   background-position: center;
@@ -136,17 +118,17 @@ div.extendido table th.ordenar.desc::after {
   content: "";
   filter: invert(40%) sepia(57%) saturate(512%) hue-rotate(154deg) brightness(101%) contrast(89%);
 }
-div.extendido table td {
+div.extendido td, div.extendido .paciente div:not(.titulo) {
   text-align: center;
   white-space: nowrap;
 }
-div.extendido table td.monto::before {
+div.extendido td.monto::before, div.extendido .paciente div:not(.titulo).monto::before {
   content: "COP$ ";
 }
-div.extendido table td div.estado {
+div.extendido td div.estado, div.extendido .paciente div:not(.titulo) div.estado {
   font-weight: bold;
 }
-div.extendido table td div.estado.approved {
+div.extendido td div.estado.approved, div.extendido .paciente div:not(.titulo) div.estado.approved {
   color: #0E4402;
   background: #97D379;
   padding: 5px 10px;
@@ -156,7 +138,7 @@ div.extendido table td div.estado.approved {
   user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.extendido table td div.estado.authorized, div.extendido table td div.estado.pending, div.extendido table td div.estado.in_process, div.extendido table td div.estado.in_mediation {
+div.extendido td div.estado.authorized, div.extendido td div.estado.pending, div.extendido td div.estado.in_process, div.extendido td div.estado.in_mediation, div.extendido .paciente div:not(.titulo) div.estado.authorized, div.extendido .paciente div:not(.titulo) div.estado.pending, div.extendido .paciente div:not(.titulo) div.estado.in_process, div.extendido .paciente div:not(.titulo) div.estado.in_mediation {
   color: #AB4909;
   background: #F5C75D;
   padding: 5px 10px;
@@ -166,7 +148,7 @@ div.extendido table td div.estado.authorized, div.extendido table td div.estado.
   user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
 }
-div.extendido table td div.estado.rejected, div.extendido table td div.estado.cancelled, div.extendido table td div.estado.refunded, div.extendido table td div.estado.charged_back {
+div.extendido td div.estado.rejected, div.extendido td div.estado.cancelled, div.extendido td div.estado.refunded, div.extendido td div.estado.charged_back, div.extendido .paciente div:not(.titulo) div.estado.rejected, div.extendido .paciente div:not(.titulo) div.estado.cancelled, div.extendido .paciente div:not(.titulo) div.estado.refunded, div.extendido .paciente div:not(.titulo) div.estado.charged_back {
   color: #BB0D0D;
   background: #FBA3A3;
   padding: 5px 10px;
@@ -175,6 +157,24 @@ div.extendido table td div.estado.rejected, div.extendido table td div.estado.ca
   cursor: context-menu;
   user-select: none;
   box-shadow: 0px 0px 9px 3px rgba(41, 41, 41, 0.25);
+}
+div.extendido .paciente {
+  display: block;
+  text-align: center;
+  line-height: 25px;
+}
+div.extendido .paciente:first-child {
+  margin-top: 10px;
+}
+div.extendido .paciente:last-child {
+  margin-bottom: -10px;
+}
+div.extendido .paciente div {
+  display: inline;
+  border: none;
+}
+div.extendido .paciente .titulo:not(:first-child) {
+  margin-left: 25px;
 }
 
 .tooltip {

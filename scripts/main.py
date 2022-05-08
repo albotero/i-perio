@@ -33,7 +33,7 @@ def crear_diente(indice, pediatrico):
 
     return Diente(diente = numero_diente)
 
-def nuevo_perio(nombre, id, dob, pediatrico = False):
+def nuevo_perio(nombre, id, dob, consultorio, pediatrico = False):
     '''Inicializa un nuevo periodontograma'''
 
     tz = pytz.timezone('America/Bogota')
@@ -43,6 +43,7 @@ def nuevo_perio(nombre, id, dob, pediatrico = False):
         'pediatrico': pediatrico,
         'creado': hora,
         'modificado': hora,
+        'consultorio': consultorio,
         'paciente': {
             'nombre': nombre,
             'id': id,

@@ -29,3 +29,8 @@ CREATE TABLE IF NOT EXISTS gastos (
   `id_usuario` int primary key,
   `gastado` int
 );
+
+CREATE TABLE IF NOT EXISTS consultorios (
+  `id_usuario` int,
+  `consultorio` text
+);

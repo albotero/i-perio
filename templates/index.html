@@ -40,6 +40,7 @@
             <td>{{ perio.get('paciente_nombre') }}</td>
             <td>{{ perio.get('creacion') | safe }}</td>
             <td>{{ perio.get('modificacion') | safe }}</td>
+            <td>{{ perio.get('consultorio') if perio.get('consultorio') else '-' }}</td>
             <td>
               <div class="centro nobreak">
                 <input type="button" value="Abrir" class="peq"
@@ -91,6 +92,14 @@
     }
 
     function nuevo_perio() {
+      let consultorios = {{ consultorios | safe }};
+
+      var consultorios_html = '';
+      for (c of consultorios) {
+        consultorios_html += `
+                  <option value="${c}" />`;
+      }
+
       $.confirm(
         'Nuevo Periodontograma',
         `<p>Por favor ingrese los datos del paciente para iniciar la Valoraci&oacute;n:</p>
@@ -108,10 +117,22 @@
               <td><label for="pac-dob" class="required">Fecha Nacimiento:</label></td>
               <td><input type="date" name="pac-dob" required /></td>
             </tr>
+            <tr>
+              <td><label for="consultorio">Consultorio:</label></td>
+              <td>
+                <input list="consultorios" class="consultorios" />
+                <datalist id="consultorios">
+                  ${consultorios_html}
+                </datalist>
+              </td>
+            </tr>
           </table>
+          <input name="consultorio" type="hidden" />
         </form>`,
         'Si',
         function() {
+          $('input[name=consultorio]').val($('input.consultorios').val());
+
           var valido = $('#frm-pac')[0].reportValidity();
           if (valido)
             $('#frm-pac').submit();

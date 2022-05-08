@@ -54,7 +54,8 @@ def index():
         'paciente_id': 'Identificaci&oacute;n',
         'paciente_nombre': 'Nombre',
         'creacion': 'Valoraci&oacute;n',
-        'modificacion': 'Modificado'
+        'modificacion': 'Modificado',
+        'consultorio': 'Consultorio'
     }
 
     perios = Guardar.list_perios(session['usuario'], orden, desc)
@@ -69,7 +70,8 @@ def index():
                             perios_guardados = perios,
                             orden = orden,
                             desc = desc,
-                            tipos_orden = tipos_orden)
+                            tipos_orden = tipos_orden,
+                            consultorios = Usuario(id_usuario=session['usuario']).obtener_consultorios())
 
 @app.route('/perio/', methods=['POST'])
 def perio():
@@ -82,13 +84,17 @@ def perio():
     filename = uuid.uuid4().hex
     perio = nuevo_perio(request.values.get('pac-nombre'),
                         request.values.get('pac-id'),
-                        request.values.get('pac-dob'))
+                        request.values.get('pac-dob'),
+                        request.values.get('consultorio'))
 
     Guardar.perio_to_file(
                 perio,
                 archivo = filename,
                 id_usuario = session['usuario'],
                 silent = True)
+
+    # Guarda el consultorio en la BD del usuario
+    Usuario(id_usuario=session['usuario']).agregar_consultorio(perio.get('consultorio'))
 
     return redirect(url_for('.cargar_perio', usuario=session['usuario'], id_perio=filename))
 
@@ -102,7 +108,7 @@ def cargar_perio(usuario, id_perio):
     # Verifica si tiene acceso al archivo
     # Por ahora solo verifica si es el propietario
     if session['usuario'] != usuario:
-        return 'No tiene acceso a este perio'
+        return 'ERROR: No tiene acceso a este perio'
 
     # Carga un perio existente
     try:
@@ -132,6 +138,9 @@ def cargar_perio(usuario, id_perio):
     # Agrega la fecha de valoración
     dict_perio['creado'] = format_datetime(valoracion,
                             "dd MMM YYYY - h:mm:ss a", locale='es_CO')
+
+    # Agrega el consultorio
+    dict_perio['consultorio'] = perio.get('consultorio')
 
     # Obtiene los encabezados de las filas
     for d in primer_diente:

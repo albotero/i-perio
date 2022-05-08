@@ -12,22 +12,27 @@
         <div class="cover">{% include 'perio_blanco.svg' %}</div>
 
         <div class="caja mensaje extendido">
-          <table class="paciente">
-            <tr>
-              <th>Paciente:</th>
-              <td>{{ dict['paciente']['nombre'] }}</td>
-              <th>Identificaci&oacute;n:</th>
-              <td>{{ dict['paciente']['id'] }}</td>
-              <th>Edad:</th>
-              <td>{{ dict['paciente']['edad'] }} a&ntilde;os</td>
-            </tr>
-            <tr>
-              <th>Nacimiento:</th>
-              <td>{{ dict['paciente']['dob'] }}</td>
-              <th>Valoraci&oacute;n:</th>
-              <td colspan="3">{{ dict['creado'] }}</td>
-            </tr>
-          </table>
+          <div class="paciente">
+            <div class="titulo">Paciente:</div>
+            <div>{{ dict.get('paciente',{}).get('nombre') }}</div>
+            <div class="titulo">Identificaci&oacute;n:</div>
+            <div>{{ dict.get('paciente',{}).get('id') }}</div>
+          </div>
+          <div class="paciente">
+            <div class="titulo">F. Nacimiento:</div>
+            <div>{{ dict.get('paciente',{}).get('dob') }}</div>
+            <div class="titulo">Edad:</div>
+            <div>{{ dict.get('paciente',{}).get('edad') }} a&ntilde;os</div>
+          </div>
+          <div class="paciente">
+            <div class="titulo">Valoraci&oacute;n:</div>
+            <div>{{ dict.get('creado') }}</div>
+            {% set consultorio = dict.get('consultorio') %}
+            {% if consultorio %}
+              <div class="titulo">Consultorio:</div>
+              <div>{{ consultorio }}</div>
+            {% endif %}
+          </div>
         </div>
 
         {% for grupo in ['sup', 'inf'] %}
