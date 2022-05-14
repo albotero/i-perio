@@ -50,7 +50,7 @@ def cuenta_confirmada(medio = 'email'):
     # Verifica que esté activado el email
     if not Confirmacion.esta_confirmado(medio, session['usuario']):
         return render_template('activar.html',
-                                mensaje = 'A&uacute;n no ha activado la cuenta.',
+                                mensaje = 'Aún no ha activado la cuenta',
                                 error = True,
                                 conf = Confirmacion(),
                                 medio = medio,
