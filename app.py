@@ -30,7 +30,7 @@ socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, log
 os.chdir(os.path.dirname(__file__))
 
 
-pruebas = True
+pruebas = False
 # Credenciales MercadoPago
 if pruebas:
     # Pruebas
@@ -322,7 +322,7 @@ def activar(medio, id_usuario, codigo_confirmacion):
     if res == 'confirmado':
         return redirect(url_for('.index'))
     if res == 'ok':
-        mensaje = f'Se confirmó el {medio} exitosamente.'
+        mensaje = f'Se confirmó el {medio} exitosamente'
     if res == 'error_codigo':
         mensaje = 'El código ingresado es incorrecto'
     if res == 'error_bd':

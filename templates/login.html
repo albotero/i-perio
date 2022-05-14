@@ -16,7 +16,7 @@
     <div class="caja mensaje">
       <p class="titulo exito">Se Cerr&oacute; La Sesi&oacute;n</p>
       <p>
-        Ser&aacute; redirigido a la p&aacute;gina de inicio en 3 segundos.
+        Ser&aacute;s redirigid@ a la p&aacute;gina de inicio en 3 segundos.
       </p>
     </div>
     <script>
@@ -30,7 +30,7 @@
     <div class="caja mensaje">
       <p class="titulo exito">&Eacute;xito</p>
       <p>
-        Inicio de sesi&oacute;n exitoso, ser&aacute; redirigido al
+        Inicio de sesi&oacute;n exitoso, ser&aacute;s redirigid@ al
         periodontograma en 3 segundos.
       </p>
     </div>
@@ -47,7 +47,7 @@
         <p class="titulo error">Error</p>
         <p>
           Contrase&ntilde;a inv&aacute;lida.
-          Por favor int&eacute;ntelo nuevamente.
+          Por favor int&eacute;ntalo nuevamente.
         </p>
       </div>
     {% elif result is not none %}
@@ -55,7 +55,7 @@
         <p class="titulo error">Error</p>
         <p>
           {{ result | safe }}<br />
-          Por favor int&eacute;ntelo nuevamente.
+          Por favor int&eacute;ntalo nuevamente.
         </p>
       </div>
     {% endif %}
@@ -68,7 +68,8 @@
         <table>
           <tr>
             <td><label for="email">Correo electr&oacute;nico:</label></td>
-            <td><input type="text" name="email" /></td>
+            <td><input type="email" name="email"
+                       pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" /></td>
           </tr>
           <tr>
             <td><label for="key">Contrase&ntilde;a:</label></td>

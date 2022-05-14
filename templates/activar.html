@@ -5,28 +5,26 @@
 {% block content %}
   <div class="caja mensaje">
     {% if error %}
-      <p class="titulo error">No ha confirmado el correo electr&oacute;nico</p>
-      <p>{{ mensaje | safe }}</p>
+      <p class="titulo error">No has confirmado el correo electr&oacute;nico</p>
+      <p>{{ mensaje }}.</p>
       <p>
-        Se enviar&aacute; un nuevo enlace de activaci&oacute;n al correo
-        electr&oacute;nico registrado.
+        Enviaremos un nuevo enlace de activaci&oacute;n a tu correo
+        electr&oacute;nico para que puedas iniciar a utilizar iPerio.
       </p>
       <p>
-        Si tiene alguna inquietud,
-        <a href="mailto:contacto@i-perio.com">contacte al administrador</a>
+        Si tienes alguna inquietud,
+        <a href="mailto:contacto@i-perio.com">contacta al administrador</a>
         para recibir soporte.
       </p>
       {% set r = conf.crear_codigo_confirmacion(medio, id_usuario, pruebas) %}
     {% else %}
       <p class="titulo exito">Se activ&oacute; la cuenta</p>
-      <p>{{ mensaje | safe }}</p>
-      <p>
-        Ser&aacute; redirigido a la p&aacute;gina de inicio en 3 segundos.
-      </p>
+      <p>{{ mensaje }}. Ya puedes empezar a usar iPerio.</p>
+      <p>Ser&aacute;s redirigid@ a la p&aacute;gina de inicio en 5 segundos.</p>
       <script>
           var timer = setTimeout(function() {
               window.location=`{{ url_for('login') }}`
-          }, 3000);
+          }, 5000);
       </script>
     {% endif %}
   </div>

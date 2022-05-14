@@ -442,7 +442,7 @@ class Confirmacion:
         columna_codigo = f'codigo_confirmacion_{medio}'
 
         comando = f'''
-            SELECT `{columna_confirmado}`, `{columna_codigo}`
+            SELECT *
             FROM `usuarios`
             WHERE `id_usuario` = {id_usuario}
             '''
@@ -470,19 +470,11 @@ class Confirmacion:
         rows, _, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.2')
 
         if rows > 0:
-            comando = f'''
-                SELECT `nombres`, `email`
-                FROM `usuarios`
-                WHERE `id_usuario` = {id_usuario}
-                '''
-            _, valores, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.3')
-            email = valores[0].get('email')
-            name = valores[0].get('nombres')
-
             send_mail('Se confirmó el correo electrónico',
-                      email,
-                      '''
-                      <p>Ya puede acceder al periodontograma.</p>
+                      valores[0].get('email'),
+                      f'''
+                      <p>¡Hola de nuevo, {valores[0].get('nombres')}!</p>
+                      <p>Ya puedes acceder al periodontograma.</p>
                       <a href="https://i-perio.com" style="text-decoration: none;">
                         <div style="padding: 10px 20px; width: 150px; height: min-content; text-align: center;
                                     background: #463F3F; color: white; font-weight: bold; margin: auto;
@@ -492,12 +484,12 @@ class Confirmacion:
                           </div>
                       </a>
                       <p>
-                          Si tiene alguna inquietud,
-                          <a href="mailto:contacto@i-perio.com">contacte al administrador</a>
+                          Si tienes alguna inquietud,
+                          <a href="mailto:contacto@i-perio.com">contacta al administrador</a>
                           para recibir soporte.
                       </p>
                       ''',
-                      title = 'El correo electr&oacute;nico fue confirmado con &eacute;xito'
+                      title = 'Email confirmado con &eacute;xito'
                       )
             return 'ok'
 

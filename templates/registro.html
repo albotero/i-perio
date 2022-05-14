@@ -10,16 +10,12 @@
   {% if result is true %}
     <div class="caja mensaje">
       <p class="titulo exito">Usuario Registrado</p>
+      <p>Se registr&oacute; el usuario exitosamente.</p>
       <p>
-        Se registr&oacute; el usuario exitosamente.<br />
-        En 3 segundos ser&aacute; redirigido al periodontograma.
+        Para poder iniciar a utilizar iPerio debes confirmar tu direcci&oacute;n
+        de correo electr&oacute;nico con el enlace que te acabamos de enviar.
       </p>
     </div>
-    <script>
-        var timer = setTimeout(function() {
-            window.location='/'
-        }, 3000);
-    </script>
   {% else %}
     {% if result is not none %}
       <div class="caja mensaje">
@@ -46,7 +42,8 @@
           </tr>
           <tr>
             <td><label for="email" class="required">Correo electr&oacute;nico:</label></td>
-            <td><input type="text" name="email" id="email"
+            <td><input type="email" name="email" id="email"
+                       pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
                        value="{{ datos.get('email', '') }}" required /></td>
           </tr>
           <tr>
