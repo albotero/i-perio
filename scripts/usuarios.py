@@ -3,9 +3,14 @@
 from .log import Log
 from .guardar_perio import file_path
 from datetime import datetime
+from flask import url_for
+
+from scripts.email import send_mail
+
 import hashlib
 import os
 import MySQLdb
+import uuid
 
 
 base_datos = 'iperio'
@@ -31,6 +36,7 @@ def ejecutar_mysql(comando, origen='usuarios.ejecutar_mysql'):
     finally:
         dbconnect.close()
         return rows, data, id_usuario
+
 
 class Usuario (dict):
 
@@ -148,6 +154,11 @@ class Usuario (dict):
         if res is None or res == 0:
             self['error'] = (f'Error al crear la el registro de gastos en la tabla `cr&eacute;ditos`.')
             return
+
+        # Envía código de confirmación
+        Confirmacion().crear_codigo_confirmacion(
+                                medio = 'email',
+                                id_usuario = self['id_usuario'])
 
         return nuevousuario.get("email")
 
@@ -365,3 +376,142 @@ class Usuario (dict):
 
         if self.get('id_usuario'):
             self.cargar_datos('usuarios')
+
+
+class Confirmacion:
+
+    def crear_codigo_confirmacion(self, medio, id_usuario, pruebas = False):
+        '''Crea un código de confirmación para enviar al email u otro medio'''
+
+        columna_confirmado = f'{medio}_confirmado'
+        columna_codigo = f'codigo_confirmacion_{medio}'
+
+        codigo_confirmacion = uuid.uuid4().hex
+        dominio = url_for('.index',
+                        _external=True,
+                        _scheme='http' if pruebas else 'https')
+        link = f'{dominio[:-1]}/activar/{medio}/{id_usuario}/{codigo_confirmacion}'
+
+        # Actualiza la BD
+        comando = f'''
+            UPDATE `usuarios`
+            SET `{columna_confirmado}` = {int(False)},
+                `{columna_codigo}` = "{codigo_confirmacion}"
+            WHERE `id_usuario` = {id_usuario}
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.crear_codigo_confirmacion.1')
+
+        if rows is None or rows == 0:
+            return 'ERROR'
+
+        if medio == 'email':
+            #Enviar email
+            comando = f'''
+                SELECT `nombres`, `email`
+                FROM `usuarios`
+                WHERE `id_usuario` = {id_usuario}
+                '''
+            _, valores, _ = ejecutar_mysql(comando, origen='usuarios.crear_codigo_confirmacion.2')
+            email = valores[0].get('email')
+            name = valores[0].get('nombres')
+
+            send_mail('Confirmar correo electrónico',
+                      email,
+                      f'''
+                      <p>Nos encanta que est&eacute;s aqu&iacute;.</p>
+                      <p>
+                        Para poder utilizar el periodontograma, debes confirmar tu correo
+                        electr&oacute;nico en el siguiente enlace:
+                      </p>
+                      <a href="{link}" style="text-decoration: none;">
+                        <div style="padding: 10px 20px; width: 150px; height: min-content; text-align: center;
+                                    background: #463F3F; color: white; font-weight: bold; margin: auto;
+                                    border-radius: 20px; border: 2px solid grey;
+                                    border-right-color: #D5D5D5; border-bottom-color: #D5D5D5;">
+                            Confirmar cuenta
+                          </div>
+                      </a>
+                      ''',
+                      title = f'¡Bienvenido, {name}!'
+                      )
+
+    def confirmar_usuario(medio, id_usuario, codigo):
+        '''Si el código administrado coincide con el de la BD, activa el medio especificado en el usuario'''
+
+        columna_confirmado = f'{medio}_confirmado'
+        columna_codigo = f'codigo_confirmacion_{medio}'
+
+        comando = f'''
+            SELECT `{columna_confirmado}`, `{columna_codigo}`
+            FROM `usuarios`
+            WHERE `id_usuario` = {id_usuario}
+            '''
+        _, valores, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.1')
+
+        if not valores:
+            # No encontró el usuario/columnas
+            return 'error_bd'
+
+        if valores[0].get(columna_confirmado):
+            # Ya está confirmado
+            return 'confirmado'
+
+        if valores[0].get(columna_codigo) != codigo:
+            # Código incorrecto
+            return 'error_codigo'
+
+        # Actualiza la BD
+        comando = f'''
+            UPDATE `usuarios`
+            SET `{columna_confirmado}` = {int(True)},
+                `{columna_codigo}` = Null
+            WHERE `id_usuario` = {id_usuario}
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.2')
+
+        if rows > 0:
+            comando = f'''
+                SELECT `nombres`, `email`
+                FROM `usuarios`
+                WHERE `id_usuario` = {id_usuario}
+                '''
+            _, valores, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.3')
+            email = valores[0].get('email')
+            name = valores[0].get('nombres')
+
+            send_mail('Se confirmó el correo electrónico',
+                      email,
+                      '''
+                      <p>Ya puede acceder al periodontograma.</p>
+                      <a href="https://i-perio.com" style="text-decoration: none;">
+                        <div style="padding: 10px 20px; width: 150px; height: min-content; text-align: center;
+                                    background: #463F3F; color: white; font-weight: bold; margin: auto;
+                                    border-radius: 20px; border: 2px solid grey;
+                                    border-right-color: #D5D5D5; border-bottom-color: #D5D5D5;">
+                            Entrar al perio
+                          </div>
+                      </a>
+                      <p>
+                          Si tiene alguna inquietud,
+                          <a href="mailto:contacto@i-perio.com">contacte al administrador</a>
+                          para recibir soporte.
+                      </p>
+                      ''',
+                      title = 'El correo electr&oacute;nico fue confirmado con &eacute;xito'
+                      )
+            return 'ok'
+
+        return 'error_upd_bd'
+
+    def esta_confirmado(medio, id_usuario):
+        '''Evalúa si el usuario ya está activado en el medio'''
+
+        columna_confirmado = f'{medio}_confirmado'
+        columna_codigo = f'codigo_confirmacion_{medio}'
+        comando = f'''
+            SELECT `{columna_confirmado}`, `{columna_codigo}`
+            FROM `usuarios`
+            WHERE `id_usuario` = {id_usuario}
+            '''
+        _, valores, _ = ejecutar_mysql(comando, origen='usuarios.confirmar_usuario.1')
+        return valores[0].get(columna_confirmado)

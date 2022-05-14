@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %} Activar cuenta {% endblock %}
+
+{% block content %}
+  <div class="caja mensaje">
+    {% if error %}
+      <p class="titulo error">No ha confirmado el correo electr&oacute;nico</p>
+      <p>{{ mensaje | safe }}</p>
+      <p>
+        Se enviar&aacute; un nuevo enlace de activaci&oacute;n al correo
+        electr&oacute;nico registrado.
+      </p>
+      <p>
+        Si tiene alguna inquietud,
+        <a href="mailto:contacto@i-perio.com">contacte al administrador</a>
+        para recibir soporte.
+      </p>
+      {% set r = conf.crear_codigo_confirmacion(medio, id_usuario, pruebas) %}
+    {% else %}
+      <p class="titulo exito">Se activ&oacute; la cuenta</p>
+      <p>{{ mensaje | safe }}</p>
+      <p>
+        Ser&aacute; redirigido a la p&aacute;gina de inicio en 3 segundos.
+      </p>
+      <script>
+          var timer = setTimeout(function() {
+              window.location=`{{ url_for('login') }}`
+          }, 3000);
+      </script>
+    {% endif %}
+  </div>
+
+{% endblock %}

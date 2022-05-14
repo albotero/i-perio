@@ -4,12 +4,13 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import SocketIO, emit
 
 from scripts.diente import Diente, get_titulos
+from scripts.email import send_mail
 from scripts.grafico import nuevo_canvas
 from scripts.guardar_perio import Guardar
 from scripts.log import Log
 from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
-from scripts.usuarios import valor_credito, Usuario
+from scripts.usuarios import valor_credito, Confirmacion, Usuario
 
 from datetime import datetime, date, timedelta
 from babel.dates import format_datetime
@@ -29,8 +30,8 @@ socketio = SocketIO(app, cors_allowed_origins = '*', async_mode='gevent') #, log
 os.chdir(os.path.dirname(__file__))
 
 
+pruebas = True
 # Credenciales MercadoPago
-pruebas = False
 if pruebas:
     # Pruebas
     mp_access_token = 'TEST-5314041922096496-083002-55909990b064c9ba4c1bfad56a2b6a51-61341214'
@@ -41,14 +42,32 @@ else:
     mp_public_key = 'APP_USR-892809af-d19e-4f7b-bc7e-a101e7566d33'
 mp_sdk = mp.SDK(mp_access_token)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+
+def cuenta_confirmada(medio = 'email'):
     # Verifica que esté loggeado
     if 'usuario' not in session:
         return redirect(url_for('login'))
+    # Verifica que esté activado el email
+    if not Confirmacion.esta_confirmado(medio, session['usuario']):
+        return render_template('activar.html',
+                                mensaje = 'A&uacute;n no ha activado la cuenta.',
+                                error = True,
+                                conf = Confirmacion(),
+                                medio = medio,
+                                id_usuario = session['usuario'],
+                                pruebas = pruebas)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
 
     orden = request.values.get('orden', 'creacion')
     desc = request.values.get('desc', 'true').lower() == 'true'
+
+
 
     tipos_orden = {
         'paciente_id': 'Identificaci&oacute;n',
@@ -75,6 +94,10 @@ def index():
 
 @app.route('/perio/', methods=['POST'])
 def perio():
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
     # Verifica que tenga créditos suficientes
     creditos, _ = consultar_creditos()
     if creditos == 0:
@@ -100,6 +123,10 @@ def perio():
 
 @app.route('/perio/<int:usuario>/<id_perio>')
 def cargar_perio(usuario, id_perio):
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
     # Verifica que tenga créditos suficientes
     creditos, _ = consultar_creditos()
     if creditos == 0:
@@ -279,6 +306,38 @@ def registro():
 
     return render_template('registro.html', result=result, datos=datos)
 
+@app.route('/crearusuario')
+def crearusuario():
+    # Esto es temporal, porque no se llama desde la página sino desde nuevo_usuario
+    res = Confirmacion().crear_codigo_confirmacion(
+                            medio = 'email',
+                            id_usuario = 1,
+                            pruebas = pruebas)
+    return res if res else ''
+
+@app.route('/activar/<medio>/<int:id_usuario>/<codigo_confirmacion>')
+def activar(medio, id_usuario, codigo_confirmacion):
+    res = Confirmacion.confirmar_usuario(medio, id_usuario, codigo_confirmacion)
+
+    if res == 'confirmado':
+        return redirect(url_for('.index'))
+    if res == 'ok':
+        mensaje = f'Se confirmó el {medio} exitosamente.'
+    if res == 'error_codigo':
+        mensaje = 'El código ingresado es incorrecto'
+    if res == 'error_bd':
+        mensaje = ''
+    if res == 'error_upd_bd':
+        mensaje = 'Ocurrió un error al registrar el código administrado'
+
+    return render_template('activar.html',
+                            mensaje = mensaje,
+                            error = 'error' in res,
+                            conf = Confirmacion(),
+                            medio = medio,
+                            id_usuario = id_usuario,
+                            pruebas = pruebas)
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
@@ -330,9 +389,10 @@ def update_time(readonly):
 
 def consultar_creditos():
     '''Consulta los créditos en la BD'''
-    # Verifica que esté loggeado
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
 
     usuario = Usuario(id_usuario=session['usuario'])
     # Obtiene la cantidad actualizada de créditos
