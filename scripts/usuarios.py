@@ -116,6 +116,62 @@ class Usuario (dict):
         return self['usuarios']['key'] == new
 
 
+    def restaurar_contrasena(email, pruebas = False):
+        '''Crea un link para enviar al correo, devuelve el msg al usuario'''
+        comando = f'SELECT * FROM `usuarios` WHERE `email` = "{email}";'
+        rows, valores, _ = ejecutar_mysql(comando, origen='usuarios.Usuario.restaurar_contrasena')
+
+        # Evalúa si el correo existe
+        if rows == 0:
+            return '''
+                <p style="color: red;"><b>Error:</b> No se encontr&oacute; el correo</p>
+                <p>El correo electr&oacute;nico que escribiste no est&aacute; registrado.</p>
+                '''
+
+        # Evalúa si el correo ya está confirmado
+        if not valores[0]['email_confirmado']:
+            Confirmacion().crear_codigo_confirmacion('email', valores[0]['id_usuario'])
+            return '''
+                <p style="color: red;"><b>Error:</b> Correo no confirmado</p>
+                <p>A&uacute;n no has confirmado el correo electr&oacute;nico con
+                el link que enviamos tu buz&oacute;n cuando te registraste.</p>
+                <p>Enviaremos un nuevo enlace de activaci&oacute;n a tu correo
+                electr&oacute;nico para que puedas empezar a utilizar iPerio.</p>
+                '''
+
+        # Envía un correo con el link y el hash
+        dominio = url_for('.index',
+                        _external=True,
+                        _scheme='http' if pruebas else 'https')
+        link = f'{dominio[:-1]}/contrasena?code={valores[0]["key"]}'
+
+        send_mail('Restaurar contraseña',
+                  email,
+                  f'''
+                  <p>
+                    Para recuperar el acceso a tu cuenta, puedes restaurar tu
+                    contrase&ntilde;a desde el siguiente enlace:
+                  </p>
+                  <a href="{link}" style="text-decoration: none;">
+                    <div style="padding: 10px 20px; width: 150px; height: min-content; text-align: center;
+                                background: #463F3F; color: white; font-weight: bold; margin: auto;
+                                border-radius: 20px; border: 2px solid grey;
+                                border-right-color: #D5D5D5; border-bottom-color: #D5D5D5;">
+                        Restaurar contrase&ntilde;a
+                      </div>
+                  </a>
+                  <p>
+                    Si no solicitaste cambiar la contrase&ntilde;a, haz caso
+                    omiso a este mensaje, y te recomendamos que cambies la
+                    contrase&ntilde;a de tu cuenta directamente en
+                    <a href="https://i-perio.com">la p&aacute;gina de iPerio</a>.
+                  </p>
+                  '''
+                  )
+
+        return 'ok'
+
+
     def crear_usuario(self, nuevousuario):
         '''Crea un nuevo usuario con los datos del diccionario'''
         self['usuarios'] = nuevousuario

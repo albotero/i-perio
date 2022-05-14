@@ -306,14 +306,16 @@ def registro():
 
     return render_template('registro.html', result=result, datos=datos)
 
-@app.route('/crearusuario')
-def crearusuario():
-    # Esto es temporal, porque no se llama desde la página sino desde nuevo_usuario
-    res = Confirmacion().crear_codigo_confirmacion(
-                            medio = 'email',
-                            id_usuario = 1,
-                            pruebas = pruebas)
-    return res if res else ''
+@app.route('/resetpass', methods=['POST'])
+def resetpass():
+    '''Recibe el correo electrónico para el cual se va a resetear la contraseña'''
+    return Usuario.restaurar_contrasena(request.values.get('email'), pruebas)
+
+@app.route('/contrasena', methods=['GET', 'POST'])
+def contrasena():
+    # Si es get y tiene hash, viene de resetpass
+    # Si es post y tiene hash y nueva contraseña, actualiza la contraseña
+    return ''
 
 @app.route('/activar/<medio>/<int:id_usuario>/<codigo_confirmacion>')
 def activar(medio, id_usuario, codigo_confirmacion):

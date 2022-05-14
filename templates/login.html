@@ -79,7 +79,7 @@
 
         <div class="centro">
           <input type="button" value="Olvid&eacute; mi contrase&ntilde;a"
-                 onclick="" />
+                 onclick="reset_pass()" />
           <input type="button" value="No me he registrado"
                 onclick="window.location.href='{{ url_for('registro') }}'" />
           <input type="submit" value="Ingresar" />
@@ -89,4 +89,56 @@
 
   {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script type="text/javascript">
+    function reset_pass() {
+      $.confirm(
+        'Restaurar Contraseña',
+        `<p>Por seguridad, no guardamos copia de las contrase&ntilde;as en nuestros registros</p>
+        <p>
+          Introduce el correo electr&oacute;nico que registraste para que te enviemos un
+          enlace para restaurar la contrase&ntilde;a:
+        </p>
+        <form id="frm-reset-pass" method="post" action="{{ url_for('resetpass') }}"
+              style="width: min-content; margin: 0 auto 5px auto;">
+          <input type="email" name="email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
+        </form>`,
+        'Restaurar',
+        async function() {
+          var form = $('#frm-reset-pass')[0];
+          if (form.reportValidity()) {
+            result = submit_form(`{{ url_for('resetpass') }}`, form);
+            confirmacion(await result);
+          }
+        },
+        'Cancelar',
+        cerrar=false
+      );
+    }
+
+    function confirmacion(result) {
+      if (result == 'ok') {
+        $('.ui-dialog').remove();
+        $.alert(
+          'Revisa tu correo',
+          `<p>Ingresa al enlace que te enviamos para que puedas restaurar tu contrase&ntilde;a.</p>`,
+          'Aceptar'
+        );
+      } else {
+        $.alert(
+          'Ocurrió un error',
+          `<p>${result}</p>
+          <p>
+            Por favor int&eacute;ntalo nuevamente, y si tienes alguna inquietud,
+            <a href="mailto:contacto@i-perio.com">contacta al administrador</a>
+            para recibir soporte.
+          </p>`,
+          'Aceptar'
+        );
+      }
+    }
+  </script>
 {% endblock %}
