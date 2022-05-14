@@ -258,7 +258,7 @@ def eliminar_perio():
 
     return redirect(url_for('.index'))
 
-def login_user(user: Usuario, contrasena = None):
+def login_user(user: Usuario, contrasena = None, hashed = False):
     result = None
 
     if user.get('id_usuario'):
@@ -267,7 +267,7 @@ def login_user(user: Usuario, contrasena = None):
             result = True
         else:
             # Viene de la página de Login
-            result = user.comprobar_contrasena(contrasena)
+            result = user.comprobar_contrasena(contrasena, hashed)
 
         if result:
             # Login user
@@ -281,7 +281,7 @@ def login_user(user: Usuario, contrasena = None):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Verifica que esté loggeado
+    # Verifica que no esté loggeado
     if 'usuario' in session:
         return redirect(url_for('.index'))
 
@@ -313,9 +313,32 @@ def resetpass():
 
 @app.route('/contrasena', methods=['GET', 'POST'])
 def contrasena():
-    # Si es get y tiene hash, viene de resetpass
-    # Si es post y tiene hash y nueva contraseña, actualiza la contraseña
-    return ''
+    # Si es get y tiene key, viene del link que envió resetpass
+    if request.method == 'GET' and request.args.get('key'):
+        return render_template('contrasena.html', funcion = 'reset', datos = request.args)
+
+    # Si es post y key coincide con la contraseña anterior, actualiza con la nueva
+    if request.method == 'POST':
+        usuario = Usuario(id_usuario = request.values.get('id'))
+        if request.values.get('key'):
+            key = request.values.get('key')
+            hashed = True
+        else:
+            key = request.values.get('old_password')
+            hashed = False
+
+        error = usuario.cambiar_contrasena(key, hashed, request.values.get('new_password'))
+        if not error:
+            login_user(usuario, contrasena = key, hashed = hashed)
+        return render_template('contrasena.html', funcion = 'post', datos = request.values, error = error)
+
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
+
+    # Muestra la plantilla sin datos precargados
+    return render_template('contrasena.html', id = session['usuario'])
 
 @app.route('/activar/<medio>/<int:id_usuario>/<codigo_confirmacion>')
 def activar(medio, id_usuario, codigo_confirmacion):

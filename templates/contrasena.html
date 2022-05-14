@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %} Cambiar Contraseña {% endblock %}
+
+{% block content %}
+
+  {% set datos = datos if datos else {} %}
+
+  {% if funcion == 'post' %}
+
+    <div class="caja mensaje">
+      {% if error %}
+        <p class="titulo error">Ocurri&oacute; un Error</p>
+        <p>{{ error }}</p>
+      {% else %}
+        <p class="titulo exito">Se Cambi&oacute; La Contrase&ntilde;a</p>
+        <p>
+          Ser&aacute;s redirigid@ a la p&aacute;gina de inicio en 3 segundos.
+        </p>
+        <script>
+            var timer = setTimeout(function() {
+                window.location=`{{ url_for('.index') }}`
+            }, 3000);
+        </script>
+      {% endif %}
+    </div>
+
+  {% endif %}
+
+  {% if funcion != 'post' or (funcion == 'post' and error) %}
+    <div class="caja mensaje">
+      <p class="titulo">Cambiar Contrase&ntilde;a</p>
+
+      <form action="" method="post">
+        <table>
+          {% if funcion == 'reset' %}
+            <input type="hidden" name="id" value="{{ datos.get('id', '') }}" />
+            <input type="hidden" name="key" value="{{ datos.get('key', '') }}" />
+          {% else %}
+            <input type="hidden" name="id" value="{{ datos.get('id', id) }}" />
+            <tr>
+              <td><label for="old_password">Contrase&ntilde;a: actual</label></td>
+              <td><input type="password" name="old_password"
+                         value="{{ datos.get('old_password', '') }}"
+                         required /></td>
+            </tr>
+          {% endif %}
+          <tr>
+            <td><label for="new_password">Nueva contrase&ntilde;a:</label></td>
+            <td><input type="password" name="new_password"
+                       value="{{ datos.get('new_password', '') }}"
+                       pattern=".{8,}" title="Por lo menos 8 caracteres"
+                       required /></td>
+          </tr>
+        </table>
+
+        <div class="centro">
+          <input type="button" value="Cancelar" onclick="window.location = '{{ url_for('.index') }}'" />
+          <input type="submit" value="Cambiar contrase&ntilde;a" />
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
+{% endblock %}

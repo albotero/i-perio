@@ -49,6 +49,7 @@
           <tr>
             <td><label for="key" class="required">Contrase&ntilde;a:</label></td>
             <td><input type="password" name="key" id="key"
+                       pattern=".{8,}" title="Por lo menos 8 caracteres"
                        value="{{ datos.get('key', '') }}" required /></td>
           </tr>
           <tr>

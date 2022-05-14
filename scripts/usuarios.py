@@ -40,6 +40,22 @@ def ejecutar_mysql(comando, origen='usuarios.ejecutar_mysql'):
 
 class Usuario (dict):
 
+    def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):
+        '''Si existe el usuario carga los datos de la BD, si no, crea uno nuevo'''
+
+        if email is None and id_usuario is None: # Debe crear un nuevo usuario
+            email = self.crear_usuario(nuevousuario)
+            if email is None: # No pudo crear el nuevo usuario
+                return
+
+        if id_usuario is not None:
+            self['id_usuario'] = id_usuario
+        else:
+            self['id_usuario'] = self.obtener_id_usuario(email)
+
+        if self.get('id_usuario'):
+            self.cargar_datos('usuarios')
+
     def obtener_id_usuario(self, email):
         '''Obtiene el ID del usuario según el email'''
         comando = f'SELECT `id_usuario` FROM `usuarios` WHERE `email` = "{email}";'
@@ -104,7 +120,40 @@ class Usuario (dict):
                     'error', silent=False, origen='usuarios.hash_contrasena')
 
 
-    def comprobar_contrasena(self, contrasena):
+    def cambiar_contrasena(self, key, hashed, nueva_contrasena):
+        '''Si key coincide con la contraseña guardada, actualiza a la nueva'''
+
+        if not self.comprobar_contrasena(key, hashed):
+            return 'La contraseña actual no coincide'
+
+        # Actualiza la contraseña
+        nueva_contrasena = self.hash_contrasena(nueva_contrasena)
+        comando = f'''
+            UPDATE `usuarios`
+            SET `key` = "{nueva_contrasena}"
+            WHERE `id_usuario` = {self["id_usuario"]}
+            '''
+        rows, _, _ = ejecutar_mysql(comando, origen='usuarios.crear_codigo_confirmacion.1')
+
+        if rows is None or rows == 0:
+            return 'ERROR'
+
+        # Envía email de confirmación
+        send_mail('Contraseña modificada',
+                  self['usuarios']['email'],
+                  f'''
+                  <p>
+                    Se cambi&oacute; correctamente la contrase&ntilde;a.
+                  </p>
+                  <p>
+                    Si no solicitaste este cambio,
+                    <a href="mailto:contacto@i-perio.com">cont&aacute;ctanos inmediatamente</a>.
+                  </p>
+                  '''
+                  )
+
+
+    def comprobar_contrasena(self, contrasena, hashed):
         '''Evalúa si la contraseña administrada coincide con la guardada en la BD'''
         if self['usuarios']['key'] is None:
             # No tiene una contraseña
@@ -112,7 +161,7 @@ class Usuario (dict):
 
         # Valida la contraseña
         salt = bytes.fromhex(self['usuarios']['key'][:64])
-        new = self.hash_contrasena(contrasena, salt)
+        new = contrasena if hashed else self.hash_contrasena(contrasena, salt)
         return self['usuarios']['key'] == new
 
 
@@ -143,7 +192,7 @@ class Usuario (dict):
         dominio = url_for('.index',
                         _external=True,
                         _scheme='http' if pruebas else 'https')
-        link = f'{dominio[:-1]}/contrasena?code={valores[0]["key"]}'
+        link = f'{dominio[:-1]}/contrasena?id={valores[0]["id_usuario"]}&key={valores[0]["key"]}'
 
         send_mail('Restaurar contraseña',
                   email,
@@ -415,23 +464,6 @@ class Usuario (dict):
             return []
 
         return [x['consultorio'] for x in valores]
-
-
-    def __init__ (self, email = None, id_usuario = None, nuevousuario = {}):
-        '''Si existe el usuario carga los datos de la BD, si no, crea uno nuevo'''
-
-        if email is None and id_usuario is None: # Debe crear un nuevo usuario
-            email = self.crear_usuario(nuevousuario)
-            if email is None: # No pudo crear el nuevo usuario
-                return
-
-        if id_usuario is not None:
-            self['id_usuario'] = id_usuario
-        else:
-            self['id_usuario'] = self.obtener_id_usuario(email)
-
-        if self.get('id_usuario'):
-            self.cargar_datos('usuarios')
 
 
 class Confirmacion:
