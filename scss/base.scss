@@ -111,3 +111,15 @@ html {
     }
   }
 }
+
+.ui-dialog{
+  top: 25% !important;
+  border-radius: 7px !important;
+}
+.ui-widget-overlay
+{
+  opacity: .60 !important; /* Make sure to change both of these, as IE only sees the second one */
+  filter: Alpha(Opacity=60) !important;
+
+  background: rgb(50, 50, 50) !important; /* This will make it darker */
+}

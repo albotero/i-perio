@@ -123,4 +123,17 @@ html body .caja input[type=submit].cancelar:active, html body .caja input[type=b
   background: #BB0D0D;
 }
 
+.ui-dialog {
+  top: 25% !important;
+  border-radius: 7px !important;
+}
+
+.ui-widget-overlay {
+  opacity: 0.6 !important;
+  /* Make sure to change both of these, as IE only sees the second one */
+  filter: Alpha(Opacity=60) !important;
+  background: #323232 !important;
+  /* This will make it darker */
+}
+
 /*# sourceMappingURL=base.css.map */

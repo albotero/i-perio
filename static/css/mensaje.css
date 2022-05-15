@@ -41,6 +41,7 @@ div.mensaje div, div.mensaje p, div.mensaje td {
 div.mensaje .titulo {
   font: bold small-caps 16px helvetica, serif;
   color: black;
+  text-transform: capitalize;
 }
 div.mensaje .titulo.error {
   color: red;
