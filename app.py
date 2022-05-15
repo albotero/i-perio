@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, abort
 from flask_socketio import SocketIO, emit
 
 from scripts.diente import Diente, get_titulos
@@ -315,7 +315,10 @@ def resetpass():
 def contrasena():
     # Si es get y tiene key, viene del link que envió resetpass
     if request.method == 'GET' and request.args.get('key'):
-        return render_template('contrasena.html', funcion = 'reset', datos = request.args)
+        return render_template('contrasena.html',
+                                funcion = 'reset',
+                                datos = request.args,
+                                session = session.get('usuario'))
 
     # Si es post y key coincide con la contraseña anterior, actualiza con la nueva
     if request.method == 'POST':
@@ -330,7 +333,11 @@ def contrasena():
         error = usuario.cambiar_contrasena(key, hashed, request.values.get('new_password'))
         if not error:
             login_user(usuario, contrasena = key, hashed = hashed)
-        return render_template('contrasena.html', funcion = 'post', datos = request.values, error = error)
+        return render_template('contrasena.html',
+                                funcion = 'post',
+                                datos = request.values,
+                                error = error,
+                                session = session.get('usuario'))
 
     # Verifica que esté loggeado y confirmado
     cc = cuenta_confirmada()
@@ -338,7 +345,9 @@ def contrasena():
         return cc
 
     # Muestra la plantilla sin datos precargados
-    return render_template('contrasena.html', id = session['usuario'])
+    return render_template('contrasena.html',
+                            id = session['usuario'],
+                            session = session.get('usuario'))
 
 @app.route('/activar/<medio>/<int:id_usuario>/<codigo_confirmacion>')
 def activar(medio, id_usuario, codigo_confirmacion):
@@ -521,3 +530,11 @@ def confirmacion_pago():
                         )
 
     return redirect(url_for('creditos'))
+
+@app.route('/admin')
+def admin():
+    # Solo da acceso al id_usuario 1
+    if session.get('usuario') != 1:
+        abort(403)
+
+    return 'oki'

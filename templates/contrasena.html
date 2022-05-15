@@ -39,7 +39,7 @@
           {% else %}
             <input type="hidden" name="id" value="{{ datos.get('id', id) }}" />
             <tr>
-              <td><label for="old_password">Contrase&ntilde;a: actual</label></td>
+              <td><label for="old_password">Contrase&ntilde;a actual:</label></td>
               <td><input type="password" name="old_password"
                          value="{{ datos.get('old_password', '') }}"
                          required /></td>
@@ -63,3 +63,9 @@
   {% endif %}
 
 {% endblock %}
+
+{% block menu %}
+  {% if session %}
+    {% include 'menu.html' %}
+  {% endif %}
+{% endblock%}
