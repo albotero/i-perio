@@ -189,10 +189,11 @@ class Usuario (dict):
                 '''
 
         # Envía un correo con el link y el hash
-        dominio = url_for('.index',
+        '''dominio = url_for('.index',
                         _external=True,
-                        _scheme='http' if pruebas else 'https')
-        link = f'{dominio[:-1]}/contrasena?id={valores[0]["id_usuario"]}&key={valores[0]["key"]}'
+                        _scheme='http' if pruebas else 'https')'''
+        dominio = 'http://127.0.0.1:8888' if pruebas else 'https://i-perio.com'
+        link = f'{dominio}/contrasena?id={valores[0]["id_usuario"]}&key={valores[0]["key"]}'
 
         send_mail('Restaurar contraseña',
                   email,
@@ -475,10 +476,11 @@ class Confirmacion:
         columna_codigo = f'codigo_confirmacion_{medio}'
 
         codigo_confirmacion = uuid.uuid4().hex
-        dominio = url_for('.index',
+        '''dominio = url_for('.index',
                         _external=True,
-                        _scheme='http' if pruebas else 'https')
-        link = f'{dominio[:-1]}/activar/{medio}/{id_usuario}/{codigo_confirmacion}'
+                        _scheme='http' if pruebas else 'https')'''
+        dominio = 'http://127.0.0.1:8888' if pruebas else 'https://i-perio.com'
+        link = f'{dominio}/activar/{medio}/{id_usuario}/{codigo_confirmacion}'
 
         # Actualiza la BD
         comando = f'''
