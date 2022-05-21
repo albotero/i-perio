@@ -99,7 +99,7 @@
 
                                           {% elif titulo.replace('_', '') in 'LMG' %}
                                               {% set val = diente['valores'][titulo] if diente['valores'][titulo] else '' %}
-                                              <td>
+                                              <td id="col{{ num }}-{{ titulo }}" {{ class_ausente | safe }}>
                                                   <input id="{{ titulo }}-{{ num }}" type="text" value="{{ val }}"size="4"
                                                       title="Número entero [ p.ej. 6 ]" pattern="\d{1,2}"
                                                       onchange="actualizar_dato(this, 'lmg');">

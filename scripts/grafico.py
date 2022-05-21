@@ -234,7 +234,7 @@ class NuevoDiente(object):
         margen = self.diente['valores'].get(self.formato_dato('margen')[1])
 
         # Si no está definido, pone un valor por defecto
-        if lmg is None or not lmg.isnumeric() or margen is None:
+        if self.diente['atributos'] == 'Ausente' or lmg is None or not lmg.isnumeric() or margen is None:
             lmg = 20
             margen = '0 0 0'
 
@@ -369,6 +369,7 @@ def agregar_lmg(nuevo_diente, canvas_previo):
 def nuevo_canvas(perio, filtro=None):
     '''Crea los 4 canvas con las imágenes de los dientes'''
     canvas = {}
+    dimensiones = {}
     espacio = 7
     zoom_factor = 1.5
 
@@ -406,10 +407,13 @@ def nuevo_canvas(perio, filtro=None):
                     canv_area + s,
                     [None, np.array([[0,0]], np.int32), np.array([[0,0]], np.int32)]
                     )
-            # Agrega las coordenadas para la LMG
-            lmg = agregar_lmg(nuevo_diente, canvas_previo)
             # Agrega la imagen del diente al canvas
-            canvas[canv_area + s] = [stack_diente(canvas_previo[0], nuevo_diente), lmg]
+            canvas[canv_area + s] = [
+                stack_diente(canvas_previo[0], nuevo_diente),
+                agregar_lmg(nuevo_diente, canvas_previo)
+                ]
+            # Agrega las dimensiones del diente
+            dimensiones[canv_area + s] = dimensiones.get(canv_area + s, [0]) + [nuevo_diente.img_procesada.shape[1]]
 
     # Dibuja la LMG
     for key, cvs in canvas.items():
@@ -419,18 +423,19 @@ def nuevo_canvas(perio, filtro=None):
             nuevas_lmg = []
 
             img, lmg = cvs
-            _, width, _ = img.shape
 
             # Evalúa si los puntos contiguos tienen un valor válido
             for i, punto in enumerate(lmg):
                 x, y = punto
-                _, y_prev = lmg[i - 1]
+                _, y_prev = lmg[i-1]
+                x_diente = sum(dimensiones[key][:i])
+                w_diente = dimensiones[key][i]
 
                 # Bordes izquierdos
-                borde_izq = 0 if i == 0 else x - 10
-                nuevo_punto = [[borde_izq, y]]
+                nuevo_punto = [[x - 15, y]]
                 if i == 0 or y_prev <= 0 or y_prev >= 200:
                     # Inicializa una nueva curva
+                    nuevo_punto = [[x_diente, y]]
                     nuevas_lmg.append( nuevo_punto )
                 elif y <= 0 or y >= 200:
                     continue
@@ -438,7 +443,9 @@ def nuevo_canvas(perio, filtro=None):
                 nuevas_lmg[-1] = np.append(nuevas_lmg[-1], nuevo_punto, axis=0)
 
                 # Bordes derechos
-                borde_der = width if i == len(lmg) - 1 else x + 10
+                borde_der = x + 15
+                if i == len(lmg) - 1 or lmg[i+1][1] <= 0 or lmg[i+1][1] >= 200:
+                    borde_der = x_diente + w_diente
                 nuevo_punto = [np.array([borde_der, y], np.int32)]
                 nuevas_lmg[-1] = np.append(nuevas_lmg[-1], nuevo_punto, axis=0)
 
