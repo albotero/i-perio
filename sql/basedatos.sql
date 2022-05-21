@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   `creacion` timestamp,
   `telefono` text(12),
   `suscripcion` text(3),
-  `email_confirmado` boolean not null,
+  `email_confirmado` boolean not null default 0,
   `codigo_confirmacion_email` text
 );
 

@@ -231,12 +231,18 @@ class NuevoDiente(object):
 
         # Obtiene en valor de la LMG de el diente actual
         lmg = self.diente['valores'].get(self.formato_dato('lmg')[1])
+        margen = self.diente['valores'].get(self.formato_dato('margen')[1])
+
         # Si no está definido, pone un valor por defecto
-        if lmg is None or not lmg.isnumeric():
+        if lmg is None or not lmg.isnumeric() or margen is None:
             lmg = 20
+            margen = '0 0 0'
+
+        # LMG con base en el margen
+        lmg = int(lmg) - int(margen.split(' ')[1])
 
         # Obtiene las coordenadas del punto en la imagen actual
-        coord = self.obtener_coordenadas([int(lmg)]*3)[1]
+        coord = self.obtener_coordenadas([lmg]*3)[1]
         # Obtiene la coordenada x en el canvas
         coord[0] += x_diente
 
