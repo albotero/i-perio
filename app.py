@@ -274,7 +274,7 @@ def eliminar_perio():
 @app.route('/sigma', methods=['POST'])
 @cross_origin()
 def sigma():
-    if not request.values.get('pid'):
+    if request.values.get('pid') is None:
         abort(403)
 
     perio_id = request.values['pid']
