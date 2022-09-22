@@ -1,3 +1,5 @@
+let socket = io();
+
 function redirect(url, method, datos) {
   html = `<form action="${url}" method="${method}">`;
   for (var key in datos) {

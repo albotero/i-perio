@@ -46,7 +46,7 @@
                 <input type="button" value="Abrir" class="peq"
                         onclick="window.location = `{{ url_for('.abrir_perio', usuario=usuario, id_perio=perio.get('filename')) }}`;" />
                 <input type="button" value="Eliminar" class="peq cancelar"
-                        onclick="eliminar_perio(`{{ usuario }}`, `{{ perio.get('filename') }}`);" />
+                        onclick="eliminar_perio({{ usuario }}, `{{ perio.get('filename') }}`);" />
               </div>
             </td>
           </tr>

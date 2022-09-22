@@ -1,4 +1,3 @@
-var socket = io();
 upd_opt = false;
 
 /* Muestra animación cargando durante mínimo 2 segundos o hasta que cargue la página */

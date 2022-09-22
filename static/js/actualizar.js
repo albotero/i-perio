@@ -1,5 +1,3 @@
-var socket = io();
-
 socket.on('response_time', function(datos) {
   // Actualiza hora y créditos
   for (var val in datos) {

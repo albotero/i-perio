@@ -19,7 +19,7 @@ host = 'localhost'
 contrasena = 'contrasena'
 
 # 60 minutos valen COP 5000
-valor_credito = 5000 / 60;
+valor_credito = 5000 / 60
 
 def ejecutar_mysql(comando, origen='usuarios.ejecutar_mysql'):
     dbconnect = MySQLdb.connect(host, usuario, contrasena, base_datos)

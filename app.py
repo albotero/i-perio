@@ -202,7 +202,7 @@ def abrir_perio(usuario, id_perio):
     if session['usuario'] != usuario:
         return 'ERROR: No tiene acceso a este perio'
 
-    return abrir_perio(usuario, id_perio)
+    return cargar_perio(usuario, id_perio)
 
 @socketio.on('update_perio')
 def update_perio(data):
