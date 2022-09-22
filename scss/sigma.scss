@@ -1,0 +1,16 @@
+body {
+    background-color: inherit !important;
+
+    .container {
+        width: 100% !important;
+
+        .caja {
+            margin: 0 auto !important;
+            box-shadow: none !important;
+        }
+
+        .caja + .caja {
+            margin: 15px auto 0 auto !important;
+        }
+    }
+}

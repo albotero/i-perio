@@ -1,4 +1,3 @@
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 var socket = io();
 
 socket.on('response_time', function(datos) {

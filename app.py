@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request, session, redirect, url_for, abort
 from flask_socketio import SocketIO, emit
+from flask_cors import cross_origin
 
 from scripts.diente import Diente, get_titulos
 from scripts.email import send_mail
@@ -12,7 +13,7 @@ from scripts.main import nuevo_perio
 from scripts.process_images import actualizar_imagenes
 from scripts.usuarios import valor_credito, Confirmacion, Usuario
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from babel.dates import format_datetime
 import pytz
 
@@ -92,6 +93,19 @@ def index():
                             tipos_orden = tipos_orden,
                             consultorios = Usuario(id_usuario=session['usuario']).obtener_consultorios())
 
+def crear_perio(id_usuario, pac_data):
+    # Genera un archivo temporal para guardar el perio
+    filename = uuid.uuid4().hex
+    perio = nuevo_perio(*pac_data)
+
+    Guardar.perio_to_file(
+                perio,
+                archivo = filename,
+                id_usuario = id_usuario,
+                silent = True)
+    
+    return filename
+
 @app.route('/perio/', methods=['POST'])
 def perio():
     # Verifica que esté loggeado y confirmado
@@ -103,47 +117,29 @@ def perio():
     if creditos == 0:
         return redirect(url_for('creditos'))
 
-    # Genera un archivo temporal para guardar el perio
-    filename = uuid.uuid4().hex
-    perio = nuevo_perio(request.values.get('pac-nombre'),
-                        request.values.get('pac-id'),
-                        request.values.get('pac-dob'),
-                        request.values.get('consultorio'))
-
-    Guardar.perio_to_file(
-                perio,
-                archivo = filename,
-                id_usuario = session['usuario'],
-                silent = True)
+    filename = crear_perio(
+        id_usuario=session['usuario'],
+        pac_data=[
+            request.values.get('pac-nombre'),
+            request.values.get('pac-id'),
+            request.values.get('pac-dob'),
+            request.values.get('consultorio')
+        ]
+    )
 
     # Guarda el consultorio en la BD del usuario
     Usuario(id_usuario=session['usuario']).agregar_consultorio(perio.get('consultorio'))
 
-    return redirect(url_for('.cargar_perio', usuario=session['usuario'], id_perio=filename))
+    return redirect(url_for('.abrir_perio', usuario=session['usuario'], id_perio=filename))
 
-@app.route('/perio/<int:usuario>/<id_perio>')
 def cargar_perio(usuario, id_perio):
-    # Verifica que esté loggeado y confirmado
-    cc = cuenta_confirmada()
-    if cc:
-        return cc
-    # Verifica que tenga créditos suficientes
-    creditos, _ = consultar_creditos()
-    if creditos == 0:
-        return redirect(url_for('creditos'))
-
-    # Verifica si tiene acceso al archivo
-    # Por ahora solo verifica si es el propietario
-    if session['usuario'] != usuario:
-        return 'ERROR: No tiene acceso a este perio'
-
     # Carga un perio existente
     try:
         perio = Guardar.file_to_perio(
-                            archivo=id_perio,
-                            id_usuario=usuario,
-                            silent = True,
-                            throwerror = True)
+            archivo=id_perio,
+            id_usuario=usuario,
+            silent = True,
+            throwerror = True)
     except Exception as ex:
         return f'ID inv&aacute;lido<br/>{ex}'
 
@@ -151,23 +147,22 @@ def cargar_perio(usuario, id_perio):
     dict_perio = { 'sup': {}, 'inf': {} }
     primer_diente = [18, 48]
 
-    # Obtiene las fechas
-    birth_date = datetime.strptime(perio['paciente']['dob'], '%Y-%m-%d').date()
-    valoracion = datetime.strptime(perio['creado'], '%Y-%m-%d, %H:%M:%S')
-    edad = (valoracion.date() - birth_date) // timedelta(days=365.2425)
+    if usuario != 'sigma':
+        # Obtiene las fechas
+        birth_date = datetime.strptime(perio['paciente']['dob'], '%Y-%m-%d').date()
+        valoracion = datetime.strptime(perio['creado'], '%Y-%m-%d, %H:%M:%S')
+        edad = (valoracion.date() - birth_date) // timedelta(days=365.2425)
 
-    # Agrega los datos del paciente
-    dict_perio['paciente'] = perio['paciente']
-    dict_perio['paciente']['edad'] = edad
-    dict_perio['paciente']['dob'] = format_datetime(birth_date,
-                            "dd MMM YYYY", locale='es_CO')
+        # Agrega los datos del paciente
+        dict_perio['paciente'] = perio['paciente']
+        dict_perio['paciente']['edad'] = edad
+        dict_perio['paciente']['dob'] = format_datetime(birth_date, "dd MMM YYYY", locale='es_CO')
 
-    # Agrega la fecha de valoración
-    dict_perio['creado'] = format_datetime(valoracion,
-                            "dd MMM YYYY - h:mm:ss a", locale='es_CO')
+        # Agrega la fecha de valoración
+        dict_perio['creado'] = format_datetime(valoracion, "dd MMM YYYY - h:mm:ss a", locale='es_CO')
 
-    # Agrega el consultorio
-    dict_perio['consultorio'] = perio.get('consultorio')
+        # Agrega el consultorio
+        dict_perio['consultorio'] = perio.get('consultorio')
 
     # Obtiene los encabezados de las filas
     for d in primer_diente:
@@ -189,14 +184,32 @@ def cargar_perio(usuario, id_perio):
 
     return render_template('perio.html', tmp=id_perio,
         dict=dict_perio, primer_diente=primer_diente,
-        imagenes=imagenes)
+        imagenes=imagenes, usuario=usuario)
+
+@app.route('/perio/<int:usuario>/<id_perio>')
+def abrir_perio(usuario, id_perio):
+    # Verifica que esté loggeado y confirmado
+    cc = cuenta_confirmada()
+    if cc:
+        return cc
+    # Verifica que tenga créditos suficientes
+    creditos, _ = consultar_creditos()
+    if creditos == 0:
+        return redirect(url_for('creditos'))
+
+    # Verifica si tiene acceso al archivo
+    # Por ahora solo verifica si es el propietario
+    if session['usuario'] != usuario:
+        return 'ERROR: No tiene acceso a este perio'
+
+    return abrir_perio(usuario, id_perio)
 
 @socketio.on('update_perio')
 def update_perio(data):
     '''Recibe datos, devuelve la nueva imagen procesada en base64'''
     # Lee el tmp
     perio = Guardar.file_to_perio(data['tmp'],
-                id_usuario = session['usuario'],
+                id_usuario = data['usr'],
                 silent = True)
 
     # Actualiza los datos
@@ -235,7 +248,7 @@ def update_perio(data):
     # Guarda el tmp
     Guardar.perio_to_file(perio,
                 archivo = data['tmp'],
-                id_usuario = session['usuario'],
+                id_usuario = data['usr'],
                 silent = True)
 
     # Obtiene los str de las imágenes actualizadas
@@ -257,6 +270,24 @@ def eliminar_perio():
         Guardar.eliminar_perio(usuario, id_perio)
 
     return redirect(url_for('.index'))
+
+@app.route('/sigma', methods=['POST'])
+@cross_origin()
+def sigma():
+    if not request.values.get('pid'):
+        abort(403)
+
+    perio_id = request.values['pid']
+    if not perio_id:
+        perio_id = crear_perio(
+            id_usuario='sigma',
+            pac_data=[None]*4
+        )
+    return perio_id
+
+@app.route('/sigma/<id_perio>')
+def load_sigma(id_perio):
+    return cargar_perio('sigma', id_perio)
 
 def login_user(user: Usuario, contrasena = None, hashed = False):
     result = None

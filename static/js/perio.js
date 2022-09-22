@@ -1,3 +1,4 @@
+var socket = io();
 upd_opt = false;
 
 /* Muestra animación cargando durante mínimo 2 segundos o hasta que cargue la página */
@@ -13,7 +14,8 @@ $(async function() {
 function enviar_update() {
   // Envía los datos al servidor
   dict_actualizar['tmp'] = tmp;
-  console.log('enviando...', dict_actualizar);
+  dict_actualizar['usr'] = usr;
+  // console.log('enviando...', dict_actualizar);
   socket.emit('update_perio', dict_actualizar);
   dict_actualizar = { };
 }
@@ -23,7 +25,7 @@ var dict_actualizar = { };
 
 socket.on('response_perio', function(datos) {
   // Actualiza las imágenes que correspondan
-  console.log('recibido...', Object.keys(datos));
+  // console.log('recibido...', Object.keys(datos));
   for (var key in datos) {
 
     // Imágenes en la respuesta

@@ -19,6 +19,7 @@
     <!-- jQuery first -->
     <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-ui-1.13.1/jquery-ui.min.js') }}"></script>
+    <script type="text/javascript">const sleep = ms => new Promise(r => setTimeout(r, ms));</script>
     <!-- Optional JavaScript -->
     {% block menu %} {% endblock %}
     {% block scripts %} {% endblock %}

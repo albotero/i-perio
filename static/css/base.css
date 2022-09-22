@@ -132,8 +132,6 @@ html body .caja input[type=submit].cancelar:active, html body .caja input[type=b
   opacity: 0.6 !important;
   /* Make sure to change both of these, as IE only sees the second one */
   filter: Alpha(Opacity=60) !important;
-  background: #323232 !important;
+  background: rgb(50, 50, 50) !important;
   /* This will make it darker */
 }
-
-/*# sourceMappingURL=base.css.map */
