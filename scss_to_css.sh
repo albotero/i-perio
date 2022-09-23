@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Processes all scss files to css
-# Arg1 : css dir
 
 base=`pwd`
+css="static/css/"
 scss="../../scss/"
 
 titleformat="\n\033[1m%s\033[0m\n"
@@ -20,7 +20,7 @@ lines() {
   printf "\n"
 }
 
-cd $1
+cd $css
 printf "$titleformat" "Compilando CSS ..."
 lines
 printf "$format" "     ORIGEN" "     DESTINO" "ESTADO"

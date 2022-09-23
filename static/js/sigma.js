@@ -1,3 +1,5 @@
+let socket = io();
+
 /*
 https://stackoverflow.com/a/44547866
  */
