@@ -152,10 +152,10 @@
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/socketio/socket.io.min.js') }}"></script>
     <script type="text/javascript">const usr = '{{ usuario }}'; const tmp = '{{ tmp }}';</script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}"></script>
     {% if usuario == 'sigma' %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/sigma.js') }}"></script>
     {% endif %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/perio.js') }}"></script>
 {% endblock%}
 
 {% block menu %}
