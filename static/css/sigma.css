@@ -2,7 +2,8 @@ body {
   background-color: inherit !important;
 }
 body .container {
-  width: 100% !important;
+  width: max-content !important;
+  max-width: 100%;
 }
 body .container .caja {
   margin: 0 auto !important;
@@ -10,4 +11,20 @@ body .container .caja {
 }
 body .container .caja + .caja {
   margin: 15px auto 0 auto !important;
+}
+
+@media (max-width: 1920px) {
+  .periodontograma table {
+    zoom: 75%;
+  }
+}
+@media (max-width: 1368px) {
+  .periodontograma table {
+    zoom: 60%;
+  }
+}
+@media (max-width: 1024px) {
+  .periodontograma table {
+    zoom: 50%;
+  }
 }
